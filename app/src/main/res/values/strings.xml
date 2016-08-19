@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">TrustKit</string>
+    <string name="action_settings">Settings</string>
+
+
+
+    <!-- TSK CONFIGURATION -->
+    <array name="TSKConfiguration">
+        <!--<item>toto</item>-->
+        <item resource="TSKPinnedDomains">@array/TSKPinnedDomains</item>
+        <!--<item>@string/www.datatheorem.com</item>-->
+    </array>
+
+    <array name="TSKPinnedDomains">
+        <item>@array/yahoo</item>
+    </array>
+
+</resources>
