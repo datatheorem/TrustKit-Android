@@ -7,12 +7,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.config.PinnedDomainConfig;
-
-import java.util.HashMap;
-import java.util.Map;
-
 public class DemoMainActivity extends AppCompatActivity {
 
     @Override
@@ -23,6 +17,7 @@ public class DemoMainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
 
     }
 
@@ -48,3 +43,4 @@ public class DemoMainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
+

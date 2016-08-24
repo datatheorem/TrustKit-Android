@@ -1,11 +1,9 @@
-package com.datatheorem.android.trustkit.report.internals;
+package com.datatheorem.android.trustkit.report;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-
-import com.datatheorem.android.trustkit.report.data.PinFailureReport;
 
 import java.net.URL;
 
@@ -13,7 +11,7 @@ import java.net.URL;
 /**
  * PinFailureReportInternalSender send a local broadcast message with the report
  */
-public class PinFailureReportInternalSender implements PinFailureReportSender {
+class PinFailureReportInternalSender implements PinFailureReportSender {
     private String broadcastIdentifier;
     private Context applicationContext;
 
@@ -29,5 +27,6 @@ public class PinFailureReportInternalSender implements PinFailureReportSender {
         reportBundle.putSerializable("report", pinFailureReport);
         intent.putExtras(reportBundle);
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent);
+
     }
 }

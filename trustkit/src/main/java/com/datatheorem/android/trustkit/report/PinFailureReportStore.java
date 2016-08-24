@@ -1,9 +1,9 @@
-package com.datatheorem.android.trustkit.report.data;
+package com.datatheorem.android.trustkit.report;
 
 /**
  * Interface to create classes to store a {@link PinFailureReport}
  */
-public interface PinFailureReportStore {
+interface PinFailureReportStore {
     boolean save(PinFailureReport report);
 
 }

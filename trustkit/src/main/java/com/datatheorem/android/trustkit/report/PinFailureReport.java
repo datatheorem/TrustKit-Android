@@ -1,11 +1,8 @@
-package com.datatheorem.android.trustkit.report.data;
+package com.datatheorem.android.trustkit.report;
 
-import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
-import android.util.Log;
 
 import com.datatheorem.android.trustkit.PinValidationResult;
-import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.json.JSONArray;
@@ -19,10 +16,7 @@ import java.util.Arrays;
 /**
  * Data representation of a pinning validation failure
  */
-public class PinFailureReport implements Serializable {
-
-
-
+class PinFailureReport implements Serializable {
     private String appBundleId;
     private String appVersion;
     private String appVendorId;

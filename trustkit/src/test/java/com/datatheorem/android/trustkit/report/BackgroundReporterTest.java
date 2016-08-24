@@ -1,11 +1,14 @@
 package com.datatheorem.android.trustkit.report;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
+
 import com.datatheorem.android.trustkit.BuildConfig;
+import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.report.data.PinFailureReport;
-import com.datatheorem.android.trustkit.report.data.PinFailureReportDiskStore;
-import com.datatheorem.android.trustkit.report.internals.PinFailureReportHttpSender;
-import com.datatheorem.android.trustkit.report.internals.PinFailureReportInternalSender;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -13,65 +16,96 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import java.net.URL;
-import java.util.concurrent.CountDownLatch;
+import java.io.File;
 
-import static org.junit.Assert.*;
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
-/**
- * TODO:
- * 1. test if the BackgroundReporter calls a sender
- * 2. test if the BackgrounReporter calls a local saver
- */
 @Config(constants = BuildConfig.class)
 @RunWith(RobolectricGradleTestRunner.class)
 public class BackgroundReporterTest {
+
+
+    private Context context;
+    private MockBroadcastReceiver mockBroadcastReceiver;
+    private MockWebServer server;
     private BackgroundReporter backgroundReporter;
-
-    @Mock
-    private PinFailureReportHttpSender mockPinFailureReportHttpSender;
-
-    @Mock
-    private PinFailureReportInternalSender mockPinFailureReportInternalSender;
-
-    @Mock
-    private PinFailureReportDiskStore mockPinFailureReportDiskStore;
-
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        TrustKit.init(RuntimeEnvironment.application.getApplicationContext(), null);
-        this.backgroundReporter =
-                new BackgroundReporter(false, mockPinFailureReportDiskStore,
-                        mockPinFailureReportHttpSender, mockPinFailureReportInternalSender);
+        context = RuntimeEnvironment.application.getApplicationContext();
+        TrustKit.init(context, null);
+        this.backgroundReporter = new BackgroundReporter(false, "test-id");
+        mockBroadcastReceiver = new MockBroadcastReceiver();
+        LocalBroadcastManager.getInstance(context)
+                .registerReceiver(mockBroadcastReceiver, new IntentFilter("test-id"));
+        server = new MockWebServer();
+        server.start();
     }
 
     @After
-    public void tearDown() throws Exception {}
+    public void tearDown() throws Exception {
+        server.shutdown();
+    }
 
 
+    /*
+     * We test the three results of a pinValidationFailed call
+     */
     @Test
     public void testPinValidationFailed() throws Exception {
-        String reportUri = "http://requestb.in/1gsqdmo1";
+        server.enqueue(new MockResponse().setResponseCode(200));
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                return new MockResponse().setBody(request.getBody());
+            }
+        });
+        Assert.assertEquals(false, mockBroadcastReceiver.received);
 
-        this.backgroundReporter.pinValidationFailed("www.test.com", null, null,  "www.test.com",
-                new String[] {reportUri}, false, true, null, null);
+        HttpUrl baseUrl = server.url("/report");
 
-        Mockito.verify(mockPinFailureReportHttpSender)
-                .send(eq(new URL(reportUri)), any(PinFailureReport.class));
-        Mockito.verify(mockPinFailureReportDiskStore).save(any(PinFailureReport.class));
-        Mockito.verify(mockPinFailureReportInternalSender)
-                .send((URL) eq(null), any(PinFailureReport.class));
+        backgroundReporter.pinValidationFailed("www.test.com", 443, new String[]{""},
+                "www.test.com", new String[] {baseUrl.toString()}, false, true, new String[]{""},
+                new PinValidationResult());
+
+        RecordedRequest request = server.takeRequest();
+        //Check if the request is well formed
+        Assert.assertEquals("/report", request.getPath());
+        Assert.assertEquals("POST", request.getMethod());
+        Assert.assertEquals(true, request.getBody().readUtf8Line().startsWith("{\"trustkit-version"));
+
+        //Check if the report is sent through the system
+        Assert.assertEquals(true, mockBroadcastReceiver.received);
+
+        //Check if the report file is created on the system
+        Assert.assertEquals(true, new File(context.getFilesDir() + File.separator + "tmp"
+                + File.separator + "0.tsk-report").exists());
+    }
+
+
+    public class MockBroadcastReceiver extends BroadcastReceiver {
+        public boolean received = false;
+        public PinFailureReport pinFailureReport = null;
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            received = true;
+            pinFailureReport =
+                    (PinFailureReport) intent.getExtras().getSerializable("report");
+        }
     }
 }
+
+

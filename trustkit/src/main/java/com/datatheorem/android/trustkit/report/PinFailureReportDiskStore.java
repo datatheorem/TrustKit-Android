@@ -1,18 +1,15 @@
-package com.datatheorem.android.trustkit.report.data;
+package com.datatheorem.android.trustkit.report;
 
 import android.content.Context;
 import android.os.Process;
 
-import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class PinFailureReportDiskStore implements PinFailureReportStore {
+class PinFailureReportDiskStore implements PinFailureReportStore {
     Context applicationContext;
 
     public PinFailureReportDiskStore(Context applicationContext) {
@@ -38,6 +35,7 @@ public class PinFailureReportDiskStore implements PinFailureReportStore {
                 fileWriter.close();
 
                 if (tmpFile.exists()) {
+
                     TrustKitLog.i("Report for " + report.getServerHostname() + " created at " + tmpFile.getAbsolutePath());
                     return true;
                 } else {
@@ -47,11 +45,13 @@ public class PinFailureReportDiskStore implements PinFailureReportStore {
             } catch (NullPointerException npe) {
 
                 //todo better handling the jsonobject.tostring problem and/or find a better message
+
                 TrustKitLog.e("A problem happened with the report: \n " + report.toString());
                 return false;
 
             }
         } catch (IOException e) {
+            System.out.print(e.getMessage());
             e.printStackTrace();
         }
 

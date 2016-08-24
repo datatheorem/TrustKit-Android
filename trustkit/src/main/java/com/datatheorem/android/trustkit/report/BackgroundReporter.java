@@ -1,24 +1,18 @@
 package com.datatheorem.android.trustkit.report;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.report.data.PinFailureReport;
-import com.datatheorem.android.trustkit.report.data.PinFailureReportDiskStore;
-import com.datatheorem.android.trustkit.report.data.PinFailureReportStore;
-import com.datatheorem.android.trustkit.report.internals.PinFailureReportHttpSender;
-import com.datatheorem.android.trustkit.report.internals.PinFailureReportInternalSender;
-import com.datatheorem.android.trustkit.report.internals.ReportsRateLimiter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Date;
 import java.util.UUID;
@@ -28,7 +22,8 @@ import java.util.UUID;
  * The BackgroundReporter save a report when a pinning validation fail and send the report
  * to the specific URI.
  */
-public final class BackgroundReporter {
+public final class BackgroundReporter{
+
     private final String APP_VENDOR_ID_LABEL = "APP_VENDOR_ID";
 
     // Main application environment information
@@ -39,21 +34,20 @@ public final class BackgroundReporter {
 
     // Configuration and Objects managing all the operation done by the BackgroundReporter
     private boolean shouldRateLimitsReports;
-    private PinFailureReportStore tskPinFailureReportDiskCache;
-    private PinFailureReportHttpSender pinFailureReportHttpSender;
-    private PinFailureReportInternalSender pinFailureReportInternalSender;
+    private final PinFailureReportDiskStore pinFailureReportDiskStore;
+    private final PinFailureReportHttpSender pinFailureReportHttpSender;
+    private final PinFailureReportInternalSender pinFailureReportInternalSender;
 
 
 
-    public BackgroundReporter(boolean shouldRateLimitsReports,
-                              PinFailureReportStore pinFailureReportStore,
-                              PinFailureReportHttpSender pinFailureReportHttpSender,
-                              PinFailureReportInternalSender pinFailureReportInternalSender) {
-        this.shouldRateLimitsReports = shouldRateLimitsReports;
-        this.tskPinFailureReportDiskCache = pinFailureReportStore;
-        this.pinFailureReportHttpSender = pinFailureReportHttpSender;
-        this.pinFailureReportInternalSender = pinFailureReportInternalSender;
+    public BackgroundReporter(boolean shouldRateLimitsReports, String broadcastIdentifier) {
         Context appContext = TrustKit.getInstance().getAppContext();
+        this.shouldRateLimitsReports = shouldRateLimitsReports;
+        this.pinFailureReportDiskStore = new PinFailureReportDiskStore(appContext);
+        this.pinFailureReportHttpSender = new PinFailureReportHttpSender();
+        this.pinFailureReportInternalSender = new PinFailureReportInternalSender(appContext,
+                broadcastIdentifier);
+
 
         this.appPlatform = "ANDROID";
         this.appPackageName = appContext.getPackageName();
@@ -99,11 +93,12 @@ public final class BackgroundReporter {
      * @throws IOException
      */
     public final void pinValidationFailed(String serverHostname, Integer serverPort,
-                                                String[] certificateChain, String notedHostname,
-                                                String[] reportURIs, boolean includeSubdomains,
-                                                boolean enforcePinning, String[] knownPins,
-                                                PinValidationResult validationResult)
+                                          String[] certificateChain, String notedHostname,
+                                          final String[] reportURIs, boolean includeSubdomains,
+                                          boolean enforcePinning, String[] knownPins,
+                                          PinValidationResult validationResult)
             throws NullPointerException, IOException {
+
 
         //todo try to remove this
         if (serverPort == null) {
@@ -111,7 +106,7 @@ public final class BackgroundReporter {
         }
 
         if (reportURIs == null) {
-            throw new NullPointerException("TSKBackgroudReporter configuration invalid. Reporter" +
+            throw new NullPointerException("BackgroundReporter configuration invalid. Reporter" +
                     " was given an invalid value for reportURIs: null for domain " + notedHostname);
         }
 
@@ -136,16 +131,22 @@ public final class BackgroundReporter {
                     + " was not sent due to rate-limiting");
         }
 
-        tskPinFailureReportDiskCache.save(report);
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+                for (final String reportURI : reportURIs) {
+                    try {
+                        pinFailureReportHttpSender.send(new URL(reportURI), report);
+                    } catch (MalformedURLException e) {
+                        System.out.print(e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+                pinFailureReportDiskStore.save(report);
+                pinFailureReportInternalSender.send(null, report);
+                return null;
+            }
+        }.execute();
 
-//        TSKPinFailureReportCloudStore cloudStore = new TSKPinFailureReportCloudStore();
-        for (String reportURI : reportURIs) {
-            // #1 Using a Sender object two interfaces
-            pinFailureReportHttpSender.send(new URL(reportURI), report);
-
-            // #2 Using a "Cloud" store object and using the same interface as DiskStore
-        }
-
-        pinFailureReportInternalSender.send(null, report);
     }
 }
