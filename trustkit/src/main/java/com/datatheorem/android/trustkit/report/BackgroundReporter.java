@@ -1,8 +1,10 @@
 package com.datatheorem.android.trustkit.report;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.datatheorem.android.trustkit.BuildConfig;
@@ -12,6 +14,7 @@ import com.datatheorem.android.trustkit.report.data.PinFailureReport;
 import com.datatheorem.android.trustkit.report.data.PinFailureReportDiskStore;
 import com.datatheorem.android.trustkit.report.data.PinFailureReportStore;
 import com.datatheorem.android.trustkit.report.internals.PinFailureReportHttpSender;
+import com.datatheorem.android.trustkit.report.internals.PinFailureReportInternalSender;
 import com.datatheorem.android.trustkit.report.internals.ReportsRateLimiter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
@@ -36,15 +39,20 @@ public final class BackgroundReporter {
 
     // Configuration and Objects managing all the operation done by the BackgroundReporter
     private boolean shouldRateLimitsReports;
-    private PinFailureReportHttpSender pinFailureReportHttpSender;
     private PinFailureReportStore tskPinFailureReportDiskCache;
+    private PinFailureReportHttpSender pinFailureReportHttpSender;
+    private PinFailureReportInternalSender pinFailureReportInternalSender;
+
+
 
     public BackgroundReporter(boolean shouldRateLimitsReports,
-                              PinFailureReportHttpSender tskPinFailureReportSender,
-                              PinFailureReportStore pinFailureReportStore) {
+                              PinFailureReportStore pinFailureReportStore,
+                              PinFailureReportHttpSender pinFailureReportHttpSender,
+                              PinFailureReportInternalSender pinFailureReportInternalSender) {
         this.shouldRateLimitsReports = shouldRateLimitsReports;
         this.tskPinFailureReportDiskCache = pinFailureReportStore;
-        this.pinFailureReportHttpSender = tskPinFailureReportSender;
+        this.pinFailureReportHttpSender = pinFailureReportHttpSender;
+        this.pinFailureReportInternalSender = pinFailureReportInternalSender;
         Context appContext = TrustKit.getInstance().getAppContext();
 
         this.appPlatform = "ANDROID";
@@ -70,6 +78,7 @@ public final class BackgroundReporter {
             editor.putString(APP_VENDOR_ID_LABEL, this.appVendorId);
             editor.apply();
         }
+
 
     }
 
@@ -108,7 +117,7 @@ public final class BackgroundReporter {
 
         final PinFailureReport report = new PinFailureReport.Builder()
                 .appBundleId(appPackageName)
-                .appVersion(Integer.parseInt(appVersion))
+                .appVersion(appVersion)
                 .appPlatform(appPlatform)
                 .appVendorId("todo")
                 .trustKitVersion(BuildConfig.VERSION_NAME)
@@ -135,12 +144,8 @@ public final class BackgroundReporter {
             pinFailureReportHttpSender.send(new URL(reportURI), report);
 
             // #2 Using a "Cloud" store object and using the same interface as DiskStore
-
-
         }
 
-
-
-
+        pinFailureReportInternalSender.send(null, report);
     }
 }

@@ -12,15 +12,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-public final class PinFailureReportHttpSender {
+@SuppressWarnings("unchecked")
+public class PinFailureReportHttpSender implements PinFailureReportSender{
 
     //todo this class should not do pinning
+    @Override
     public void send(final URL reportURI, final PinFailureReport pinFailureReport) {
 
         new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
                 try {
+
                     HttpURLConnection connection =
                             (HttpURLConnection) reportURI.openConnection();
                     connection.setRequestMethod("POST");

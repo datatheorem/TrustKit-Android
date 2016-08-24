@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.report.data;
 
+import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
 import android.util.Log;
 
@@ -11,17 +12,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.Arrays;
 
 /**
  * Data representation of a pinning validation failure
  */
-public final class PinFailureReport {
+public class PinFailureReport implements Serializable {
+
 
 
     private String appBundleId;
-    private int appVersion;
+    private String appVersion;
     private String appVendorId;
     private String appPlatform;
     private String trustKitVersion;
@@ -106,7 +109,7 @@ public final class PinFailureReport {
                 "appBundleId='" + appBundleId + '\'' +
                 ", appVersion=" + appVersion +
                 ", appVendorId='" + appVendorId + '\'' +
-                ", a='" + appPlatform+ '\'' +
+                ", appPlatform='" + appPlatform+ '\'' +
                 ", trustKitVersion='" + trustKitVersion + '\'' +
                 ", serverHostname='" + serverHostname + '\'' +
                 ", port=" + port +
@@ -126,7 +129,7 @@ public final class PinFailureReport {
 
     public static final class Builder {
         private String appBundleId;
-        private int appVersion;
+        private String appVersion;
         private String appVendorId;
         private String appPlatform;
         private String trustKitVersion;
@@ -148,7 +151,8 @@ public final class PinFailureReport {
             return this;
         }
 
-        public Builder appVersion(int val) {
+        public Builder appVersion(String val) {
+
             appVersion = val;
             return this;
         }
@@ -218,4 +222,6 @@ public final class PinFailureReport {
         }
 
     }
+
+
 }
