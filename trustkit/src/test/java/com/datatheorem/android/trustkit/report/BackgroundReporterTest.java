@@ -108,6 +108,7 @@ public class BackgroundReporterTest {
     }
 
     private boolean reportRequiredFields(String json) {
+        System.out.print(json);
         return json.contains("app-bundle-id")  && json.contains("app-version")
                 && json.contains("app-vendor-id") && json.contains("app-platform")
                 && json.contains("trustkit-version") && json.contains("hostname")

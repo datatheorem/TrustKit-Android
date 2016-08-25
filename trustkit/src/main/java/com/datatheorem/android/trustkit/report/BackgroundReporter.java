@@ -72,8 +72,6 @@ public final class BackgroundReporter{
             editor.putString(APP_VENDOR_ID_LABEL, this.appVendorId);
             editor.apply();
         }
-
-
     }
 
     /**
@@ -114,7 +112,7 @@ public final class BackgroundReporter{
                 .appBundleId(appPackageName)
                 .appVersion(appVersion)
                 .appPlatform(appPlatform)
-                .appVendorId("todo")
+                .appVendorId(appVendorId)
                 .trustKitVersion(BuildConfig.VERSION_NAME)
                 .hostname(serverHostname)
                 .port(serverPort)
