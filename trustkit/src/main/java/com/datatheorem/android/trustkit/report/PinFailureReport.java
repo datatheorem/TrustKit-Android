@@ -65,7 +65,7 @@ class PinFailureReport implements Serializable {
             jsonObject.put("trustkit-version", trustKitVersion);
             jsonObject.put("serverHostname", serverHostname);
             jsonObject.put("port", port);
-            jsonObject.put("noted-serverHostname", notedHostname);
+            jsonObject.put("noted-hostname", notedHostname);
             jsonObject.put("include-subdomains", includeSubdomains);
             jsonObject.put("enforce-pinning", enforcePinning);
 

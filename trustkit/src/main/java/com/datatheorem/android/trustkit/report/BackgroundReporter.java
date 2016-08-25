@@ -134,17 +134,32 @@ public final class BackgroundReporter{
         new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
+
+                pinFailureReportDiskStore.save(report);
+
                 for (final String reportURI : reportURIs) {
                     try {
                         pinFailureReportHttpSender.send(new URL(reportURI), report);
                     } catch (MalformedURLException e) {
-                        System.out.print(e.getMessage());
                         e.printStackTrace();
                     }
                 }
-                pinFailureReportDiskStore.save(report);
+
                 pinFailureReportInternalSender.send(null, report);
                 return null;
+
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                if (pinFailureReportHttpSender.getResponseCode() >= 200
+                        && pinFailureReportHttpSender.getResponseCode() < 300) {
+                    TrustKitLog.i("Background upload - task completed successfully: pinning " +
+                            "failure report sent");
+                } else {
+                    TrustKitLog.e("Background upload - task completed with error: connection" +
+                            " error");
+                }
             }
         }.execute();
 

@@ -22,7 +22,8 @@ class PinFailureReportDiskStore implements PinFailureReportStore {
         tmpDir.mkdir();
 
         try {
-            final File tmpFile = new File(tmpDir, String.valueOf(Process.getThreadPriority(Process.myUid()))+".tsk-report");
+            final File tmpFile = new File(tmpDir,
+                    String.valueOf(Process.getThreadPriority(Process.myUid()))+".tsk-report");
 
            try{
                 String reportJson = report.toJson().toString();

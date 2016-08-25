@@ -22,6 +22,8 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
@@ -66,7 +68,7 @@ public class BackgroundReporterTest {
      */
     @Test
     public void testPinValidationFailed() throws Exception {
-        server.enqueue(new MockResponse().setResponseCode(200));
+        server.enqueue(new MockResponse().setResponseCode(204));
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -81,22 +83,42 @@ public class BackgroundReporterTest {
                 "www.test.com", new String[] {baseUrl.toString()}, false, true, new String[]{""},
                 new PinValidationResult());
 
+        //Check if the report file is created on the system
+        File jsonFile = new File(context.getFilesDir() + File.separator + "tmp"
+                + File.separator + "0.tsk-report");
+        Assert.assertEquals(true, jsonFile.exists());
+
+        InputStream is = new FileInputStream(jsonFile);
+        int size = is.available();
+        byte[] buffer = new byte[size];
+        is.read(buffer);
+        is.close();
+        String json = new String(buffer, "UTF-8");
+
+        Assert.assertEquals(true, reportRequiredFields(json));
+
         RecordedRequest request = server.takeRequest();
         //Check if the request is well formed
         Assert.assertEquals("/report", request.getPath());
         Assert.assertEquals("POST", request.getMethod());
-        Assert.assertEquals(true, request.getBody().readUtf8Line().startsWith("{\"trustkit-version"));
+        Assert.assertEquals(true, reportRequiredFields(request.getBody().readUtf8Line()));
 
         //Check if the report is sent through the system
         Assert.assertEquals(true, mockBroadcastReceiver.received);
+    }
 
-        //Check if the report file is created on the system
-        Assert.assertEquals(true, new File(context.getFilesDir() + File.separator + "tmp"
-                + File.separator + "0.tsk-report").exists());
+    private boolean reportRequiredFields(String json) {
+        return json.contains("app-bundle-id")  && json.contains("app-version")
+                && json.contains("app-vendor-id") && json.contains("app-platform")
+                && json.contains("trustkit-version") && json.contains("hostname")
+                && json.contains("port") && json.contains("noted-hostname")
+                && json.contains("include-subdomains") && json.contains("enforce-pinning")
+                && json.contains("validated-certificate-chain") && json.contains("date-time")
+                && json.contains("known-pins") && json.contains("validation-result");
     }
 
 
-    public class MockBroadcastReceiver extends BroadcastReceiver {
+    private class MockBroadcastReceiver extends BroadcastReceiver {
         public boolean received = false;
         public PinFailureReport pinFailureReport = null;
         @Override

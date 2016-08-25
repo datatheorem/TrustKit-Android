@@ -44,10 +44,6 @@ class PinFailureReportHttpSender implements PinFailureReportSender{
         } finally {
             if (connection != null) {
                 connection.disconnect();
-                TrustKitLog.i("Background upload - task completed successfully: pinning failure " +
-                        "report sent");
-            } else {
-                TrustKitLog.e("Background upload - task completed with error: connection error");
             }
         }
 
