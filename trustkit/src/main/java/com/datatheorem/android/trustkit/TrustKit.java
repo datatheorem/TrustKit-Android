@@ -11,8 +11,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class TrustKit {
-    private static final String DEFAULT_REPORT_URI
-            = "https://overmind.datatheorem.com/trustkit/report";
+
     private Context appContext;
     private TrustKitConfig trustKitConfig;
     private static TrustKit trustKitInstance;
@@ -32,19 +31,6 @@ public class TrustKit {
             trustKitInstance = new TrustKit(appContext, trustKitConfig);
         }
 
-//        BackgroundReporter backgroundReporter = new BackgroundReporter(false, "test-id");
-//        for (Map.Entry<String, PinnedDomainConfig> pinnedDomainConfig : trustKitConfig.entrySet()) {
-//
-//
-////            reportUris.addAll(Arrays.asList(pinnedDomainConfig.getValue().getReportURIs()));
-//            backgroundReporter.pinValidationFailed(pinnedDomainConfig.getKey(), 0, new String[]{},
-//                    pinnedDomainConfig.getKey(), pinnedDomainConfig.getValue().getReportURIs(),
-//                    pinnedDomainConfig.getValue().isDisableDefaultReportUri(),
-//                    pinnedDomainConfig.getValue().isIncludeSubdomains(),
-//                    pinnedDomainConfig.getValue().isEnforcePinning(),
-//                    pinnedDomainConfig.getValue().getPublicKeyHashes(),
-//                    PinValidationResult.PIN_VALIDATION_RESULT_FAILED);
-//        }
 
 
     }
