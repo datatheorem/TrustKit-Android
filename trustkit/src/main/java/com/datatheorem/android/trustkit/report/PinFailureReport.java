@@ -32,7 +32,7 @@ class PinFailureReport implements Serializable {
     private String[] validatedCertificateChain;
     private Date dateTime;
     private String[] knownPins;
-    private PinValidationResult validationResult;
+    private int validationResult;
 
     private PinFailureReport(Builder builder) {
         appBundleId = builder.appBundleId;
@@ -48,7 +48,7 @@ class PinFailureReport implements Serializable {
         validatedCertificateChain = builder.validatedCertificateChain;
         dateTime = builder.dateTime;
         knownPins = builder.knownPins;
-        validationResult = builder.validationResult;
+        validationResult = builder.validationResult.ordinal();
     }
 
     public String getNotedHostname() {
@@ -63,7 +63,7 @@ class PinFailureReport implements Serializable {
             jsonObject.put("app-vendor-id", appVendorId);
             jsonObject.put("app-platform", appPlatform);
             jsonObject.put("trustkit-version", trustKitVersion);
-            jsonObject.put("serverHostname", serverHostname);
+            jsonObject.put("hostname", serverHostname);
             jsonObject.put("port", port);
             jsonObject.put("noted-hostname", notedHostname);
             jsonObject.put("include-subdomains", includeSubdomains);

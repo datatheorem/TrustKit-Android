@@ -9,6 +9,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
+import com.datatheorem.android.trustkit.config.PinnedDomainConfig;
+import com.datatheorem.android.trustkit.config.TrustKitConfig;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -44,17 +46,31 @@ public class BackgroundReporterTest {
     private MockWebServer server;
     private BackgroundReporter backgroundReporter;
 
+//    @Mock
+//    private PinnedDomainConfig mockPinnedConfig;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         context = RuntimeEnvironment.application.getApplicationContext();
-        TrustKit.init(context, null);
+
+        server = new MockWebServer();
+        server.start();
+
+        TrustKitConfig trustKitConfig = new TrustKitConfig();
+        PinnedDomainConfig testPinnedDomainConfig = new PinnedDomainConfig.Builder()
+                .enforcePinning(false)
+                .disableDefaultReportUri(true)
+                .includeSubdomains(false)
+                .reportURIs(new String[]{server.url("/report").toString()})
+                .build();
+
+        trustKitConfig.put("www.test.com", testPinnedDomainConfig);
+        TrustKit.init(context, trustKitConfig);
         this.backgroundReporter = new BackgroundReporter(false, "test-id");
         mockBroadcastReceiver = new MockBroadcastReceiver();
         LocalBroadcastManager.getInstance(context)
                 .registerReceiver(mockBroadcastReceiver, new IntentFilter("test-id"));
-        server = new MockWebServer();
-        server.start();
     }
 
     @After
@@ -80,8 +96,8 @@ public class BackgroundReporterTest {
         HttpUrl baseUrl = server.url("/report");
 
         backgroundReporter.pinValidationFailed("www.test.com", 443, new String[]{""},
-                "www.test.com", new String[] {baseUrl.toString()}, false, true, new String[]{""},
-                new PinValidationResult());
+                "www.test.com", new String[] {baseUrl.toString()}, true, false, true,
+                new String[]{""}, PinValidationResult.PIN_VALIDATION_RESULT_FAILED);
 
         //Check if the report file is created on the system
         File jsonFile = new File(context.getFilesDir() + File.separator + "tmp"

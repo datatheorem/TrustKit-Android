@@ -9,12 +9,15 @@ import android.preference.PreferenceManager;
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
+import com.datatheorem.android.trustkit.config.ConfigException;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 
@@ -25,6 +28,10 @@ import java.util.UUID;
 public final class BackgroundReporter{
 
     private final String APP_VENDOR_ID_LABEL = "APP_VENDOR_ID";
+    private final ArrayList<String> DEFAULT_REPORTING_URLS =
+            new ArrayList<>(Arrays.asList(
+                    new String[]{"https://overmind.datatheorem.com/trustkit/report"}));
+
 
     // Main application environment information
     private String appPackageName;
@@ -83,30 +90,40 @@ public final class BackgroundReporter{
      * @param certificateChain
      * @param notedHostname
      * @param reportURIs
-     * @param includeSubdomains
+     * @param disableDefaultReportUri
+     *@param includeSubdomains
      * @param enforcePinning
      * @param knownPins
-     * @param validationResult
-     * @throws NullPointerException
+     * @param validationResult     @throws NullPointerException
      * @throws IOException
      */
     public final void pinValidationFailed(String serverHostname, Integer serverPort,
                                           String[] certificateChain, String notedHostname,
-                                          final String[] reportURIs, boolean includeSubdomains,
-                                          boolean enforcePinning, String[] knownPins,
-                                          PinValidationResult validationResult)
-            throws NullPointerException, IOException {
+                                          String[] reportURIs,
+                                          boolean disableDefaultReportUri,
+                                          boolean includeSubdomains, boolean enforcePinning,
+                                          String[] knownPins, PinValidationResult validationResult){
 
+        final ArrayList<String> finalReportUris = new ArrayList<>();
+
+        if (!disableDefaultReportUri) {
+            finalReportUris.addAll(DEFAULT_REPORTING_URLS);
+        } else {
+            if (reportURIs == null) {
+                throw new NullPointerException("BackgroundReporter configuration invalid. Reporter"+
+                        " was given an invalid value for reportURIs: null for domain " +
+                        notedHostname);
+            } else {
+                finalReportUris.addAll(Arrays.asList(reportURIs));
+            }
+        }
 
         //todo try to remove this
         if (serverPort == null) {
             serverPort = 0;
         }
 
-        if (reportURIs == null) {
-            throw new NullPointerException("BackgroundReporter configuration invalid. Reporter" +
-                    " was given an invalid value for reportURIs: null for domain " + notedHostname);
-        }
+
 
         final PinFailureReport report = new PinFailureReport.Builder()
                 .appBundleId(appPackageName)
@@ -135,7 +152,7 @@ public final class BackgroundReporter{
 
                 pinFailureReportDiskStore.save(report);
 
-                for (final String reportURI : reportURIs) {
+                for (final String reportURI : finalReportUris) {
                     try {
                         pinFailureReportHttpSender.send(new URL(reportURI), report);
                     } catch (MalformedURLException e) {
@@ -145,7 +162,6 @@ public final class BackgroundReporter{
 
                 pinFailureReportInternalSender.send(null, report);
                 return null;
-
             }
 
             @Override
