@@ -26,13 +26,10 @@ import java.util.UUID;
  * to the specific URI.
  */
 public final class BackgroundReporter{
-
-    // TODO(ad): Rename this to TRUSTKIT_VENDOR_ID
-    private final String APP_VENDOR_ID_LABEL = "APP_VENDOR_ID";
-    // TODO(ad): No need to use an array - will only be one URL
-    private final ArrayList<String> DEFAULT_REPORTING_URLS =
-            new ArrayList<>(Arrays.asList(
-                    new String[]{"https://overmind.datatheorem.com/trustkit/report"}));
+    private final String TRUSTKIT_VENDOR_ID = "TRUSTKIT_VENDOR_ID";
+    private final String DEFAULT_REPORTING_URL_STRING =
+            "https://overmind.datatheorem.com/trustkit/report";
+    private final URL DEFAULT_REPORTING_URL;
 
 
     // Main application environment information
@@ -43,16 +40,14 @@ public final class BackgroundReporter{
 
     // Configuration and Objects managing all the operation done by the BackgroundReporter
     private boolean shouldRateLimitsReports;
-    private final PinFailureReportDiskStore pinFailureReportDiskStore; // TODO(AD): Will go away
     private final PinFailureReportHttpSender pinFailureReportHttpSender;
     private final PinFailureReportInternalSender pinFailureReportInternalSender;
 
 
-
-    public BackgroundReporter(boolean shouldRateLimitsReports, String broadcastIdentifier) {
+    public BackgroundReporter(boolean shouldRateLimitsReports, String broadcastIdentifier)
+            throws MalformedURLException {
         Context appContext = TrustKit.getInstance().getAppContext();
         this.shouldRateLimitsReports = shouldRateLimitsReports;
-        this.pinFailureReportDiskStore = new PinFailureReportDiskStore(appContext);
         this.pinFailureReportHttpSender = new PinFailureReportHttpSender();
         this.pinFailureReportInternalSender = new PinFailureReportInternalSender(appContext,
                 broadcastIdentifier);
@@ -70,17 +65,17 @@ public final class BackgroundReporter{
         }
 
         SharedPreferences trustKitSharedPreferences =
-//                appContext.getSharedPreferences(TrustKit.TAG, Context.MODE_PRIVATE);
                 PreferenceManager.getDefaultSharedPreferences(appContext);
-        String appVendorId = trustKitSharedPreferences.getString(APP_VENDOR_ID_LABEL, "");
+        String appVendorId = trustKitSharedPreferences.getString(TRUSTKIT_VENDOR_ID, "");
         if (!appVendorId.equals("")) {
             this.appVendorId = appVendorId;
         } else {
             this.appVendorId = UUID.randomUUID().toString();
             SharedPreferences.Editor editor = trustKitSharedPreferences.edit();
-            editor.putString(APP_VENDOR_ID_LABEL, this.appVendorId);
+            editor.putString(TRUSTKIT_VENDOR_ID, this.appVendorId);
             editor.apply();
         }
+        DEFAULT_REPORTING_URL = new URL(DEFAULT_REPORTING_URL_STRING);
     }
 
     /**
@@ -101,15 +96,15 @@ public final class BackgroundReporter{
      */
     public final void pinValidationFailed(String serverHostname, Integer serverPort,
                                           String[] certificateChain, String notedHostname,
-                                          String[] reportURIs,
+                                          URL[] reportURIs,
                                           boolean disableDefaultReportUri,
                                           boolean includeSubdomains, boolean enforcePinning,
                                           String[] knownPins, PinValidationResult validationResult){
 
-        final ArrayList<String> finalReportUris = new ArrayList<>();
+        final ArrayList<URL> finalReportUris = new ArrayList<>();
 
         if (!disableDefaultReportUri) {
-            finalReportUris.addAll(DEFAULT_REPORTING_URLS);
+            finalReportUris.add(DEFAULT_REPORTING_URL);
         } else {
             if (reportURIs == null) {
                 throw new NullPointerException("BackgroundReporter configuration invalid. Reporter"+
@@ -119,12 +114,6 @@ public final class BackgroundReporter{
                 finalReportUris.addAll(Arrays.asList(reportURIs));
             }
         }
-
-        //todo try to remove this
-        if (serverPort == null) {
-            serverPort = 0;
-        }
-
 
 
         final PinFailureReport report = new PinFailureReport.Builder()
@@ -146,28 +135,19 @@ public final class BackgroundReporter{
         if (shouldRateLimitsReports && ReportsRateLimiter.shouldRateLimit(report)) {
             TrustKitLog.i("Pin failure report for " + serverHostname
                     + " was not sent due to rate-limiting");
+            return;
         }
 
         new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
 
-                // TODO(ad): No need to write it to a file; iOS required it for background upload
-                pinFailureReportDiskStore.save(report);
-
-                // Upload the report to all configured report URLs
-                // TODO(ad): Actually store URLs so we can crash during initialization if they are malformed
-                for (final String reportURI : finalReportUris) {
-                    try {
-                        pinFailureReportHttpSender.send(new URL(reportURI), report);
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }
+                for (final URL reportURI : finalReportUris) {
+                    pinFailureReportHttpSender.send(reportURI, report);
                 }
 
-
                 // Send a notification to the App
-                pinFailureReportInternalSender.send(null, report);
+                pinFailureReportInternalSender.send(report);
                 return null;
             }
 

@@ -9,11 +9,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-class PinFailureReportHttpSender implements PinFailureReportSender{
+class PinFailureReportHttpSender{
     private int responseCode = -1;
 
     //todo this class should not do pinning
-    @Override
     public void send(final URL reportURI, final PinFailureReport pinFailureReport) {
 
         HttpURLConnection connection = null;

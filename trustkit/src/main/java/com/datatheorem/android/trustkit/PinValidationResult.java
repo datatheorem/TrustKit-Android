@@ -1,7 +1,5 @@
 package com.datatheorem.android.trustkit;
 
-
-//todo put under the pinning package
 public enum  PinValidationResult {
     PIN_VALIDATION_RESULT_SUCCESS,
     PIN_VALIDATION_RESULT_FAILED,

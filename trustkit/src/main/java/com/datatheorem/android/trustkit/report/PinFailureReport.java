@@ -55,6 +55,18 @@ class PinFailureReport implements Serializable {
         return notedHostname;
     }
 
+    public String getServerHostname() {
+        return serverHostname;
+    }
+
+    public String[] getValidatedCertificateChain() {
+        return validatedCertificateChain;
+    }
+
+    public int getValidationResult() {
+        return validationResult;
+    }
+
     public JSONObject toJson() {
         try {
             JSONObject jsonObject = new JSONObject();
@@ -115,10 +127,6 @@ class PinFailureReport implements Serializable {
                 ", knownPins=" + Arrays.toString(knownPins) +
                 ", validationResult=" + validationResult +
                 '}';
-    }
-
-    public String getServerHostname() {
-        return serverHostname;
     }
 
     public static final class Builder {
