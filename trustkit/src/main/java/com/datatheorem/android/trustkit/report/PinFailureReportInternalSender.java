@@ -35,15 +35,6 @@ class PinFailureReportInternalSender{
     public void send(final PinFailureReport pinFailureReport) {
         Intent intent = new Intent(broadcastIdentifier);
 
-
-        // userInfo:@{kTSKValidationDurationNotificationKey: @(validationDuration),
-        // kTSKValidationDecisionNotificationKey: @(finalTrustDecision),
-        // kTSKValidationResultNotificationKey: @(validationResult),
-        // kTSKValidationCertificateChainNotificationKey: certificateChain,
-        // kTSKValidationNotedHostnameNotificationKey: notedHostname,
-        // kTSKValidationServerHostnameNotificationKey: serverHostname}];
-//        reportBundle.putSerializable("report", pinFailureReport);
-
         intent.putExtra(TRUSTKIT_INTENT_SERVER_HOSTNAME_KEY, pinFailureReport.getServerHostname());
         //todo(jb) add validation duration
 //        intent.putExtra(TRUSTKIT_INTENT_VALIDATION_DURATION_KEY, 0);
