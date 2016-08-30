@@ -24,6 +24,13 @@ class PinFailureReportInternalSender implements PinFailureReportSender {
     public void send(final URL reportURI, final PinFailureReport pinFailureReport) {
         Intent intent = new Intent(broadcastIdentifier);
         Bundle reportBundle = new Bundle();
+        // TODO(ad): Let's send the raw data and some timing information (we can implement later)
+        // userInfo:@{kTSKValidationDurationNotificationKey: @(validationDuration),
+        // kTSKValidationDecisionNotificationKey: @(finalTrustDecision),
+        // kTSKValidationResultNotificationKey: @(validationResult),
+        // kTSKValidationCertificateChainNotificationKey: certificateChain,
+        // kTSKValidationNotedHostnameNotificationKey: notedHostname,
+        // kTSKValidationServerHostnameNotificationKey: serverHostname}];
         reportBundle.putSerializable("report", pinFailureReport);
         intent.putExtras(reportBundle);
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent);

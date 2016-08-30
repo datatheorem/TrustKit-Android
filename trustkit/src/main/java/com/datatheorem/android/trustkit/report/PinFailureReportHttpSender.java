@@ -9,7 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-@SuppressWarnings("unchecked")
 class PinFailureReportHttpSender implements PinFailureReportSender{
     private int responseCode = -1;
 
@@ -20,8 +19,7 @@ class PinFailureReportHttpSender implements PinFailureReportSender{
         HttpURLConnection connection = null;
         try {
 
-            connection =
-                    (HttpURLConnection) reportURI.openConnection();
+            connection = (HttpURLConnection) reportURI.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
@@ -29,12 +27,10 @@ class PinFailureReportHttpSender implements PinFailureReportSender{
             connection.setChunkedStreamingMode(0);
             connection.connect();
 
-            final OutputStream outputStream =
-                    new BufferedOutputStream(connection.getOutputStream());
-            outputStream.write(
-                    pinFailureReport.toJson().toString().getBytes("UTF-8"));
-            outputStream.flush();
-            outputStream.close();
+            final OutputStream stream = new BufferedOutputStream(connection.getOutputStream());
+            stream.write(pinFailureReport.toJson().toString().getBytes("UTF-8"));
+            stream.flush();
+            stream.close();
 
             responseCode = connection.getResponseCode();
         } catch (IOException ioEx) {

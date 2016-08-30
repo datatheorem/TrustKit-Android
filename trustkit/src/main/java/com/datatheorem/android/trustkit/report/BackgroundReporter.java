@@ -27,7 +27,9 @@ import java.util.UUID;
  */
 public final class BackgroundReporter{
 
+    // TODO(ad): Rename this to TRUSTKIT_VENDOR_ID
     private final String APP_VENDOR_ID_LABEL = "APP_VENDOR_ID";
+    // TODO(ad): No need to use an array - will only be one URL
     private final ArrayList<String> DEFAULT_REPORTING_URLS =
             new ArrayList<>(Arrays.asList(
                     new String[]{"https://overmind.datatheorem.com/trustkit/report"}));
@@ -41,7 +43,7 @@ public final class BackgroundReporter{
 
     // Configuration and Objects managing all the operation done by the BackgroundReporter
     private boolean shouldRateLimitsReports;
-    private final PinFailureReportDiskStore pinFailureReportDiskStore;
+    private final PinFailureReportDiskStore pinFailureReportDiskStore; // TODO(AD): Will go away
     private final PinFailureReportHttpSender pinFailureReportHttpSender;
     private final PinFailureReportInternalSender pinFailureReportInternalSender;
 
@@ -150,8 +152,11 @@ public final class BackgroundReporter{
             @Override
             protected Object doInBackground(Object[] params) {
 
+                // TODO(ad): No need to write it to a file; iOS required it for background upload
                 pinFailureReportDiskStore.save(report);
 
+                // Upload the report to all configured report URLs
+                // TODO(ad): Actually store URLs so we can crash during initialization if they are malformed
                 for (final String reportURI : finalReportUris) {
                     try {
                         pinFailureReportHttpSender.send(new URL(reportURI), report);
@@ -160,6 +165,8 @@ public final class BackgroundReporter{
                     }
                 }
 
+
+                // Send a notification to the App
                 pinFailureReportInternalSender.send(null, report);
                 return null;
             }
