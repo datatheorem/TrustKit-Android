@@ -16,6 +16,7 @@ public class TrustKit {
     private TrustKitConfig trustKitConfig;
     private static TrustKit trustKitInstance;
 
+
     private TrustKit(Context context, TrustKitConfig trustKitConfig) {
         this.appContext = context;
         this.trustKitConfig = trustKitConfig;
@@ -25,6 +26,9 @@ public class TrustKit {
         return trustKitInstance;
     }
 
+    public static void init(Context context) {
+
+    }
 
     public static void init(Context appContext, TrustKitConfig trustKitConfig) {
         if (trustKitInstance == null) {
