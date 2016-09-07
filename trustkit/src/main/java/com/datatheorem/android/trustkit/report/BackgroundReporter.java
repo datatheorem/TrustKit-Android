@@ -31,7 +31,6 @@ public final class BackgroundReporter{
             "https://overmind.datatheorem.com/trustkit/report";
     private final URL DEFAULT_REPORTING_URL;
 
-
     // Main application environment information
     private String appPackageName;
     private String appVersion;
@@ -115,7 +114,6 @@ public final class BackgroundReporter{
             }
         }
 
-
         final PinFailureReport report = new PinFailureReport.Builder()
                 .appBundleId(appPackageName)
                 .appVersion(appVersion)
@@ -137,6 +135,7 @@ public final class BackgroundReporter{
                     + " was not sent due to rate-limiting");
             return;
         }
+
 
         new AsyncTask() {
             @Override

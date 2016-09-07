@@ -67,6 +67,14 @@ class PinFailureReport implements Serializable {
         return validationResult;
     }
 
+    public int getPort() {
+        return port;
+    }
+
+    public String[] getKnownPins() {
+        return knownPins;
+    }
+
     public JSONObject toJson() {
         try {
             JSONObject jsonObject = new JSONObject();

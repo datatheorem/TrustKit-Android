@@ -77,6 +77,7 @@ public class BackgroundReporterTest {
     @After
     public void tearDown() throws Exception {
         server.shutdown();
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(mockBroadcastReceiver);
     }
 
 
@@ -91,6 +92,7 @@ public class BackgroundReporterTest {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+
                 return new MockResponse().setBody(request.getBody());
             }
         });
@@ -117,9 +119,34 @@ public class BackgroundReporterTest {
         Assert.assertArrayEquals(new String[]{certificate}, mockBroadcastReceiver.validatedCertificateChain);
     }
 
+    @Test
+    public void testPinValidationFailed_RateLimited() throws Exception {
+        String certificate = "-----BEGIN CERTIFICATE-----\\nMIIE2TCCA8GgAwIBAgIQFVDTs9tHXX3ivhstj\\/NW2zANBgkqhkiG9w0BAQUFADA8\\r\\nMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMVGhhd3RlLCBJbmMuMRYwFAYDVQQDEw1U\\r\\naGF3dGUgU1NMIENBMB4XDTE0MTAwMjAwMDAwMFoXDTE1MTEwMTIzNTk1OVowgZcx\\r\\nCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRIwEAYDVQQHFAlQYWxv\\r\\nIEFsdG8xGzAZBgNVBAoUEkRhdGEgVGhlb3JlbSwgSW5jLjEkMCIGA1UECxQbU2Nh\\r\\nbiBhbmQgU2VjdXJlIE1vYmlsZSBBcHBzMRwwGgYDVQQDFBN3d3cuZGF0YXRoZW9y\\r\\nZW0uY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5bCuLK3XOnNs\\r\\ni8CJvHU4H5yY3d4G1qzq7EeMydKuScMM8Nqsp4CySKTbrUhi\\/uIc08II9yBxM+q4\\r\\nNmrEg0tgVvTqvUjmMN\\/MrYQrSGVLxPq5gadI7UxfWeGSo9DpvgXaw1Vvehs2jGFK\\r\\njLzDYbzJOhv\\/pqpv4UCV\\/xfeuqmTNqqzsp+tB5Zn6gXIvIFsxfpjbeId4OWviLnC\\r\\nq957++coddvqBZd2sWkyzE2un5itXRKfnMGSBTB0cU9\\/9fXeGhzA+u01Xj+BfpHR\\r\\nuP\\/eX+rHsgc3a4hbsSWDG5278ujJ5+4To9Bn\\/rTZy7uALTM2oBZvsFX4567RhB1\\/\\r\\nIYbMDE5y8QIDAQABo4IBeTCCAXUwHgYDVR0RBBcwFYITd3d3LmRhdGF0aGVvcmVt\\r\\nLmNvbTAJBgNVHRMEAjAAMHIGA1UdIARrMGkwZwYKYIZIAYb4RQEHNjBZMCYGCCsG\\r\\nAQUFBwIBFhpodHRwczovL3d3dy50aGF3dGUuY29tL2NwczAvBggrBgEFBQcCAjAj\\r\\nDCFodHRwczovL3d3dy50aGF3dGUuY29tL3JlcG9zaXRvcnkwDgYDVR0PAQH\\/BAQD\\r\\nAgWgMB8GA1UdIwQYMBaAFKeig7s0RUA9\\/NUwTxK5PqEBn\\/bbMCsGA1UdHwQkMCIw\\r\\nIKAeoByGGmh0dHA6Ly90Yi5zeW1jYi5jb20vdGIuY3JsMB0GA1UdJQQWMBQGCCsG\\r\\nAQUFBwMBBggrBgEFBQcDAjBXBggrBgEFBQcBAQRLMEkwHwYIKwYBBQUHMAGGE2h0\\r\\ndHA6Ly90Yi5zeW1jZC5jb20wJgYIKwYBBQUHMAKGGmh0dHA6Ly90Yi5zeW1jYi5j\\r\\nb20vdGIuY3J0MA0GCSqGSIb3DQEBBQUAA4IBAQB2qnnrsAICkV9HNuBdXe+cThHV\\r\\n8+5+LBz3zGDpC1rCyq\\/DIGu0vaa\\/gasM+MswPj+AEI4f1K1x9K9KedjilVfXH+QI\\r\\ntfRzLO8iR0TbPsC6Y1avuXhal1BuvZ9UQayHRDPUEncsf+SHbIOD2GJzXy7vVk5a\\r\\nVjkvxLtjMprWIi+P7Hbn2qj03qX9KM1DnNsB28jqg7r2rpXNUPUKsxekfrMTaJgg\\r\\nzTnCN\\/EQvF5eGvAjjHckr1SlogV9o\\/y4k0x6YmPWR\\/vopMEPyOj+JhflKCdg+6w3\\r\\n79ESvZUhmgT2285c1Nu5vJjtr8x51zCNIpEoVqdkCU4c1aVZGZogSWl1rAIi\\n-----END CERTIFICATE-----";
+        String pin = "pin-sha256=\"rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE=\"";
+        server.enqueue(new MockResponse().setResponseCode(204));
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+
+                return new MockResponse().setBody(request.getBody());
+            }
+        });
+        Assert.assertEquals(false, mockBroadcastReceiver.received);
+
+        HttpUrl baseUrl = server.url("/report");
+
+        backgroundReporter.pinValidationFailed("www.test.com", 442, new String[]{certificate},
+                "www.test.com", new URL[] {baseUrl.url()}, true, false, true,
+                new String[]{pin}, PinValidationResult.PIN_VALIDATION_RESULT_FAILED);;
+
+
+        //Check if the report is not sent through the system because the same report was sent
+        //less than 24h ago
+        Assert.assertEquals(false, mockBroadcastReceiver.received);
+
+    }
 
     private boolean reportRequiredFields(String json) {
-        System.out.print(json);
         return json.contains("app-bundle-id")  && json.contains("app-version")
                 && json.contains("app-vendor-id") && json.contains("app-platform")
                 && json.contains("trustkit-version") && json.contains("hostname")
