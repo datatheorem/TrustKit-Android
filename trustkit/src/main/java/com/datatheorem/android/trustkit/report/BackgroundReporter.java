@@ -9,7 +9,6 @@ import android.preference.PreferenceManager;
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.config.ConfigException;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.io.IOException;
@@ -25,17 +24,25 @@ import java.util.UUID;
  * The BackgroundReporter save a report when a pinning validation fail and send the report
  * to the specific URI.
  */
-public final class BackgroundReporter{
-    private final String TRUSTKIT_VENDOR_ID = "TRUSTKIT_VENDOR_ID";
-    private final String DEFAULT_REPORTING_URL_STRING =
-            "https://overmind.datatheorem.com/trustkit/report";
-    private final URL DEFAULT_REPORTING_URL;
+public final class BackgroundReporter {
+    private static final String TRUSTKIT_VENDOR_ID = "TRUSTKIT_VENDOR_ID";
+    private static final URL DEFAULT_REPORTING_URL;
+    static {
+        java.net.URL defaultUrl;
+        try {
+            defaultUrl = new java.net.URL("https://overmind.datatheorem.com/trustkit/report");
+        } catch (java.net.MalformedURLException e) {
+            throw new IllegalStateException("Bad DEFAULT_REPORTING_URL");
+        }
+        DEFAULT_REPORTING_URL = defaultUrl;
+    }
+
+    private static final String appPlatform = "ANDROID";
 
     // Main application environment information
     private String appPackageName;
     private String appVersion;
     private String appVendorId;
-    private String appPlatform;
 
     // Configuration and Objects managing all the operation done by the BackgroundReporter
     private boolean shouldRateLimitsReports;
@@ -43,16 +50,13 @@ public final class BackgroundReporter{
     private final PinFailureReportInternalSender pinFailureReportInternalSender;
 
 
-    public BackgroundReporter(boolean shouldRateLimitsReports, String broadcastIdentifier)
-            throws MalformedURLException {
+    public BackgroundReporter(boolean shouldRateLimitsReports, String broadcastIdentifier) {
         Context appContext = TrustKit.getInstance().getAppContext();
         this.shouldRateLimitsReports = shouldRateLimitsReports;
         this.pinFailureReportHttpSender = new PinFailureReportHttpSender();
         this.pinFailureReportInternalSender = new PinFailureReportInternalSender(appContext,
                 broadcastIdentifier);
 
-
-        this.appPlatform = "ANDROID";
         this.appPackageName = appContext.getPackageName();
 
         try {
