@@ -17,10 +17,6 @@ public final class PinnedDomainConfig {
         disableDefaultReportUri = builder.disableDefaultReportUri;
     }
 
-    public boolean isDisableDefaultReportUri() {
-        return disableDefaultReportUri;
-    }
-
     @Override
     public String toString() {
         return new StringBuilder()

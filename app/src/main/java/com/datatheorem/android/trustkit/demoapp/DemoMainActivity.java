@@ -1,22 +1,14 @@
 package com.datatheorem.android.trustkit.demoapp;
 
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.security.NetworkSecurityPolicy;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.config.PinnedDomainConfig;
-import com.datatheorem.android.trustkit.config.TrustKitConfig;
-import com.datatheorem.android.trustkit.report.BackgroundReporter;
 
 public class DemoMainActivity extends AppCompatActivity {
 
@@ -39,8 +31,8 @@ public class DemoMainActivity extends AppCompatActivity {
 //
         TextView textView = (TextView) findViewById(R.id.textview);
 
-
-        textView.setText(TrustKit.init(this));
+        TrustKit.initWithNetworkPolicy(this);
+        textView.setText("test");
 
     }
 
