@@ -1,11 +1,8 @@
-package com.datatheorem.android.trustkit.report;
+package com.datatheorem.android.trustkit.reporting;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-
-import java.net.URL;
 
 
 /**

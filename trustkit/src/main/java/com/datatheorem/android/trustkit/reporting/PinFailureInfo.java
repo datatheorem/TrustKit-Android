@@ -1,4 +1,4 @@
-package com.datatheorem.android.trustkit.report;
+package com.datatheorem.android.trustkit.reporting;
 
 import java.util.Arrays;
 

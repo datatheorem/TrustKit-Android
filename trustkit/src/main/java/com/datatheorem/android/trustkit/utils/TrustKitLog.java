@@ -1,10 +1,8 @@
 package com.datatheorem.android.trustkit.utils;
 
-import android.database.ContentObservable;
 import android.util.Log;
 
 import com.datatheorem.android.trustkit.BuildConfig;
-import com.datatheorem.android.trustkit.report.BackgroundReporter;
 
 public final class TrustKitLog {
 

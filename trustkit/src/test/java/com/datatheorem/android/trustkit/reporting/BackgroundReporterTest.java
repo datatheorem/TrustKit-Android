@@ -1,4 +1,4 @@
-package com.datatheorem.android.trustkit.report;
+package com.datatheorem.android.trustkit.reporting;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,15 +17,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.net.URL;
 
 import okhttp3.HttpUrl;

@@ -1,4 +1,4 @@
-package com.datatheorem.android.trustkit.report;
+package com.datatheorem.android.trustkit.reporting;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,7 +12,6 @@ import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Date;
 import java.util.ArrayList;

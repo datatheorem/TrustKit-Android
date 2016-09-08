@@ -1,4 +1,4 @@
-package com.datatheorem.android.trustkit.report;
+package com.datatheorem.android.trustkit.reporting;
 
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 

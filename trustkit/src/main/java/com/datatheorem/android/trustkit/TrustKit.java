@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.res.XmlResourceParser;
 
 import com.datatheorem.android.trustkit.config.TrustKitConfig;
-import com.datatheorem.android.trustkit.report.BackgroundReporter;
+import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 
 public class TrustKit {
