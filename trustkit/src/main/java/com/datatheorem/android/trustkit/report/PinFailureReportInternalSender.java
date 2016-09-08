@@ -11,7 +11,11 @@ import java.net.URL;
 /**
  * PinFailureReportInternalSender send a local broadcast message with the report
  */
-class PinFailureReportInternalSender{
+class PinFailureReportInternalSender {
+
+    // TODO(ad): Choose the right ID and move it to the right class
+    private static final String broadcastIdentifier = "test-id";
+
     public static final String TRUSTKIT_INTENT_SERVER_HOSTNAME_KEY =
             "TRUSTKIT_INTENT_SERVER_HOSTNAME_KEY";
     public static final String TRUSTKIT_INTENT_VALIDATION_DURATION_KEY =
@@ -23,15 +27,15 @@ class PinFailureReportInternalSender{
     public static final String TRUSTKIT_INTENT_VALIDATION_RESULT_KEY =
             "TRUSTKIT_INTENT_VALIDATION_RESULT_KEY";
 
-    private String broadcastIdentifier;
     private Context applicationContext;
 
-    public PinFailureReportInternalSender(Context applicationContext, String broadcastIdentifier) {
+    public PinFailureReportInternalSender(Context applicationContext) {
         this.applicationContext = applicationContext.getApplicationContext();
-        this.broadcastIdentifier = broadcastIdentifier;
     }
 
-
+    // TODO(ad): Rename this to BroadcastSomething
+    // TODO(ad): Explicitely list the needed arguments and use them directly
+    // TODO(ad): Once pinning is implemented: Figure out where to call this
     public void send(final PinFailureReport pinFailureReport) {
         Intent intent = new Intent(broadcastIdentifier);
 

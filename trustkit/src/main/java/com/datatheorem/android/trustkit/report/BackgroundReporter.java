@@ -47,15 +47,12 @@ public final class BackgroundReporter {
     // Configuration and Objects managing all the operation done by the BackgroundReporter
     private boolean shouldRateLimitsReports;
     private final PinFailureReportHttpSender pinFailureReportHttpSender;
-    private final PinFailureReportInternalSender pinFailureReportInternalSender;
 
 
-    public BackgroundReporter(boolean shouldRateLimitsReports, String broadcastIdentifier) {
+    public BackgroundReporter(boolean shouldRateLimitsReports) {
         Context appContext = TrustKit.getInstance().getAppContext();
         this.shouldRateLimitsReports = shouldRateLimitsReports;
         this.pinFailureReportHttpSender = new PinFailureReportHttpSender();
-        this.pinFailureReportInternalSender = new PinFailureReportInternalSender(appContext,
-                broadcastIdentifier);
 
         this.appPackageName = appContext.getPackageName();
 
@@ -143,13 +140,9 @@ public final class BackgroundReporter {
         new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
-
                 for (final URL reportURI : finalReportUris) {
                     pinFailureReportHttpSender.send(reportURI, report);
                 }
-
-                // Send a notification to the App
-                pinFailureReportInternalSender.send(report);
                 return null;
             }
 

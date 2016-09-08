@@ -68,7 +68,7 @@ public class BackgroundReporterTest {
 
         trustKitConfig.put("www.test.com", testPinnedDomainConfig);
         TrustKit.init(context, trustKitConfig);
-        this.backgroundReporter = new BackgroundReporter(true, "test-id");
+        this.backgroundReporter = new BackgroundReporter(true);
         mockBroadcastReceiver = new MockBroadcastReceiver();
         LocalBroadcastManager.getInstance(context)
                 .registerReceiver(mockBroadcastReceiver, new IntentFilter("test-id"));

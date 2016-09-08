@@ -4,18 +4,21 @@ import android.content.Context;
 import android.content.res.XmlResourceParser;
 
 import com.datatheorem.android.trustkit.config.TrustKitConfig;
+import com.datatheorem.android.trustkit.report.BackgroundReporter;
 
 
 public class TrustKit {
 
     private Context appContext;
     private TrustKitConfig trustKitConfig;
+    private BackgroundReporter backgroundReporter;
     private static TrustKit trustKitInstance;
 
 
     private TrustKit(Context context, TrustKitConfig trustKitConfig) {
         this.appContext = context;
         this.trustKitConfig = trustKitConfig;
+        this.backgroundReporter = new BackgroundReporter(true);
     }
 
     public static TrustKit getInstance() {
@@ -41,6 +44,7 @@ public class TrustKit {
     }
 
     public TrustKitConfig getConfiguration() { return trustKitConfig; }
+    public BackgroundReporter getReporter() { return backgroundReporter; }
     public Context getAppContext() {
         return appContext;
     }
