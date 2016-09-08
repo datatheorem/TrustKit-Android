@@ -1,6 +1,8 @@
 package com.datatheorem.android.trustkit.demoapp;
 
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.security.NetworkSecurityPolicy;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +27,7 @@ public class DemoMainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
 //        final TrustKitConfig trustKitConfig = new TrustKitConfig();
@@ -35,6 +38,8 @@ public class DemoMainActivity extends AppCompatActivity {
 //        trustKitConfig.put("www.datatheorem.com", datatheoremConfig);
 //
         TextView textView = (TextView) findViewById(R.id.textview);
+
+
         textView.setText(TrustKit.init(this));
 
     }
