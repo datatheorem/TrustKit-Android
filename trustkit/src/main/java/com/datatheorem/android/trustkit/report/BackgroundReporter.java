@@ -26,6 +26,8 @@ import java.util.UUID;
  */
 public final class BackgroundReporter {
     private static final String TRUSTKIT_VENDOR_ID = "TRUSTKIT_VENDOR_ID";
+    private static final String appPlatform = "ANDROID";
+
     private static final URL DEFAULT_REPORTING_URL;
     static {
         java.net.URL defaultUrl;
@@ -36,8 +38,6 @@ public final class BackgroundReporter {
         }
         DEFAULT_REPORTING_URL = defaultUrl;
     }
-
-    private static final String appPlatform = "ANDROID";
 
     // Main application environment information
     private String appPackageName;
@@ -78,7 +78,6 @@ public final class BackgroundReporter {
             editor.putString(TRUSTKIT_VENDOR_ID, this.appVendorId);
             editor.apply();
         }
-        DEFAULT_REPORTING_URL = new URL(DEFAULT_REPORTING_URL_STRING);
     }
 
     /**

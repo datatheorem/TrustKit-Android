@@ -36,10 +36,11 @@ public class TrustKit {
             trustKitInstance = new TrustKit(appContext, trustKitConfig);
         }
         else {
-            // TODO(ad): Throw an exception to avoid multiple initializations
+            throw new IllegalStateException("Already instantiated");
         }
     }
 
+    public TrustKitConfig getConfiguration() { return trustKitConfig; }
     public Context getAppContext() {
         return appContext;
     }

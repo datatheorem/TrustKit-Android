@@ -77,7 +77,6 @@ public class TrustKitConfig extends HashMap<String, PinnedDomainConfig> {
                     if (isAReportUri) {
                         reportUris.add(parser.getText());
                     }
-
                 }
 
                 eventType = parser.next();
