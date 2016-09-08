@@ -9,8 +9,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.config.PinnedDomainConfig;
-import com.datatheorem.android.trustkit.config.TrustKitConfig;
+import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -44,7 +44,7 @@ public class BackgroundReporterTest {
     private BackgroundReporter backgroundReporter;
 
 //    @Mock
-//    private PinnedDomainConfig mockPinnedConfig;
+//    private PinnedDomainConfiguration mockPinnedConfig;
 
     @Before
     public void setUp() throws Exception {
@@ -54,16 +54,16 @@ public class BackgroundReporterTest {
         server = new MockWebServer();
         server.start();
 
-        TrustKitConfig trustKitConfig = new TrustKitConfig();
-        PinnedDomainConfig testPinnedDomainConfig = new PinnedDomainConfig.Builder()
+        TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
+        PinnedDomainConfiguration testPinnedDomainConfiguration = new PinnedDomainConfiguration.Builder()
                 .enforcePinning(false)
                 .disableDefaultReportUri(true)
                 .includeSubdomains(false)
                 .reportURIs(new String[]{server.url("/report").toString()})
                 .build();
 
-        trustKitConfig.put("www.test.com", testPinnedDomainConfig);
-        TrustKit.init(context, trustKitConfig);
+        trustKitConfiguration.put("www.test.com", testPinnedDomainConfiguration);
+        TrustKit.init(context, trustKitConfiguration);
         this.backgroundReporter = new BackgroundReporter(true);
         mockBroadcastReceiver = new MockBroadcastReceiver();
         LocalBroadcastManager.getInstance(context)

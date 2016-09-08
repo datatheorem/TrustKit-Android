@@ -22,8 +22,8 @@ public class DemoMainActivity extends AppCompatActivity {
         
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
-//        final TrustKitConfig trustKitConfig = new TrustKitConfig();
-//        PinnedDomainConfig datatheoremConfig = new PinnedDomainConfig.Builder()
+//        final TrustKitConfiguration trustKitConfig = new TrustKitConfiguration();
+//        PinnedDomainConfiguration datatheoremConfig = new PinnedDomainConfiguration.Builder()
 //                .publicKeyHashes(new String[]{"HXXQgxueCIU5TTLHob/bPbwcKOKw6DkfsTWYHbxbqTY="})
 //                .enforcePinning(false)
 //                .build();

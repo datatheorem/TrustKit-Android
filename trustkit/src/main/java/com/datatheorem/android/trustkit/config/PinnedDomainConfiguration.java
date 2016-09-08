@@ -2,14 +2,14 @@ package com.datatheorem.android.trustkit.config;
 
 import java.util.Arrays;
 
-public final class PinnedDomainConfig {
+public final class PinnedDomainConfiguration {
     private String[] publicKeyHashes;
     private boolean enforcePinning;
     private String[] reportURIs;
     private boolean includeSubdomains;
     private boolean disableDefaultReportUri = false;
 
-    private PinnedDomainConfig(Builder builder) {
+    private PinnedDomainConfiguration(Builder builder) {
         publicKeyHashes = builder.publicKeyHashes;
         enforcePinning = builder.enforcePinning;
         reportURIs = builder.reportURIs;
@@ -20,7 +20,7 @@ public final class PinnedDomainConfig {
     @Override
     public String toString() {
         return new StringBuilder()
-                .append("PinnedDomainConfig{")
+                .append("PinnedDomainConfiguration{")
                 .append("knownPins = " + Arrays.toString(publicKeyHashes) + "\n")
                 .append("enforcePinning = " +enforcePinning + "\n")
                 .append("reportUris = " + Arrays.toString(reportURIs) + "\n")
@@ -65,8 +65,8 @@ public final class PinnedDomainConfig {
             return this;
         }
 
-        public PinnedDomainConfig build() {
-            return new PinnedDomainConfig(this);
+        public PinnedDomainConfiguration build() {
+            return new PinnedDomainConfiguration(this);
         }
     }
 

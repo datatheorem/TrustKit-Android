@@ -3,21 +3,21 @@ package com.datatheorem.android.trustkit;
 import android.content.Context;
 import android.content.res.XmlResourceParser;
 
-import com.datatheorem.android.trustkit.config.TrustKitConfig;
+import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 
 public class TrustKit {
 
     private Context appContext;
-    private TrustKitConfig trustKitConfig;
+    private TrustKitConfiguration trustKitConfiguration;
     private BackgroundReporter backgroundReporter;
     private static TrustKit trustKitInstance;
 
 
-    private TrustKit(Context context, TrustKitConfig trustKitConfig) {
+    private TrustKit(Context context, TrustKitConfiguration trustKitConfiguration) {
         this.appContext = context;
-        this.trustKitConfig = trustKitConfig;
+        this.trustKitConfiguration = trustKitConfiguration;
         this.backgroundReporter = new BackgroundReporter(true);
     }
 
@@ -31,19 +31,19 @@ public class TrustKit {
         );
 
         XmlResourceParser parser = context.getResources().getXml(networkSecurityConfigId);
-        init(context, TrustKitConfig.fromNetworkSecurityConfig(parser));
+        init(context, TrustKitConfiguration.fromXmlPolicy(parser));
     }
 
-    public static void init(Context appContext, TrustKitConfig trustKitConfig) {
+    public static void init(Context appContext, TrustKitConfiguration trustKitConfiguration) {
         if (trustKitInstance == null) {
-            trustKitInstance = new TrustKit(appContext, trustKitConfig);
+            trustKitInstance = new TrustKit(appContext, trustKitConfiguration);
         }
         else {
             throw new IllegalStateException("Already instantiated");
         }
     }
 
-    public TrustKitConfig getConfiguration() { return trustKitConfig; }
+    public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
     public BackgroundReporter getReporter() { return backgroundReporter; }
     public Context getAppContext() {
         return appContext;

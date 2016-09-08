@@ -9,13 +9,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class TrustKitConfig extends HashMap<String, PinnedDomainConfig> {
+public class TrustKitConfiguration extends HashMap<String, PinnedDomainConfiguration> {
     // TODO(ad): Investigate whether we can add TSKIgnorePinningForUserDefinedTrustAnchors and TSKSwizzleNetworkDelegates
 
-    public static TrustKitConfig fromNetworkSecurityConfig(XmlResourceParser parser) {
-        TrustKitConfig trustKitConfig = new TrustKitConfig();
+    public static TrustKitConfiguration fromXmlPolicy(XmlResourceParser parser) {
+        TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         String domainName = null;
-        PinnedDomainConfig.Builder pinnedDomainConfigBuilder = new PinnedDomainConfig.Builder();
+        PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder = new PinnedDomainConfiguration.Builder();
         ArrayList<String> knownPins = null;
         boolean isADomain = false;
         boolean isAPin = false;
@@ -61,7 +61,7 @@ public class TrustKitConfig extends HashMap<String, PinnedDomainConfig> {
                         pinnedDomainConfigBuilder
                                 .reportURIs(reportUris.toArray(new String[reportUris.size()]))
                                 .publicKeyHashes(knownPins.toArray(new String[knownPins.size()]));
-                        trustKitConfig.put(domainName, pinnedDomainConfigBuilder.build());
+                        trustKitConfiguration.put(domainName, pinnedDomainConfigBuilder.build());
                     }
 
 
@@ -82,11 +82,11 @@ public class TrustKitConfig extends HashMap<String, PinnedDomainConfig> {
                 eventType = parser.next();
             }
 
-            if (trustKitConfig.size() < 0) {
-                throw new ConfigException("something wrong with your configuration");
+            if (trustKitConfiguration.size() < 0) {
+                throw new ConfigurationException("something wrong with your configuration");
             }
 
-            return trustKitConfig;
+            return trustKitConfiguration;
 
         } catch (XmlPullParserException e) {
             e.printStackTrace();
