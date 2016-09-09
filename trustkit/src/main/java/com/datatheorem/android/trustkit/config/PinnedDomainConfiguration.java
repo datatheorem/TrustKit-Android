@@ -3,9 +3,9 @@ package com.datatheorem.android.trustkit.config;
 import java.util.Arrays;
 
 public final class PinnedDomainConfiguration {
-    private String[] publicKeyHashes;
+    private String[] publicKeyHashes; // TODO(ad): Convert this to a set: faster to check if an element is in it and gets rid of duplicates
     private boolean enforcePinning;
-    private String[] reportURIs;
+    private String[] reportURIs; // TODO(ad): Convert this to a set
     private boolean includeSubdomains;
     private boolean disableDefaultReportUri = false;
 

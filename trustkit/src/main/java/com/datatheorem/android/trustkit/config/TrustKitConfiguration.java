@@ -12,6 +12,7 @@ import java.util.HashMap;
 public class TrustKitConfiguration extends HashMap<String, PinnedDomainConfiguration> {
     // TODO(ad): Investigate whether we can add TSKIgnorePinningForUserDefinedTrustAnchors and TSKSwizzleNetworkDelegates
 
+    // TODO(ad): Implement the same sanity checks as https://github.com/datatheorem/TrustKit/blob/master/TrustKit/parse_configuration.m
     public static TrustKitConfiguration fromXmlPolicy(XmlResourceParser parser) {
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         String domainName = null;
