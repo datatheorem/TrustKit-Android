@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.XmlResourceParser;
 
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
+import com.datatheorem.android.trustkit.pinning.PinningTrustManager;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 
@@ -18,7 +19,7 @@ public class TrustKit {
     private TrustKit(Context context, TrustKitConfiguration trustKitConfiguration) {
         this.appContext = context;
         this.trustKitConfiguration = trustKitConfiguration;
-        this.backgroundReporter = new BackgroundReporter(true);
+        //this.backgroundReporter = new BackgroundReporter(true);
     }
 
     public static TrustKit getInstance() {
@@ -41,6 +42,7 @@ public class TrustKit {
         else {
             throw new IllegalStateException("Already instantiated");
         }
+        PinningTrustManager manager = new PinningTrustManager();
     }
 
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
