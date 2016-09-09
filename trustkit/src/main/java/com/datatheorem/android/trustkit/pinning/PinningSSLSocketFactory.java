@@ -4,6 +4,10 @@ package com.datatheorem.android.trustkit.pinning;
 import android.net.SSLCertificateSocketFactory;
 import android.util.Log;
 
+import com.datatheorem.android.trustkit.TrustKit;
+import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -27,8 +31,13 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
 
     @Override
     public Socket createSocket(Socket k, String host, int port, boolean close) throws IOException {
+        // Get this domain's pinning configuration if any
+        TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
+        String notedHostname = host;
+        PinnedDomainConfiguration hostConfig = config.get(notedHostname);
         // Force the use of our PinningTrustManager
-        setTrustManagers(new TrustManager[]{new PinningTrustManager(host, port, null, null)});
+        setTrustManagers(new TrustManager[]{new PinningTrustManager(host, port, notedHostname,
+                hostConfig)});
         return super.createSocket(k, host, port, close);
     }
 

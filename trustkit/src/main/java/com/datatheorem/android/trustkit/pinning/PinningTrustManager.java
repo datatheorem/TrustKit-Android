@@ -20,6 +20,10 @@ public class PinningTrustManager implements X509TrustManager {
     private X509TrustManager systemTrustManager;
 
     public PinningTrustManager(String hostname, Integer serverPort, String notedHostname, PinnedDomainConfiguration configuration) {
+
+        System.out.println("Initialized trust manager with" + hostname + ":" + serverPort + " " +
+                notedHostname + " " + configuration);
+
         // Retrieve the default trust manager so we can perform regular SSL validation
         systemTrustManager = getSystemTrustManager();
     }

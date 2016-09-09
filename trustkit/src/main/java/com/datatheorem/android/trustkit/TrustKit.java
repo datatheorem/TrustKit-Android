@@ -10,6 +10,7 @@ import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 public class TrustKit {
 
+    // TODO(ad): Change these to final
     private Context appContext;
     private TrustKitConfiguration trustKitConfiguration;
     private BackgroundReporter backgroundReporter;

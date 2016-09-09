@@ -3,11 +3,15 @@ package com.datatheorem.android.trustkit.pinning;
 
 
 import android.net.SSLCertificateSocketFactory;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
 import com.datatheorem.android.trustkit.BuildConfig;
+import com.datatheorem.android.trustkit.TrustKit;
+import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +30,14 @@ public class PinningSSLSocketFactoryTest {
 
     @Test
     public void someConnection() {
+
+        TrustKitConfiguration trustKitConfig = new TrustKitConfiguration();
+        PinnedDomainConfiguration datatheoremConfig = new PinnedDomainConfiguration.Builder()
+                .publicKeyHashes(new String[]{"HXXQgxueCIU5TTLHob/bPbwcKOKw6DkfsTWYHbxbqTY="})
+                .enforcePinning(false)
+                .build();
+        trustKitConfig.put("www.datatheorem.com", datatheoremConfig);
+        TrustKit.init(InstrumentationRegistry.getContext(), trustKitConfig);
         URL url;
         HttpsURLConnection urlConnection = null;
         try {
