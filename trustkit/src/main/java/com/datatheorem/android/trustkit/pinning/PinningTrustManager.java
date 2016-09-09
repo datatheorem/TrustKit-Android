@@ -61,8 +61,9 @@ public class PinningTrustManager implements X509TrustManager {
     {
         // Perform default certificate validation
         systemTrustManager.checkServerTrusted(chain, authType);
-        System.out.println("LOLOLOL " + authType);
 
+
+        // TODO(ad): Clean the certificate chain
         // TODO(ad): Add pinning validation
         // TODO(ad): Generate report
     }

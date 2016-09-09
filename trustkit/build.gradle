@@ -10,6 +10,8 @@ dependencies {
     compile "com.android.support:support-v4:$rootProject.libVersions.android.appCompat"
 
     androidTestCompile "junit:junit:$rootProject.libVersions.junit"
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
 
     testCompile "junit:junit:$rootProject.libVersions.junit"
 
@@ -28,10 +30,14 @@ android {
         minSdkVersion toolVersions.android.minSdk
         versionCode 1
         versionName "0.1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     lintOptions {
         abortOnError false
     }
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }

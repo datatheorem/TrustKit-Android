@@ -1,20 +1,28 @@
 package com.datatheorem.android.trustkit.pinning;
 
 
-import org.junit.Test;
 
+import android.net.SSLCertificateSocketFactory;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
+
+import com.datatheorem.android.trustkit.BuildConfig;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
+import javax.net.SocketFactory;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 
-public class PinningTrustManagerTest {
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class PinningSSLSocketFactoryTest {
 
     @Test
     public void someConnection() {
@@ -23,10 +31,9 @@ public class PinningTrustManagerTest {
         try {
             url = new URL("https://www.google.com/");
             urlConnection = (HttpsURLConnection) url.openConnection();
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, new TrustManager[]{new PinningTrustManager()}, null);
-            urlConnection.setSSLSocketFactory(context.getSocketFactory());
-
+            SocketFactory test = SSLCertificateSocketFactory.getDefault(50000);
+            urlConnection.setSSLSocketFactory((SSLSocketFactory) test);
+            Log.v("", "LOLOLOL");
             InputStream in = urlConnection.getInputStream();
             InputStreamReader isw = new InputStreamReader(in);
 
@@ -44,5 +51,4 @@ public class PinningTrustManagerTest {
             }
         }
     }
-
 }

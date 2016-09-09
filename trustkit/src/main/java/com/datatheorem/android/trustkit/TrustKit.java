@@ -42,7 +42,7 @@ public class TrustKit {
         else {
             throw new IllegalStateException("Already instantiated");
         }
-        PinningTrustManager manager = new PinningTrustManager();
+        //PinningTrustManager manager = new PinningTrustManager();
     }
 
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
