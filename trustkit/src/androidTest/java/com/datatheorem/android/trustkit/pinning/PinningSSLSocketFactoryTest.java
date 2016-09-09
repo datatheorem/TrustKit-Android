@@ -29,11 +29,13 @@ public class PinningSSLSocketFactoryTest {
         URL url;
         HttpsURLConnection urlConnection = null;
         try {
-            url = new URL("https://www.google.com/");
+            url = new URL("https://wrong.host.badssl.com/");
+            //url = new URL("https://expired.badssl.com/");
             urlConnection = (HttpsURLConnection) url.openConnection();
-            SocketFactory test = SSLCertificateSocketFactory.getDefault(50000);
-            urlConnection.setSSLSocketFactory((SSLSocketFactory) test);
-            Log.v("", "LOLOLOL");
+            //SocketFactory test = SSLCertificateSocketFactory.getDefault(50000);
+            SSLSocketFactory test = new PinningSSLSocketFactory();
+            urlConnection.setSSLSocketFactory(test);
+
             InputStream in = urlConnection.getInputStream();
             InputStreamReader isw = new InputStreamReader(in);
 
@@ -41,7 +43,7 @@ public class PinningSSLSocketFactoryTest {
             while (data != -1) {
                 char current = (char) data;
                 data = isw.read();
-                System.out.print(current);
+                //System.out.print(current);
             }
         } catch (Exception e) {
             e.printStackTrace();

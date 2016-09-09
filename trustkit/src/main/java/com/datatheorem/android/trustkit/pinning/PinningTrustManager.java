@@ -1,5 +1,7 @@
 package com.datatheorem.android.trustkit.pinning;
 
+import android.util.Log;
+
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 
 import java.security.KeyStore;
@@ -40,8 +42,6 @@ public class PinningTrustManager implements X509TrustManager {
         }
 
         for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
-            System.out.println(trustManager);
-
             if (trustManager instanceof X509TrustManager) {
                 systemTrustManager = (X509TrustManager)trustManager;
             }
@@ -60,6 +60,8 @@ public class PinningTrustManager implements X509TrustManager {
             throws CertificateException
     {
         // Perform default certificate validation
+
+        System.out.println("Perform default system validation");
         systemTrustManager.checkServerTrusted(chain, authType);
 
 
