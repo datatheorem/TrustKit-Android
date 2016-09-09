@@ -25,27 +25,30 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
     public Socket createSocket(String host, int port, InetAddress localAddr, int localPort)
             throws IOException {
         // Force the use of our PinningTrustManager
-        setTrustManagers(new TrustManager[]{new PinningTrustManager(host, port, null, null)});
+        setTrustManagers(new TrustManager[]{createTrustManager(host, port)});
         return super.createSocket(host, port, localAddr, localPort);
     }
 
     @Override
     public Socket createSocket(Socket k, String host, int port, boolean close) throws IOException {
-        // Get this domain's pinning configuration if any
-        TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
-        String notedHostname = host;
-        PinnedDomainConfiguration hostConfig = config.get(notedHostname);
         // Force the use of our PinningTrustManager
-        setTrustManagers(new TrustManager[]{new PinningTrustManager(host, port, notedHostname,
-                hostConfig)});
+        setTrustManagers(new TrustManager[]{createTrustManager(host, port)});
         return super.createSocket(k, host, port, close);
     }
 
     @Override
     public Socket createSocket(String host, int port) throws IOException {
         // Force the use of our PinningTrustManager
-        setTrustManagers(new TrustManager[]{new PinningTrustManager(host, port, null, null)});
+        setTrustManagers(new TrustManager[]{createTrustManager(host, port)});
         return super.createSocket(host, port);
+    }
+
+    private static TrustManager createTrustManager(String host, int port) {
+        // Get this domain's pinning configuration if any
+        TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
+        String notedHostname = host;
+        PinnedDomainConfiguration hostConfig = config.get(notedHostname);
+        return new PinningTrustManager(host, port, notedHostname, hostConfig);
     }
 
 

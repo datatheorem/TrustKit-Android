@@ -30,18 +30,20 @@ public class PinningSSLSocketFactoryTest {
 
     @Test
     public void someConnection() {
-
+        // Initialize TrustKit
         TrustKitConfiguration trustKitConfig = new TrustKitConfiguration();
         PinnedDomainConfiguration datatheoremConfig = new PinnedDomainConfiguration.Builder()
-                .publicKeyHashes(new String[]{"HXXQgxueCIU5TTLHob/bPbwcKOKw6DkfsTWYHbxbqTY="})
+                .publicKeyHashes(new String[]{"grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME="})
                 .enforcePinning(false)
                 .build();
         trustKitConfig.put("www.datatheorem.com", datatheoremConfig);
         TrustKit.init(InstrumentationRegistry.getContext(), trustKitConfig);
+
         URL url;
         HttpsURLConnection urlConnection = null;
         try {
             url = new URL("https://wrong.host.badssl.com/");
+            url = new URL("https://www.datatheorem.com/");
             //url = new URL("https://expired.badssl.com/");
             urlConnection = (HttpsURLConnection) url.openConnection();
             //SocketFactory test = SSLCertificateSocketFactory.getDefault(50000);

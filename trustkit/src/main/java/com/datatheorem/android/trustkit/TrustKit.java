@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.XmlResourceParser;
 
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
-import com.datatheorem.android.trustkit.pinning.PinningTrustManager;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 
