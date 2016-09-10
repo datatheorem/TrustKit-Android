@@ -15,6 +15,8 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -96,10 +98,9 @@ class PinningTrustManager implements X509TrustManager {
 
             // Clean the certificate chain to avoid SSL pinning bypass issues
             // https://koz.io/pinning-cve-2016-2402/
-            List<Certificate> chainAsList = Arrays.asList((Certificate[]) chain);
             List<Certificate> cleanedChainList;
             try {
-                cleanedChainList = chainCleaner.clean(chainAsList);
+                cleanedChainList = chainCleaner.clean(Arrays.asList((Certificate[]) chain));
             } catch (SSLPeerUnverifiedException e) {
                 // TODO(ad): Send a report and throw an exception
                 e.printStackTrace();

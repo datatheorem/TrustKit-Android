@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.TrustManager;
 
 public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
@@ -26,21 +27,44 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
             throws IOException {
         // Force the use of our PinningTrustManager
         setTrustManagers(new TrustManager[]{createTrustManager(host, port)});
-        return super.createSocket(host, port, localAddr, localPort);
+
+        try {
+            return super.createSocket(host, port, localAddr, localPort);
+        } catch (SSLPeerUnverifiedException e) {
+            // Hostname validation failed
+            System.out.println("Hostname validation failed");
+            // TODO(ad): Send a report
+            throw e;
+        }
     }
 
     @Override
     public Socket createSocket(Socket k, String host, int port, boolean close) throws IOException {
         // Force the use of our PinningTrustManager
         setTrustManagers(new TrustManager[]{createTrustManager(host, port)});
-        return super.createSocket(k, host, port, close);
+
+        try {
+            return super.createSocket(k, host, port, close);
+        } catch (SSLPeerUnverifiedException e) {
+            // Hostname validation failed
+            System.out.println("Hostname validation failed");
+            // TODO(ad): Send a report
+            throw e;
+        }
     }
 
     @Override
     public Socket createSocket(String host, int port) throws IOException {
         // Force the use of our PinningTrustManager
         setTrustManagers(new TrustManager[]{createTrustManager(host, port)});
-        return super.createSocket(host, port);
+        try {
+            return super.createSocket(host, port);
+        } catch (SSLPeerUnverifiedException e) {
+            // Hostname validation failed
+            System.out.println("Hostname validation failed");
+            // TODO(ad): Send a report
+            throw e;
+        }
     }
 
     private static TrustManager createTrustManager(String host, int port) {
@@ -51,6 +75,13 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         return new PinningTrustManager(host, port, notedHostname, hostConfig);
     }
 
+
+//    @Override
+//    public void setHostname(Socket socket, String hostName) {
+        // TODO(ad): How to manage SNI? Or don't deal with hostname validatin
+//        super.setHostname(socket, hostName);
+
+//    }
 
 //    @Override
 //    public static void verifyHostname(Socket socket, String hostname) throws IOException {
