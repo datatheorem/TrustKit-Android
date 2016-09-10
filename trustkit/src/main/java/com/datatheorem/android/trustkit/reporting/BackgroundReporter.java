@@ -24,7 +24,6 @@ import java.util.UUID;
  * to the specific URI.
  */
 public final class BackgroundReporter {
-    private static final String TRUSTKIT_VENDOR_ID = "TRUSTKIT_VENDOR_ID";
     private static final String appPlatform = "ANDROID";
 
     private static final URL DEFAULT_REPORTING_URL;
@@ -48,33 +47,15 @@ public final class BackgroundReporter {
     private final PinFailureReportHttpSender pinFailureReportHttpSender;
 
 
-    public BackgroundReporter(boolean shouldRateLimitsReports) {
-        Context appContext = TrustKit.getInstance().getAppContext();
+    public BackgroundReporter(boolean shouldRateLimitsReports, String appPackageName,
+                              String appVersion, String appVendorId) {
         this.shouldRateLimitsReports = shouldRateLimitsReports;
         this.pinFailureReportHttpSender = new PinFailureReportHttpSender();
-
-        this.appPackageName = appContext.getPackageName();
-
-        try {
-            this.appVersion =
-                    appContext.getPackageManager().getPackageInfo(appPackageName, 0).versionName;
-
-        } catch (PackageManager.NameNotFoundException e) {
-            this.appVersion = "N/A";
-        }
-
-        SharedPreferences trustKitSharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(appContext);
-        String appVendorId = trustKitSharedPreferences.getString(TRUSTKIT_VENDOR_ID, "");
-        if (!appVendorId.equals("")) {
-            this.appVendorId = appVendorId;
-        } else {
-            this.appVendorId = UUID.randomUUID().toString();
-            SharedPreferences.Editor editor = trustKitSharedPreferences.edit();
-            editor.putString(TRUSTKIT_VENDOR_ID, this.appVendorId);
-            editor.apply();
-        }
+        this.appPackageName = appPackageName;
+        this.appVersion = appVersion;
+        this.appVendorId = appVendorId;
     }
+
 
     /**
      * Create a {@link PinFailureReport PinFailureReport}, save it using a

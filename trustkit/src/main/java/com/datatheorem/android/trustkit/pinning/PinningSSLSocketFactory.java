@@ -57,6 +57,7 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
     public Socket createSocket(String host, int port) throws IOException {
         // Force the use of our PinningTrustManager
         setTrustManagers(new TrustManager[]{createTrustManager(host, port)});
+
         try {
             return super.createSocket(host, port);
         } catch (SSLPeerUnverifiedException e) {
@@ -74,21 +75,4 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         PinnedDomainConfiguration hostConfig = config.get(notedHostname);
         return new PinningTrustManager(host, port, notedHostname, hostConfig);
     }
-
-
-//    @Override
-//    public void setHostname(Socket socket, String hostName) {
-        // TODO(ad): How to manage SNI? Or don't deal with hostname validatin
-//        super.setHostname(socket, hostName);
-
-//    }
-
-//    @Override
-//    public static void verifyHostname(Socket socket, String hostname) throws IOException {
-        // TODO(ad): Send a report if hostname validation failed
-
-//        Log.v("TETEEETET", "Perform hostname validation");
-        //SSLCertificateSocketFactory.verifyHostname(socket, hostname);
-//    }
-
 }

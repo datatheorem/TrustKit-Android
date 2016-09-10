@@ -15,8 +15,6 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
