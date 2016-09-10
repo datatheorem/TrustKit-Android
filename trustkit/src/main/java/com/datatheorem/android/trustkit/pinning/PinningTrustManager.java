@@ -134,7 +134,7 @@ class PinningTrustManager implements X509TrustManager {
 
             if (!wasPinFound) {
                 // Send a pin failure report
-                PinValidationResult result = PinValidationResult.SUCCESS;
+                PinValidationResult result = PinValidationResult.FAILED;
                 TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
                         chain, notedHostname, serverConfig, result);
 
