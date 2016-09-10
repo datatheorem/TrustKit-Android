@@ -5,7 +5,6 @@ import android.util.Base64;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
-import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -25,8 +24,17 @@ import javax.net.ssl.X509TrustManager;
 
 class PinningTrustManager implements X509TrustManager {
 
-    private final CertificateChainCleaner chainCleaner;
-    private final X509TrustManager systemTrustManager;
+    private static final X509TrustManager systemTrustManager;
+    static {
+        // Retrieve the default trust manager so we can perform regular SSL validation
+        systemTrustManager = getSystemTrustManager();
+    }
+
+    private static final CertificateChainCleaner chainCleaner;
+    static {
+        chainCleaner = new CertificateChainCleaner(TrustRootIndex.get(systemTrustManager));
+    }
+
     private final String serverHostname;
     private final int serverPort;
     private final String notedHostname; // TODO(ad): Put this in the serverConfig
@@ -37,10 +45,6 @@ class PinningTrustManager implements X509TrustManager {
 
         System.out.println("Initialized trust manager with" + serverHostname + ":" + serverPort
                 + " " + notedHostname + " " + serverConfig);
-
-        // Retrieve the default trust manager so we can perform regular SSL validation
-        systemTrustManager = getSystemTrustManager();
-        chainCleaner = new CertificateChainCleaner(TrustRootIndex.get(systemTrustManager));
 
         this.serverHostname = serverHostname;
         this.serverPort = serverPort;
