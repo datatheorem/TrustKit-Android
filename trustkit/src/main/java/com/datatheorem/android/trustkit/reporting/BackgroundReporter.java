@@ -5,17 +5,22 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
+import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.UUID;
 
 
@@ -26,24 +31,13 @@ import java.util.UUID;
 public final class BackgroundReporter {
     private static final String appPlatform = "ANDROID";
 
-    private static final URL DEFAULT_REPORTING_URL;
-    static {
-        java.net.URL defaultUrl;
-        try {
-            defaultUrl = new java.net.URL("https://overmind.datatheorem.com/trustkit/report");
-        } catch (java.net.MalformedURLException e) {
-            throw new IllegalStateException("Bad DEFAULT_REPORTING_URL");
-        }
-        DEFAULT_REPORTING_URL = defaultUrl;
-    }
-
     // Main application environment information
-    private String appPackageName;
-    private String appVersion;
-    private String appVendorId;
+    private final String appPackageName;
+    private final String appVersion;
+    private final String appVendorId;
 
     // Configuration and Objects managing all the operation done by the BackgroundReporter
-    private boolean shouldRateLimitsReports;
+    private final boolean shouldRateLimitsReports;
     private final PinFailureReportHttpSender pinFailureReportHttpSender;
 
 
@@ -57,43 +51,37 @@ public final class BackgroundReporter {
     }
 
 
-    /**
-     * Create a {@link PinFailureReport PinFailureReport}, save it using a
-     * {@link PinFailureReportDiskStore} instance and send it using
-     * a {@link PinFailureReportHttpSender} instance.
-     * @param serverHostname
-     * @param serverPort
-     * @param certificateChain
-     * @param notedHostname
-     * @param reportURIs
-     * @param disableDefaultReportUri
-     *@param includeSubdomains
-     * @param enforcePinning
-     * @param knownPins
-     * @param validationResult     @throws NullPointerException
-     * @throws IOException
-     */
-    public final void pinValidationFailed(String serverHostname, Integer serverPort,
-                                          String[] certificateChain, String notedHostname,
-                                          URL[] reportURIs,
-                                          boolean disableDefaultReportUri,
-                                          boolean includeSubdomains, boolean enforcePinning,
-                                          String[] knownPins, PinValidationResult validationResult){
-
-        final ArrayList<URL> finalReportUris = new ArrayList<>();
-
-        if (!disableDefaultReportUri) {
-            finalReportUris.add(DEFAULT_REPORTING_URL);
-        } else {
-            if (reportURIs == null) {
-                throw new NullPointerException("BackgroundReporter configuration invalid. Reporter"+
-                        " was given an invalid value for reportURIs: null for domain " +
-                        notedHostname);
-            } else {
-                finalReportUris.addAll(Arrays.asList(reportURIs));
-            }
+    private String certificateToPem(X509Certificate certificate) {
+        byte[] certificateData;
+        try {
+            certificateData = certificate.getEncoded();
+        } catch (CertificateEncodingException e) {
+            throw new IllegalStateException("Should never happen - certificate was previously " +
+                    "parsed by the system");
         }
 
+        // Create the PEM string
+        String certificateAsPem = "-----BEGIN CERTIFICATE-----\n";
+        certificateAsPem += Base64.encodeToString(certificateData, Base64.DEFAULT);
+        return certificateAsPem;
+    }
+
+
+    public final void pinValidationFailed(String serverHostname, Integer serverPort,
+                                          X509Certificate[] receivedCertificateChain,
+                                          String notedHostname,
+                                          PinnedDomainConfiguration serverConfig,
+                                          PinValidationResult validationResult) {
+
+        TrustKitLog.i("Pin failure report for " + serverHostname);
+
+        // Convert the certificates to PEM strings
+        String[] certificateChainAsPem = new String[receivedCertificateChain.length];
+        for (int i = 0; i < receivedCertificateChain.length; i++) {
+            certificateChainAsPem[i] = certificateToPem(receivedCertificateChain[i]);
+        }
+
+        // Generate the corresponding pin failure report
         final PinFailureReport report = new PinFailureReport.Builder()
                 .appBundleId(appPackageName)
                 .appVersion(appVersion)
@@ -104,24 +92,25 @@ public final class BackgroundReporter {
                 .port(serverPort)
                 .dateTime(new Date(System.currentTimeMillis()))
                 .notedHostname(notedHostname)
-                .includeSubdomains(includeSubdomains)
-                .enforcePinning(enforcePinning)
-                .validatedCertificateChain(certificateChain)
-                .knownPins(knownPins)
+                .includeSubdomains(serverConfig.isIncludeSubdomains())
+                .enforcePinning(serverConfig.isEnforcePinning())
+                .validatedCertificateChain(certificateChainAsPem)
+                .knownPins(serverConfig.getPublicKeyHashes())
                 .validationResult(validationResult).build();
 
+        // If a similar report hasn't been sent recently, send it now
         if (shouldRateLimitsReports && ReportsRateLimiter.shouldRateLimit(report)) {
             TrustKitLog.i("Pin failure report for " + serverHostname
                     + " was not sent due to rate-limiting");
             return;
         }
 
-
+        final HashSet<URL> reportUriSet = serverConfig.getReportURIs();
         new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
-                for (final URL reportURI : finalReportUris) {
-                    pinFailureReportHttpSender.send(reportURI, report);
+                for (final URL reportUri : reportUriSet) {
+                    pinFailureReportHttpSender.send(reportUri, report);
                 }
                 return null;
             }

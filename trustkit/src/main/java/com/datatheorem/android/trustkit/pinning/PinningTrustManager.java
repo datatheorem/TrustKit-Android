@@ -1,9 +1,11 @@
 package com.datatheorem.android.trustkit.pinning;
 
 import android.util.Base64;
-import android.util.Log;
 
+import com.datatheorem.android.trustkit.PinValidationResult;
+import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -85,8 +87,12 @@ class PinningTrustManager implements X509TrustManager {
         try {
             systemTrustManager.checkServerTrusted(chain, authType);
         } catch (CertificateException e) {
-            // TODO(ad): Send a report and throw an exception
-            e.printStackTrace();
+            // Send a pin failure report
+            PinValidationResult result = PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
+            TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
+                    chain, notedHostname, serverConfig, result);
+
+            // Then re-throw the exception to close the SSL connection
             throw e;
         }
 
@@ -100,9 +106,15 @@ class PinningTrustManager implements X509TrustManager {
             try {
                 cleanedChainList = chainCleaner.clean(Arrays.asList((Certificate[]) chain));
             } catch (SSLPeerUnverifiedException e) {
-                // TODO(ad): Send a report and throw an exception
-                e.printStackTrace();
-                throw new CertificateException("SSLPeerUnverifiedException");
+                // Send a pin failure report
+                PinValidationResult result =
+                        PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
+                TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
+                        chain, notedHostname, serverConfig, result);
+
+                // Then re-throw the exception to close the SSL connection
+                throw new CertificateException("Received SSLPeerUnverifiedException from " +
+                        "CertificateChainCleaner; received certificate chain is unclean.");
             }
 
             // Perform pinning validation
@@ -121,7 +133,11 @@ class PinningTrustManager implements X509TrustManager {
             }
 
             if (!wasPinFound) {
-                // TODO(ad): Send a report and throw an exception
+                // Send a pin failure report
+                PinValidationResult result = PinValidationResult.SUCCESS;
+                TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
+                        chain, notedHostname, serverConfig, result);
+
                 // TODO(ad): Add more details to this exception (configured pins, etc.)
                 throw new CertificateException("Pinning validation failed");
             }
@@ -133,7 +149,7 @@ class PinningTrustManager implements X509TrustManager {
         try {
             digest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Should never happen");
+            throw new IllegalStateException("Should never happen");
         }
         digest.reset();
 
