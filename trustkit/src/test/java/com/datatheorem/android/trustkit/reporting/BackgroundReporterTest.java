@@ -98,7 +98,7 @@ public class BackgroundReporterTest {
 
         backgroundReporter.pinValidationFailed("www.test.com", 443, new String[]{certificate},
                 "www.test.com", new URL[] {baseUrl.url()}, true, false, true,
-                new String[]{pin}, PinValidationResult.PIN_VALIDATION_RESULT_FAILED);;
+                new String[]{pin}, PinValidationResult.FAILED);;
 
         RecordedRequest request = server.takeRequest();
         //Check if the request is well formed
@@ -108,7 +108,7 @@ public class BackgroundReporterTest {
 
         //Check if the report is sent through the system
         Assert.assertEquals(true, mockBroadcastReceiver.received);
-        Assert.assertEquals(PinValidationResult.PIN_VALIDATION_RESULT_FAILED.ordinal(),
+        Assert.assertEquals(PinValidationResult.FAILED.ordinal(),
                 mockBroadcastReceiver.pinValidationResult);
         Assert.assertEquals("www.test.com", mockBroadcastReceiver.notedHostname);
         Assert.assertEquals("www.test.com", mockBroadcastReceiver.serverHostname);
@@ -133,7 +133,7 @@ public class BackgroundReporterTest {
 
         backgroundReporter.pinValidationFailed("www.test.com", 442, new String[]{certificate},
                 "www.test.com", new URL[] {baseUrl.url()}, true, false, true,
-                new String[]{pin}, PinValidationResult.PIN_VALIDATION_RESULT_FAILED);;
+                new String[]{pin}, PinValidationResult.FAILED);;
 
 
         //Check if the report is not sent through the system because the same report was sent
