@@ -8,6 +8,8 @@ import android.support.v4.content.LocalBroadcastManager;
 /**
  * PinFailureReportInternalSender send a local broadcast message with the report
  */
+// TODO(ad): Rename this to clarify that it is a broadcast
+// TODO(ad): This should send notifications also when pin validation was successful (to consumers can check the duration of each validation)
 class PinFailureReportInternalSender {
 
     // TODO(ad): Choose the right ID and move it to the right class
