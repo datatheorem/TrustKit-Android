@@ -32,6 +32,8 @@ class PinningTrustManager implements X509TrustManager {
 
     private static final CertificateChainCleaner chainCleaner;
     static {
+        // TODO(ad): Does the TrustRootIndex work on all Android versions we support?
+        // Documentation says it shouldn't be used in Android API 17 or better
         chainCleaner = new CertificateChainCleaner(TrustRootIndex.get(systemTrustManager));
     }
 
@@ -92,9 +94,11 @@ class PinningTrustManager implements X509TrustManager {
             systemTrustManager.checkServerTrusted(chain, authType);
         } catch (CertificateException e) {
             // Send a pin failure report
-            PinValidationResult result = PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
-            TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
-                    chain, notedHostname, serverConfig, result);
+            if (serverConfig != null) {
+                TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
+                        chain, notedHostname, serverConfig,
+                        PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
+            }
 
             // Then re-throw the exception to close the SSL connection
             throw e;
@@ -104,17 +108,17 @@ class PinningTrustManager implements X509TrustManager {
         if (serverConfig != null) {
             System.out.println("Performing pinning validation");
 
-            // Clean the certificate chain to avoid SSL pinning bypass issues
+            // Build the verified certificate chain, which includes the root certificate from the
+            // Android trust store and removes unrelated extra certificates an attacker might add
             // https://koz.io/pinning-cve-2016-2402/
-            List<Certificate> cleanedChainList;
+            List<Certificate> verifiedChain;
             try {
-                cleanedChainList = chainCleaner.clean(Arrays.asList((Certificate[]) chain));
+                verifiedChain = chainCleaner.clean(Arrays.asList((Certificate[]) chain));
             } catch (SSLPeerUnverifiedException e) {
                 // Send a pin failure report
-                PinValidationResult result =
-                        PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
                 TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
-                        chain, notedHostname, serverConfig, result);
+                        chain, notedHostname, serverConfig,
+                        PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
 
                 // Then re-throw the exception to close the SSL connection
                 throw new CertificateException("Received SSLPeerUnverifiedException from " +
@@ -124,7 +128,7 @@ class PinningTrustManager implements X509TrustManager {
             // Perform pinning validation
             boolean wasPinFound = false;
             List<String> serverPins = Arrays.asList(serverConfig.getPublicKeyHashes());
-            for (Certificate certificate : cleanedChainList) {
+            for (Certificate certificate : verifiedChain) {
                 String certificatePin = generatePublicKeyHash((X509Certificate) certificate);
 
                 System.out.println("Testing " + certificatePin);
@@ -138,13 +142,27 @@ class PinningTrustManager implements X509TrustManager {
 
             if (!wasPinFound) {
                 // Send a pin failure report
-                PinValidationResult result = PinValidationResult.FAILED;
                 TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
-                        chain, notedHostname, serverConfig, result);
+                        chain, notedHostname, serverConfig, PinValidationResult.FAILED);
 
-                // TODO(ad): Add more details to this exception (configured pins, etc.)
-                throw new CertificateException("Pinning validation failed");
+                // Then throw the exception to close the SSL connection
+                StringBuilder errorBuilder = new StringBuilder()
+                        .append("Pinning validation failed for ")
+                        .append(serverHostname)
+                        .append("\n  Configured pins: ")
+                        .append(serverPins)
+                        .append("\n  Peer certificate chain: ");
+                for (Certificate certificate : chain) {
+                    errorBuilder.append("\n    ")
+                            .append(generatePublicKeyHash((X509Certificate) certificate))
+                            .append(" - ")
+                            .append(((X509Certificate) certificate).getIssuerDN());
+                }
+                throw new CertificateException(errorBuilder.toString());
             }
+
+            // If we get here, validation succeeded
+            // TOOD(ad): Send a broadcast notification
         }
     }
 

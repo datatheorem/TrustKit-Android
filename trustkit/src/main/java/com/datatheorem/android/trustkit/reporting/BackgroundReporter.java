@@ -74,7 +74,7 @@ public final class BackgroundReporter {
                                           PinnedDomainConfiguration serverConfig,
                                           PinValidationResult validationResult) {
 
-        TrustKitLog.i("Pin failure report for " + serverHostname);
+        TrustKitLog.i("Generating pin failure report for " + serverHostname);
 
         // Convert the certificates to PEM strings
         String[] certificateChainAsPem = new String[receivedCertificateChain.length];
