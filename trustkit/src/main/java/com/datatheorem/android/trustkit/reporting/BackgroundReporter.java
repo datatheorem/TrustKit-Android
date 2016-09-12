@@ -63,6 +63,7 @@ public final class BackgroundReporter {
         // Create the PEM string
         String certificateAsPem = "-----BEGIN CERTIFICATE-----\n";
         certificateAsPem += Base64.encodeToString(certificateData, Base64.DEFAULT);
+        certificateAsPem += "-----END CERTIFICATE-----\n";
         return certificateAsPem;
     }
 
@@ -127,6 +128,5 @@ public final class BackgroundReporter {
                 }
             }
         }.execute();
-
     }
 }
