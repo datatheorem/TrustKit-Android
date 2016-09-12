@@ -44,7 +44,7 @@ public class PinningSSLSocketFactoryTest {
         try {
             url = new URL("https://wrong.host.badssl.com/");
             url = new URL("https://204.11.59.148/");
-            url = new URL("https://www.datatheorem.com");
+            //url = new URL("https://www.datatheorem.com");
             //url = new URL("https://expired.badssl.com/");
             urlConnection = (HttpsURLConnection) url.openConnection();
             //SocketFactory test = SSLCertificateSocketFactory.getDefault(50000);

@@ -42,6 +42,9 @@ class PinningTrustManager implements X509TrustManager {
     private final String notedHostname; // TODO(ad): Put this in the serverConfig
     private final PinnedDomainConfiguration serverConfig; // null if the domain is not pinned
 
+    // The server's verified certificate chain; needed to access it during hostname validation
+    private Certificate[] serverVerifiedChain = null;
+
     public PinningTrustManager(String serverHostname, int serverPort, String notedHostname,
                                PinnedDomainConfiguration serverConfig) {
 
@@ -96,7 +99,9 @@ class PinningTrustManager implements X509TrustManager {
             // Send a pin failure report
             if (serverConfig != null) {
                 TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
-                        chain, notedHostname, serverConfig,
+                        // Send the chain sent by the peer as we couldn't build a verified chain
+                        chain,
+                        notedHostname, serverConfig,
                         PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
             }
 
@@ -104,28 +109,31 @@ class PinningTrustManager implements X509TrustManager {
             throw e;
         }
 
+        // Build the verified certificate chain, which includes the root certificate from the
+        // Android trust store and removes unrelated extra certificates an attacker might add
+        // https://koz.io/pinning-cve-2016-2402/
+        List<Certificate> verifiedChain;
+        try {
+            verifiedChain = chainCleaner.clean(Arrays.asList((Certificate[]) chain));
+        } catch (SSLPeerUnverifiedException e) {
+            // Should never happen since the system validation already succeeded
+            // Send a pin failure report anyway
+            TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
+                    // Send the chain sent by the peer as we couldn't build a verified chain
+                    chain,
+                    notedHostname, serverConfig,
+                    PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
+
+            // Then re-throw the exception to close the SSL connection
+            throw new CertificateException("Received SSLPeerUnverifiedException from " +
+                    "CertificateChainCleaner; received certificate chain is unclean.");
+        }
+        // Keep the verified chain around so we can retrieve it during hostname validation
+        serverVerifiedChain = verifiedChain.toArray(new Certificate[verifiedChain.size()]);
+
         // Perform pinning validation if the domain is pinned
         if (serverConfig != null) {
             System.out.println("Performing pinning validation");
-
-            // Build the verified certificate chain, which includes the root certificate from the
-            // Android trust store and removes unrelated extra certificates an attacker might add
-            // https://koz.io/pinning-cve-2016-2402/
-            List<Certificate> verifiedChain;
-            try {
-                verifiedChain = chainCleaner.clean(Arrays.asList((Certificate[]) chain));
-            } catch (SSLPeerUnverifiedException e) {
-                // Send a pin failure report
-                TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
-                        chain, notedHostname, serverConfig,
-                        PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
-
-                // Then re-throw the exception to close the SSL connection
-                throw new CertificateException("Received SSLPeerUnverifiedException from " +
-                        "CertificateChainCleaner; received certificate chain is unclean.");
-            }
-
-            // Perform pinning validation
             boolean wasPinFound = false;
             List<String> serverPins = Arrays.asList(serverConfig.getPublicKeyHashes());
             for (Certificate certificate : verifiedChain) {
@@ -143,7 +151,9 @@ class PinningTrustManager implements X509TrustManager {
             if (!wasPinFound) {
                 // Send a pin failure report
                 TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
-                        chain, notedHostname, serverConfig, PinValidationResult.FAILED);
+                        // Send the verified certificate chain
+                        serverVerifiedChain,
+                        notedHostname, serverConfig, PinValidationResult.FAILED);
 
                 // Then throw the exception to close the SSL connection
                 StringBuilder errorBuilder = new StringBuilder()
@@ -152,7 +162,7 @@ class PinningTrustManager implements X509TrustManager {
                         .append("\n  Configured pins: ")
                         .append(serverPins)
                         .append("\n  Peer certificate chain: ");
-                for (Certificate certificate : chain) {
+                for (Certificate certificate : serverVerifiedChain) {
                     errorBuilder.append("\n    ")
                             .append(generatePublicKeyHash((X509Certificate) certificate))
                             .append(" - ")
@@ -164,7 +174,10 @@ class PinningTrustManager implements X509TrustManager {
             // If we get here, validation succeeded
             // TOOD(ad): Send a broadcast notification
         }
+        System.out.println("Path validation completed successfully");
     }
+
+    public Certificate[] getServerVerifiedChain() { return serverVerifiedChain; }
 
     private static String generatePublicKeyHash(X509Certificate certificate) {
         MessageDigest digest;

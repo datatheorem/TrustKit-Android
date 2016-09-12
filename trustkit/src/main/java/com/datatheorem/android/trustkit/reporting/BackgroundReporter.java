@@ -15,6 +15,7 @@ import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.sql.Date;
@@ -51,7 +52,7 @@ public final class BackgroundReporter {
     }
 
 
-    private String certificateToPem(X509Certificate certificate) {
+    private String certificateToPem(Certificate certificate) {
         byte[] certificateData;
         try {
             certificateData = certificate.getEncoded();
@@ -69,7 +70,7 @@ public final class BackgroundReporter {
 
 
     public final void pinValidationFailed(String serverHostname, Integer serverPort,
-                                          X509Certificate[] receivedCertificateChain,
+                                          Certificate[] receivedCertificateChain,
                                           String notedHostname,
                                           PinnedDomainConfiguration serverConfig,
                                           PinValidationResult validationResult) {
