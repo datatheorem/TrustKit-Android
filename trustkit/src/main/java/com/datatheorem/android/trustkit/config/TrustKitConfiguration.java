@@ -8,16 +8,30 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
-public class TrustKitConfiguration extends HashMap<String, PinnedDomainConfiguration> {
+public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
     // TODO(ad): Investigate whether we can add TSKIgnorePinningForUserDefinedTrustAnchors and TSKSwizzleNetworkDelegates
+
+    public PinnedDomainConfiguration getByPinnedHostname(String pinnedHostname) {
+        for (PinnedDomainConfiguration pinnedDomainConfiguration : this) {
+            if (pinnedHostname.equals(pinnedDomainConfiguration.getPinnedDomainName())) {
+                return pinnedDomainConfiguration;
+            }
+        }
+
+        return null;
+    }
 
     // TODO(ad): Implement the same sanity checks as https://github.com/datatheorem/TrustKit/blob/master/TrustKit/parse_configuration.m
     public static TrustKitConfiguration fromXmlPolicy(XmlResourceParser parser) {
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         String domainName = null;
-        PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder = new PinnedDomainConfiguration.Builder();
-        ArrayList<String> knownPins = null;
+        PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder =
+                new PinnedDomainConfiguration.Builder();
+        Set<String> knownPins = null;
         boolean isADomain = false;
         boolean isAPin = false;
         boolean isAReportUri = false;
@@ -34,7 +48,7 @@ public class TrustKitConfiguration extends HashMap<String, PinnedDomainConfigura
                         isAPin = true;
                         isADomain = false;
                         if (knownPins == null) {
-                            knownPins = new ArrayList<>();
+                            knownPins = new HashSet<>();
                         }
                     } else if ("report-uri".equals(parser.getName())) {
                         isAReportUri = true;
@@ -60,9 +74,10 @@ public class TrustKitConfiguration extends HashMap<String, PinnedDomainConfigura
 
                     if ("domain-config".equals(parser.getName())){
                         pinnedDomainConfigBuilder
+                                .pinnedDomainName(domainName)
                                 .reportURIs(reportUris.toArray(new String[reportUris.size()]))
-                                .publicKeyHashes(knownPins.toArray(new String[knownPins.size()]));
-                        trustKitConfiguration.put(domainName, pinnedDomainConfigBuilder.build());
+                                .publicKeyHashes(knownPins);
+                        trustKitConfiguration.add(pinnedDomainConfigBuilder.build());
                     }
 
 

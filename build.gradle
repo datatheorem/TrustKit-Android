@@ -20,6 +20,12 @@ allprojects {
 
 
 ext{
+    trustkitVersionCode = 1
+    trustkitVersionName = "0.1.0"
+
+    demoAppTrustKitVersionCode = 1
+    demoAppTrustKitVersionName = "1.0"
+
     javaSourceCompatibilty = '1.6'
     toolVersions = [
             android : [
@@ -37,9 +43,12 @@ ext{
         mockito: '2.0.+',
         mockwebserver : '3.4.1',
         android : [
-            appCompat : '24.+'
-        ]
+            appCompat : '24.+',
+            testRunner: '0.5'
+        ],
+        guava : '19.0'
     ]
+
 }
 
 task clean(type: Delete) {

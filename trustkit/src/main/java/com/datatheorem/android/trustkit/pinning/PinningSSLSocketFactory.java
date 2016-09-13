@@ -71,8 +71,7 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
     private static TrustManager createTrustManager(String host, int port) {
         // Get this domain's pinning configuration if any
         TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
-        String notedHostname = host;
-        PinnedDomainConfiguration hostConfig = config.get(notedHostname);
-        return new PinningTrustManager(host, port, notedHostname, hostConfig);
+        PinnedDomainConfiguration hostConfig = config.getByPinnedHostname(host);
+        return new PinningTrustManager(host, port, host, hostConfig);
     }
 }

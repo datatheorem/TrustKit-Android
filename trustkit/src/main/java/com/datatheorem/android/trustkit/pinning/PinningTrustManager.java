@@ -13,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -123,7 +124,7 @@ class PinningTrustManager implements X509TrustManager {
 
             // Perform pinning validation
             boolean wasPinFound = false;
-            List<String> serverPins = Arrays.asList(serverConfig.getPublicKeyHashes());
+            List<SubjectPublicKeyInfoPin> serverPins = new ArrayList<>(serverConfig.getPublicKeyHashes());
             for (Certificate certificate : cleanedChainList) {
                 String certificatePin = generatePublicKeyHash((X509Certificate) certificate);
 

@@ -8,8 +8,8 @@ android {
         applicationId "com.datatheorem.android.trustkit.demoapp"
         minSdkVersion toolVersions.android.minSdk
         targetSdkVersion toolVersions.android.targetSdk
-        versionCode 1
-        versionName "1.0"
+        versionCode demoAppTrustKitVersionCode
+        versionName demoAppTrustKitVersionName
     }
     buildTypes {
         release {

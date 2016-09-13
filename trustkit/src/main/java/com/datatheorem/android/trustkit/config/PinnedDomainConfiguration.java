@@ -1,7 +1,12 @@
 package com.datatheorem.android.trustkit.config;
 
+import android.support.annotation.NonNull;
+
+import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
+import com.google.common.net.InternetDomainName;
+
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,42 +25,55 @@ public final class PinnedDomainConfiguration {
         DEFAULT_REPORTING_URL = defaultUrl;
     }
 
-    private final String[] publicKeyHashes; // TODO(ad): Convert this to a set: faster to check if an element is in it and gets rid of duplicates
+    private final Set<SubjectPublicKeyInfoPin> publicKeyHashes;
     private final boolean enforcePinning;
-    private final HashSet<URL> reportURIs;
+    private final ArrayList<URL> reportURIs;
     private final boolean includeSubdomains;
+    private final String pinnedDomainName;
 
     private PinnedDomainConfiguration(Builder builder) {
-        // TODO(ad): Require two pins minimum and do some sanity check on them (length, etc.)
-        publicKeyHashes = builder.publicKeyHashes;
-
+        pinnedDomainName = builder.pinnedDomainName;
+        publicKeyHashes = builder.publicKeyInfoPins;
         enforcePinning = builder.enforcePinning;
         includeSubdomains = builder.includeSubdomains;
 
         // Create the final list of report URIs
         // Add the default report URI if enabled
-        reportURIs = new HashSet<URL>();
+        reportURIs = new ArrayList<>();
         if (!builder.disableDefaultReportUri) {
             reportURIs.add(DEFAULT_REPORTING_URL);
         }
         // Add the supplied report URIs
         if (builder.reportURIs != null) {
-            for (String url: builder.reportURIs) {
-                try {
-                    URL parsedUrl = new URL(url);
-                    reportURIs.add(parsedUrl);
-                } catch (MalformedURLException e) {
-                    throw new IllegalArgumentException("Could not parse supplied URL: " + url);
-                }
-            }
+            reportURIs.addAll(builder.reportURIs);
         }
+    }
+
+    public String getPinnedDomainName() {
+        return pinnedDomainName;
+    }
+    public Set<SubjectPublicKeyInfoPin> getPublicKeyHashes() {
+        return publicKeyHashes;
+    }
+
+    public boolean isEnforcePinning() {
+        return enforcePinning;
+    }
+
+    public ArrayList<URL> getReportURIs() {
+        return reportURIs;
+    }
+
+    public boolean isIncludeSubdomains() {
+        return includeSubdomains;
     }
 
     @Override
     public String toString() {
         return new StringBuilder()
                 .append("PinnedDomainConfiguration{")
-                .append("knownPins = " + Arrays.toString(publicKeyHashes) + "\n")
+                .append("pinnedDomain = " + pinnedDomainName + "\n")
+                .append("knownPins = " + Arrays.toString(publicKeyHashes.toArray()) + "\n")
                 .append("enforcePinning = " +enforcePinning + "\n")
                 .append("reportUris = " + reportURIs + "\n")
                 .append("includeSubdomains = " + includeSubdomains + "\n")
@@ -64,16 +82,23 @@ public final class PinnedDomainConfiguration {
     }
 
     public static final class Builder {
-        private String[] publicKeyHashes;
+        private String pinnedDomainName;
+        private Set<String> publicKeyHashes;
+        private Set<SubjectPublicKeyInfoPin> publicKeyInfoPins;
         private boolean enforcePinning;
-        private String[] reportURIs;
+        private ArrayList<URL> reportURIs;
         private boolean includeSubdomains;
         private boolean disableDefaultReportUri;
 
         public Builder() {
         }
 
-        public Builder publicKeyHashes(String[] val) {
+        public Builder pinnedDomainName(@NonNull String val) {
+            pinnedDomainName = val;
+            return this;
+        }
+
+        public Builder publicKeyHashes(@NonNull Set<String> val) {
             publicKeyHashes = val;
             return this;
         }
@@ -83,8 +108,15 @@ public final class PinnedDomainConfiguration {
             return this;
         }
 
-        public Builder reportURIs(String[] val) {
-            reportURIs = val;
+        public Builder reportURIs(@NonNull String[] val) {
+            reportURIs = new ArrayList<>();
+            for (String url : val) {
+                try {
+                    reportURIs.add(new URL(url));
+                } catch (MalformedURLException e) {
+                    throw new ConfigurationException("Malformed url for reportUrl " + url);
+                }
+            }
             return this;
         }
 
@@ -98,24 +130,42 @@ public final class PinnedDomainConfiguration {
             return this;
         }
 
+        /*
+        All sanity checks run during the build() method. It prevents any bad configuration to be
+        added to the main configuration.
+         */
         public PinnedDomainConfiguration build() {
+            if (pinnedDomainName == null || pinnedDomainName.equals("")) {
+                throw new ConfigurationException("TrustKit was initialized with no pinned domains.");
+            }
+
+            try {
+                pinnedDomainName.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new ConfigurationException("TrustKit was initialized with an invalid domain");
+            }
+
+            if (InternetDomainName.from(pinnedDomainName).isPublicSuffix()){
+//                    && includeSubdomains && InternetDomainName.isValid(pinnedDomainName)) {
+                throw new ConfigurationException("TrustKit was initialized with includeSubdomains "+
+                        "for a domain suffix " + InternetDomainName.from(pinnedDomainName));
+            }
+
+            if (publicKeyHashes.size() < 2) {
+                throw new ConfigurationException("TrustKit was initialized with less than two pins"+
+                        ", (ie. no backup pins for domain " + pinnedDomainName + ". This might " +
+                        "brick your App; please review the Getting Started guide in " +
+                        "./docs/getting-started.md");
+            }
+
+            publicKeyInfoPins = new HashSet<>(publicKeyHashes.size());
+            for (String publicKeyHash : publicKeyHashes) {
+                publicKeyInfoPins.add(new SubjectPublicKeyInfoPin(publicKeyHash));
+            }
+
             return new PinnedDomainConfiguration(this);
         }
     }
 
-    public String[] getPublicKeyHashes() {
-        return publicKeyHashes;
-    }
 
-    public boolean isEnforcePinning() {
-        return enforcePinning;
-    }
-
-    public HashSet<URL> getReportURIs() {
-        return reportURIs;
-    }
-
-    public boolean isIncludeSubdomains() {
-        return includeSubdomains;
-    }
 }

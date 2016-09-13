@@ -1,27 +1,18 @@
 package com.datatheorem.android.trustkit.reporting;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Base64;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
-import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
-import java.io.IOException;
 import java.net.URL;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.UUID;
 
 
 /**
@@ -29,7 +20,7 @@ import java.util.UUID;
  * to the specific URI.
  */
 public final class BackgroundReporter {
-    private static final String appPlatform = "ANDROID";
+    private static final String APP_PLATFORM = "ANDROID";
 
     // Main application environment information
     private final String appPackageName;
@@ -74,10 +65,12 @@ public final class BackgroundReporter {
                                           PinValidationResult validationResult) {
 
         TrustKitLog.i("Pin failure report for " + serverHostname);
+        TrustKitLog.i(String.valueOf(receivedCertificateChain.length));
 
         // Convert the certificates to PEM strings
         String[] certificateChainAsPem = new String[receivedCertificateChain.length];
         for (int i = 0; i < receivedCertificateChain.length; i++) {
+            TrustKitLog.i(receivedCertificateChain[i].toString());
             certificateChainAsPem[i] = certificateToPem(receivedCertificateChain[i]);
         }
 
@@ -85,7 +78,7 @@ public final class BackgroundReporter {
         final PinFailureReport report = new PinFailureReport.Builder()
                 .appBundleId(appPackageName)
                 .appVersion(appVersion)
-                .appPlatform(appPlatform)
+                .appPlatform(APP_PLATFORM)
                 .appVendorId(appVendorId)
                 .trustKitVersion(BuildConfig.VERSION_NAME)
                 .hostname(serverHostname)
@@ -105,7 +98,7 @@ public final class BackgroundReporter {
             return;
         }
 
-        final HashSet<URL> reportUriSet = serverConfig.getReportURIs();
+        final ArrayList<URL> reportUriSet = serverConfig.getReportURIs();
         new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] params) {
