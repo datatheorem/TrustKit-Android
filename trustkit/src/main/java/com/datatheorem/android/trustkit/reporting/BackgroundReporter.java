@@ -1,28 +1,19 @@
 package com.datatheorem.android.trustkit.reporting;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
+
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Base64;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
-import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
-import java.io.IOException;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.UUID;
 
 
 /**
