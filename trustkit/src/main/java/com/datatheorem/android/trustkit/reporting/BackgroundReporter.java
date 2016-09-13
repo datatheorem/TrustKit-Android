@@ -20,7 +20,7 @@ import java.util.HashSet;
  * The BackgroundReporter save a report when a pinning validation fail and send the report
  * to the specific URI.
  */
-public final class BackgroundReporter {
+public class BackgroundReporter {
     private static final String appPlatform = "ANDROID";
 
     // Main application environment information
@@ -60,8 +60,8 @@ public final class BackgroundReporter {
     }
 
 
-    public final void pinValidationFailed(String serverHostname, Integer serverPort,
-                                          Certificate[] receivedCertificateChain,
+    public void pinValidationFailed(String serverHostname, Integer serverPort,
+                                          Certificate[] certificateChain,
                                           String notedHostname,
                                           PinnedDomainConfiguration serverConfig,
                                           PinValidationResult validationResult) {
@@ -69,9 +69,9 @@ public final class BackgroundReporter {
         TrustKitLog.i("Generating pin failure report for " + serverHostname);
 
         // Convert the certificates to PEM strings
-        String[] certificateChainAsPem = new String[receivedCertificateChain.length];
-        for (int i = 0; i < receivedCertificateChain.length; i++) {
-            certificateChainAsPem[i] = certificateToPem(receivedCertificateChain[i]);
+        String[] certificateChainAsPem = new String[certificateChain.length];
+        for (int i = 0; i < certificateChain.length; i++) {
+            certificateChainAsPem[i] = certificateToPem(certificateChain[i]);
         }
 
         // Generate the corresponding pin failure report

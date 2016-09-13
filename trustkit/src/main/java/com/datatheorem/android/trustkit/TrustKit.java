@@ -17,11 +17,11 @@ public class TrustKit {
 
     private static final String TRUSTKIT_VENDOR_ID = "TRUSTKIT_VENDOR_ID";
     private final TrustKitConfiguration trustKitConfiguration;
-    private final BackgroundReporter backgroundReporter;
-    private static TrustKit trustKitInstance;
+    protected BackgroundReporter backgroundReporter;
+    protected static TrustKit trustKitInstance;
 
 
-    private TrustKit(Context context, TrustKitConfiguration trustKitConfiguration) {
+    protected TrustKit(Context context, TrustKitConfiguration trustKitConfiguration) {
         this.trustKitConfiguration = trustKitConfiguration;
 
         // Create the background reporter for sending pin failure reports
@@ -72,9 +72,8 @@ public class TrustKit {
             trustKitInstance = new TrustKit(appContext, trustKitConfiguration);
         }
         else {
-            throw new IllegalStateException("Already instantiated");
+            throw new IllegalStateException("TrustKit was already initialized");
         }
-        //PinningTrustManager manager = new PinningTrustManager();
     }
 
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
