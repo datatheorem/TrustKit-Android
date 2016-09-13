@@ -1,12 +1,10 @@
 package com.datatheorem.android.trustkit.config;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
+
 
 public final class PinnedDomainConfiguration {
     private static final URL DEFAULT_REPORTING_URL;

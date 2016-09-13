@@ -2,7 +2,6 @@ package com.datatheorem.android.trustkit.pinning;
 
 
 import android.net.SSLCertificateSocketFactory;
-import android.util.Log;
 
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
@@ -12,12 +11,12 @@ import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.security.cert.Certificate;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
+
 
 public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
 
@@ -29,17 +28,61 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
     @Override
     public Socket createSocket(String host, int port, InetAddress localAddr, int localPort)
             throws IOException {
-        // Force the use of our PinningTrustManager
-        setTrustManagers(new TrustManager[]{createTrustManager(host, port)});
+        // Get this domain's pinning configuration if any
+        TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
+        // TODO(ad): Handle subdomains here
+        String notedHostname = host;
+        PinnedDomainConfiguration serverConfig = config.get(notedHostname);
+        PinningTrustManager trustManager = null;
 
+        // Force the use of our PinningTrustManager if the domain was pinned
+        if (serverConfig != null) {
+            trustManager = new PinningTrustManager(serverConfig.getPublicKeyHashes());
+            setTrustManagers(new TrustManager[]{trustManager});
+        }
+
+        // Try to create the socket, which will trigger the SSL handshake
         try {
             return super.createSocket(host, port, localAddr, localPort);
         } catch (SSLPeerUnverifiedException e) {
             // Hostname validation failed
-            System.out.println("Hostname validation failed");
-            // TODO(ad): Send a report
+            if (serverConfig != null) {
+                // If the domain was pinned, send a pin failure report
+                System.out.println("Hostname validation failed");
+                TrustKit.getInstance().getReporter().pinValidationFailed(host, port,
+                        trustManager.getServerVerifiedChain(), notedHostname, serverConfig,
+                        PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
+
+                // TOOD(ad): Send a broadcast notification
+            }
+
+            // Forward the exception
+            throw e;
+        } catch (SSLHandshakeException e) {
+            // Path validation or pinning validation failed
+            if (serverConfig != null) {
+                // If the domain was pinned, send a pin failure report
+                // The validation result and chain are available in the trust manager
+                PinValidationResult validationResult = trustManager.getServerChainValidationResult();
+                Certificate[] serverChainToSend = trustManager.getServerReceivedChain();
+                if (validationResult == PinValidationResult.FAILED) {
+                    // If path validation succeeded (but not pinning), we can get the verified chain
+                    serverChainToSend = trustManager.getServerVerifiedChain();
+                }
+
+                // Send a pin failure report
+                TrustKit.getInstance().getReporter().pinValidationFailed(host, port,
+                        serverChainToSend, notedHostname, serverConfig, validationResult);
+
+                // TOOD(ad): Send a broadcast notification
+            }
+
+            // Forward the exception
             throw e;
         }
+
+        // If we get here, validation succeeded
+        // TOOD(ad): Send a broadcast notification
     }
 
     @Override
@@ -52,27 +95,54 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         PinningTrustManager trustManager = null;
 
         // Force the use of our PinningTrustManager if the domain was pinned
-        // Otherwise leave the default trust manager
         if (serverConfig != null) {
-            trustManager = new PinningTrustManager(host, port, notedHostname,
-                    serverConfig);
+            trustManager = new PinningTrustManager(serverConfig.getPublicKeyHashes());
             setTrustManagers(new TrustManager[]{trustManager});
         }
 
+        // Try to create the socket, which will trigger the SSL handshake
         try {
             return super.createSocket(k, host, port, close);
+
         } catch (SSLPeerUnverifiedException e) {
             // Hostname validation failed
             if (serverConfig != null) {
-                // Domain was pinned - send a pin failure report
+                // If the domain was pinned, send a pin failure report
                 System.out.println("Hostname validation failed");
                 TrustKit.getInstance().getReporter().pinValidationFailed(host, port,
                         trustManager.getServerVerifiedChain(), notedHostname, serverConfig,
                         PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
+
+                // TOOD(ad): Send a broadcast notification
             }
 
+            // Forward the exception
+            throw e;
+        } catch (SSLHandshakeException e) {
+            // Path validation or pinning validation failed
+            if (serverConfig != null) {
+                // If the domain was pinned, send a pin failure report
+                // The validation result and chain are available in the trust manager
+                PinValidationResult validationResult = trustManager.getServerChainValidationResult();
+                Certificate[] serverChainToSend = trustManager.getServerReceivedChain();
+                if (validationResult == PinValidationResult.FAILED) {
+                    // If path validation succeeded (but not pinning), we can get the verified chain
+                    serverChainToSend = trustManager.getServerVerifiedChain();
+                }
+
+                // Send a pin failure report
+                TrustKit.getInstance().getReporter().pinValidationFailed(host, port,
+                        serverChainToSend, notedHostname, serverConfig, validationResult);
+
+                // TOOD(ad): Send a broadcast notification
+            }
+
+            // Forward the exception
             throw e;
         }
+
+        // If we get here, validation succeeded
+        // TOOD(ad): Send a broadcast notification
     }
 
     @Override
@@ -81,35 +151,56 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
         // TODO(ad): Handle subdomains here
         String notedHostname = host;
-        PinnedDomainConfiguration hostConfig = config.get(notedHostname);
+        PinnedDomainConfiguration serverConfig = config.get(notedHostname);
+        PinningTrustManager trustManager = null;
 
-        // Force the use of our PinningTrustManager
-        setTrustManagers(new TrustManager[]{
-                new PinningTrustManager(host, port, notedHostname, hostConfig)
-        });
+        // Force the use of our PinningTrustManager if the domain was pinned
+        if (serverConfig != null) {
+            trustManager = new PinningTrustManager(serverConfig.getPublicKeyHashes());
+            setTrustManagers(new TrustManager[]{trustManager});
+        }
 
+        // Try to create the socket, which will trigger the SSL handshake
         try {
             return super.createSocket(host, port);
         } catch (SSLPeerUnverifiedException e) {
             // Hostname validation failed
-            System.out.println("Hostname validation failed");
+            if (serverConfig != null) {
+                // If the domain was pinned, send a pin failure report
+                System.out.println("Hostname validation failed");
+                TrustKit.getInstance().getReporter().pinValidationFailed(host, port,
+                        trustManager.getServerVerifiedChain(), notedHostname, serverConfig,
+                        PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
 
-            // Send a pin failure report
-            //X509Certificate[] chain = socket.getSession().getPeerCertificateChain();
-            //TrustKit.getInstance().getReporter().pinValidationFailed(host, port, chain,
-            //        notedHostname, hostConfig,
-            //        PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
+                // TOOD(ad): Send a broadcast notification
+            }
 
-            // Then re-throw the exception to close the SSL connection
+            // Forward the exception
+            throw e;
+        } catch (SSLHandshakeException e) {
+            // Path validation or pinning validation failed
+            if (serverConfig != null) {
+                // If the domain was pinned, send a pin failure report
+                // The validation result and chain are available in the trust manager
+                PinValidationResult validationResult = trustManager.getServerChainValidationResult();
+                Certificate[] serverChainToSend = trustManager.getServerReceivedChain();
+                if (validationResult == PinValidationResult.FAILED) {
+                    // If path validation succeeded (but not pinning), we can get the verified chain
+                    serverChainToSend = trustManager.getServerVerifiedChain();
+                }
+
+                // Send a pin failure report
+                TrustKit.getInstance().getReporter().pinValidationFailed(host, port,
+                        serverChainToSend, notedHostname, serverConfig, validationResult);
+
+                // TOOD(ad): Send a broadcast notification
+            }
+
+            // Forward the exception
             throw e;
         }
-    }
 
-    private static TrustManager createTrustManager(String host, int port) {
-        // Get this domain's pinning configuration if any
-        TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
-        String notedHostname = host;
-        PinnedDomainConfiguration hostConfig = config.get(notedHostname);
-        return new PinningTrustManager(host, port, notedHostname, hostConfig);
+        // If we get here, validation succeeded
+        // TOOD(ad): Send a broadcast notification
     }
 }
