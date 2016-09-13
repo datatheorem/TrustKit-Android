@@ -46,7 +46,8 @@ class PinningTrustManager implements X509TrustManager {
     // The server's verified certificate chain, only available if path validation succeeded
     private Certificate[] serverVerifiedChain = null;
 
-    private PinValidationResult serverChainValidationResult;
+    private PinValidationResult serverChainValidationResult =
+            PinValidationResult.ERROR_INVALID_PARAMETERS;
 
 
     public PinningTrustManager(@NonNull String[] spkiPins) {
@@ -148,6 +149,7 @@ class PinningTrustManager implements X509TrustManager {
             throw new CertificateException(errorBuilder.toString());
         }
         System.out.println("Path and pinning validation completed successfully");
+        serverChainValidationResult = PinValidationResult.SUCCESS;
     }
 
     public Certificate[] getServerVerifiedChain() { return serverVerifiedChain; }
