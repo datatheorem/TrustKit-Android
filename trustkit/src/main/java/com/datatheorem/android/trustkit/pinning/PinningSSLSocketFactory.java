@@ -161,12 +161,12 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         Certificate[] serverChainToSend = null;
         PinValidationResult result = trustManager.getServerChainValidationResult();
 
-        if (result == PinValidationResult.FAILED) {
+        if (result == PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED) {
             // Path validation failed - send a report with the received chain
             serverChainToSend = trustManager.getServerReceivedChain();
             shouldSendReport = true;
             
-        } else if (result == PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED) {
+        } else if (result == PinValidationResult.FAILED) {
             // Pinning validation failed - send a report with the verified chain
             serverChainToSend = trustManager.getServerVerifiedChain();
             shouldSendReport = true;
