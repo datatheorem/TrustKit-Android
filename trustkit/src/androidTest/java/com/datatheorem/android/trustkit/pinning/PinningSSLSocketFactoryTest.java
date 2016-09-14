@@ -17,8 +17,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.security.cert.Certificate;
+import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSocketFactory;
 
 import static junit.framework.Assert.assertTrue;
@@ -81,7 +83,7 @@ public class PinningSSLSocketFactoryTest {
         verify(mockReporter).pinValidationFailed(
                 eq(serverHostname),
                 eq(443),
-                (Certificate[]) org.mockito.Matchers.isNotNull(),
+                (List<Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
@@ -99,17 +101,16 @@ public class PinningSSLSocketFactoryTest {
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
-        } catch (SSLHandshakeException e) {
+        } catch (SSLPeerUnverifiedException e) {
             didReceiveHandshakeError = true;
         }
-
         assertTrue(didReceiveHandshakeError);
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
                 eq(serverHostname),
                 eq(443),
-                (Certificate[]) org.mockito.Matchers.isNotNull(),
+                (List<Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
@@ -137,7 +138,7 @@ public class PinningSSLSocketFactoryTest {
         verify(mockReporter).pinValidationFailed(
                 eq(serverHostname),
                 eq(443),
-                (Certificate[]) org.mockito.Matchers.isNotNull(),
+                (List<Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
@@ -166,7 +167,7 @@ public class PinningSSLSocketFactoryTest {
         verify(mockReporter, never()).pinValidationFailed(
                 eq(serverHostname),
                 eq(443),
-                (Certificate[]) org.mockito.Matchers.isNotNull(),
+                (List<Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -184,7 +185,7 @@ public class PinningSSLSocketFactoryTest {
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
-        } catch (SSLHandshakeException e) {
+        } catch (SSLPeerUnverifiedException e) {
             didReceiveHandshakeError = true;
         }
 
@@ -194,7 +195,7 @@ public class PinningSSLSocketFactoryTest {
         verify(mockReporter).pinValidationFailed(
                 eq(serverHostname),
                 eq(443),
-                (Certificate[]) org.mockito.Matchers.isNotNull(),
+                (List<Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -224,7 +225,7 @@ public class PinningSSLSocketFactoryTest {
         verify(mockReporter, never()).pinValidationFailed(
                 eq(serverHostname),
                 eq(443),
-                (Certificate[]) org.mockito.Matchers.isNotNull(),
+                (List<Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -242,7 +243,7 @@ public class PinningSSLSocketFactoryTest {
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
-        } catch (SSLHandshakeException e) {
+        } catch (SSLPeerUnverifiedException e) {
             didReceiveHandshakeError = true;
         }
 
@@ -252,7 +253,7 @@ public class PinningSSLSocketFactoryTest {
         verify(mockReporter, never()).pinValidationFailed(
                 eq(serverHostname),
                 eq(443),
-                (Certificate[]) org.mockito.Matchers.isNotNull(),
+                (List<Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -280,7 +281,7 @@ public class PinningSSLSocketFactoryTest {
         verify(mockReporter, never()).pinValidationFailed(
                 eq(serverHostname),
                 eq(443),
-                (Certificate[]) org.mockito.Matchers.isNotNull(),
+                (List<Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -301,7 +302,7 @@ public class PinningSSLSocketFactoryTest {
         verify(mockReporter, never()).pinValidationFailed(
                 anyString(),
                 anyInt(),
-                (Certificate []) any(),
+                (List<Certificate>) any(),
                 anyString(),
                 any(PinnedDomainConfiguration.class),
                 any(PinValidationResult.class)

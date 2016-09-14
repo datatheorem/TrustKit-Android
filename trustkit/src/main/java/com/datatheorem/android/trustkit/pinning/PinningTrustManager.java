@@ -1,13 +1,7 @@
 package com.datatheorem.android.trustkit.pinning;
 
-import android.support.annotation.NonNull;
-import android.util.Base64;
-
-import com.datatheorem.android.trustkit.PinValidationResult;
-
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -20,7 +14,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-
+// Needed so we can do pinning validation after hostname validation (to avoid wrong pinning errors and reports)
 class PinningTrustManager implements X509TrustManager {
 
     private static final X509TrustManager systemTrustManager;
@@ -36,22 +30,14 @@ class PinningTrustManager implements X509TrustManager {
         chainCleaner = new CertificateChainCleaner(TrustRootIndex.get(systemTrustManager));
     }
 
-    // The list pins (Base64-encoded SHA256 of the subject public key info) for this server
-    // TODO(ad): Use a special type for the pins?
-    private final List<String> spkiPins;
-
     // The list of certificates sent by the server
-    private Certificate[] serverReceivedChain = null;
+    private List<Certificate> receivedServerChain = null;
 
     // The server's verified certificate chain, only available if path validation succeeded
-    private Certificate[] serverVerifiedChain = null;
+    private List<Certificate> verifiedServerChain = null;
 
-    private PinValidationResult serverChainValidationResult =
-            PinValidationResult.ERROR_INVALID_PARAMETERS;
-
-
-    public PinningTrustManager(@NonNull String[] spkiPins) {
-        this.spkiPins = Arrays.asList(spkiPins);
+    // TODO(ad): Rename this class
+    public PinningTrustManager() {
     }
 
     private static X509TrustManager getSystemTrustManager() {
@@ -88,91 +74,32 @@ class PinningTrustManager implements X509TrustManager {
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType) throws
             CertificateException {
-        serverReceivedChain = chain;
+        // Store the received chain so we can send it in a report if path validation fails
+        receivedServerChain = Arrays.asList((Certificate [])chain);
 
-        // Perform default certificate validation
-        System.out.println("Performing default system validation");
-        try {
-            systemTrustManager.checkServerTrusted(chain, authType);
-        } catch (CertificateException e) {
-            // Store the result and re-throw the exception to close the SSL connection
-            serverChainValidationResult = PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
-            throw e;
-        }
+        // Perform default path validation - will throw an exception if it failed
+        System.out.println("Performing system path validation");
+        systemTrustManager.checkServerTrusted(chain, authType);
 
         // Build the verified certificate chain, which includes the root certificate from the
         // Android trust store and removes unrelated extra certificates an attacker might add
         // https://koz.io/pinning-cve-2016-2402/
-        List<Certificate> verifiedChain;
         try {
-            verifiedChain = chainCleaner.clean(Arrays.asList((Certificate[]) chain));
+            // Keep the verified chain around so we can later use it for pinning validation
+            verifiedServerChain = chainCleaner.clean(Arrays.asList((Certificate[]) chain));
         } catch (SSLPeerUnverifiedException e) {
             // Should never happen since the system validation already succeeded
-            // Store the result and re-throw the exception to close the SSL connection
-            serverChainValidationResult = PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
+            // Throw the exception to close the SSL connection anyway
             throw new CertificateException("Received SSLPeerUnverifiedException from " +
                     "CertificateChainCleaner; received certificate chain is unclean.");
         }
-
-        // Keep the verified chain around so we can retrieve it when sending reports
-        serverVerifiedChain = verifiedChain.toArray(new Certificate[verifiedChain.size()]);
-
-        // Perform pinning validation
-        System.out.println("Performing pinning validation");
-        boolean wasPinFound = false;
-        for (Certificate certificate : verifiedChain) {
-            String certificatePin = generatePublicKeyHash((X509Certificate) certificate);
-            System.out.println("Testing " + certificatePin);
-            if (spkiPins.contains(certificatePin)) {
-                // Pinning validation succeeded
-                System.out.println("Pin found!");
-                wasPinFound = true;
-                break;
-            }
-        }
-
-        if (!wasPinFound) {
-            // Store the result
-            serverChainValidationResult = PinValidationResult.FAILED;
-
-            // Then throw an exception to close the SSL connection
-            StringBuilder errorBuilder = new StringBuilder()
-                    .append("Pinning validation failed")
-                    .append("\n  Configured pins: ")
-                    .append("\n  Peer certificate chain: ");
-            for (Certificate certificate : serverVerifiedChain) {
-                errorBuilder.append("\n    ")
-                        .append(generatePublicKeyHash((X509Certificate) certificate))
-                        .append(" - ")
-                        .append(((X509Certificate) certificate).getIssuerDN());
-            }
-            throw new CertificateException(errorBuilder.toString());
-        }
-        System.out.println("Path and pinning validation completed successfully");
-        serverChainValidationResult = PinValidationResult.SUCCESS;
+        System.out.println("System path validation completed successfully");
     }
 
-    public Certificate[] getServerVerifiedChain() { return serverVerifiedChain; }
+    public List<Certificate> getVerifiedServerChain() { return verifiedServerChain; }
 
-    public Certificate[] getServerReceivedChain() { return serverReceivedChain; }
+    public List<Certificate> getReceivedServerChain() { return receivedServerChain; }
 
-    public PinValidationResult getServerChainValidationResult() {
-        return serverChainValidationResult;
-    }
-
-    private static String generatePublicKeyHash(X509Certificate certificate) {
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Should never happen");
-        }
-        digest.reset();
-
-        byte[] spki = certificate.getPublicKey().getEncoded();
-        byte[] spkiHash = digest.digest(spki);
-        return Base64.encodeToString(spkiHash, Base64.DEFAULT).trim();
-    }
 
     @Override
     public X509Certificate[] getAcceptedIssuers() {

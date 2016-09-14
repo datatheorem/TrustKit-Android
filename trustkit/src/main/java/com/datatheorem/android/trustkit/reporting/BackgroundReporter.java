@@ -13,7 +13,9 @@ import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 
 /**
@@ -61,7 +63,7 @@ public class BackgroundReporter {
 
 
     public void pinValidationFailed(String serverHostname, Integer serverPort,
-                                          Certificate[] certificateChain,
+                                          List<Certificate> certificateChain,
                                           String notedHostname,
                                           PinnedDomainConfiguration serverConfig,
                                           PinValidationResult validationResult) {
@@ -69,9 +71,9 @@ public class BackgroundReporter {
         TrustKitLog.i("Generating pin failure report for " + serverHostname);
 
         // Convert the certificates to PEM strings
-        String[] certificateChainAsPem = new String[certificateChain.length];
-        for (int i = 0; i < certificateChain.length; i++) {
-            certificateChainAsPem[i] = certificateToPem(certificateChain[i]);
+        ArrayList<String> certificateChainAsPem = new ArrayList<>();
+        for (Certificate certificate : certificateChain) {
+            certificateChainAsPem.add(certificateToPem(certificate));
         }
 
         // Generate the corresponding pin failure report
@@ -87,7 +89,7 @@ public class BackgroundReporter {
                 .notedHostname(notedHostname)
                 .includeSubdomains(serverConfig.isIncludeSubdomains())
                 .enforcePinning(serverConfig.isEnforcePinning())
-                .validatedCertificateChain(certificateChainAsPem)
+                .validatedCertificateChain((String[]) certificateChainAsPem.toArray())
                 .knownPins(serverConfig.getPublicKeyHashes())
                 .validationResult(validationResult).build();
 
