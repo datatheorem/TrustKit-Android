@@ -16,7 +16,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
+import java.security.cert.CertPathValidatorException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -102,7 +104,13 @@ public class PinningSSLSocketFactoryTest {
         try {
             test.createSocket(serverHostname, 443);
         } catch (SSLPeerUnverifiedException e) {
+            // Hostname validation failed on API level 24
             didReceiveHandshakeError = true;
+        } catch (SSLHandshakeException e) {
+            if (e.getCause() instanceof CertificateException) {
+                // Hostname validation failed on API level 16
+                didReceiveHandshakeError = true;
+            }
         }
         assertTrue(didReceiveHandshakeError);
 
@@ -244,7 +252,13 @@ public class PinningSSLSocketFactoryTest {
         try {
             test.createSocket(serverHostname, 443);
         } catch (SSLPeerUnverifiedException e) {
+            // Hostname validation failed on API level 24
             didReceiveHandshakeError = true;
+        } catch (SSLHandshakeException e) {
+            if (e.getCause() instanceof CertificateException) {
+                // Hostname validation failed on API level 16
+                didReceiveHandshakeError = true;
+            }
         }
 
         assertTrue(didReceiveHandshakeError);

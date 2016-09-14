@@ -183,7 +183,7 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         // If the handshake failed, figure out what went wrong
         if (handshakeError instanceof SSLHandshakeException
                 && handshakeError.getCause() instanceof CertificateException) {
-            // Path validation failed
+            // Path validation failed, or hostname validation failed on API level 16
             System.out.println("Path validation failed for " + serverHostname);
             shouldSendReport = true;
             certificateValidationResult = PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
@@ -192,7 +192,8 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         }
 
         else if (handshakeError instanceof SSLPeerUnverifiedException) {
-            // Hostname validation failed
+            // Hostname validation failed on API level 24
+            // TODO(ad): Find and document at which API level this behavior changed
             System.out.println("Hostname validation failed for " + serverHostname);
             shouldSendReport = true;
             certificateValidationResult = PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;

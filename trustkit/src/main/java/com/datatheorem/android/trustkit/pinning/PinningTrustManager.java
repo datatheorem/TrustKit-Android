@@ -78,6 +78,8 @@ class PinningTrustManager implements X509TrustManager {
         receivedServerChain = Arrays.asList((Certificate [])chain);
 
         // Perform default path validation - will throw an exception if it failed
+        // This also does hostname validation on API level 16
+        // TODO(ad): Find why API level where this behavior changed
         System.out.println("Performing system path validation");
         systemTrustManager.checkServerTrusted(chain, authType);
 
