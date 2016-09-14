@@ -24,7 +24,6 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.TrustManager;
 
-// TODO(ad): What about enforcePinning?
 
 public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
 
@@ -207,10 +206,14 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
             } catch (SSLPeerUnverifiedException e) {
                 // Pinning validation failed
                 System.out.println("Pinning validation failed for " + serverHostname);
-                handshakeError = e;
                 shouldSendReport = true;
                 certificateValidationResult = PinValidationResult.FAILED;
                 serverChainToSend = trustManager.getVerifiedServerChain();
+
+                if (serverConfig.isEnforcePinning()) {
+                    // If pinning is enforced, throw an exception to cancel the connection
+                    handshakeError = e;
+                }
             }
         }
 
