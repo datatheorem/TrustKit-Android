@@ -17,7 +17,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,11 +41,11 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         // TODO(ad): Handle subdomains here
         String notedHostname = host;
         PinnedDomainConfiguration serverConfig = config.get(notedHostname);
-        PinningTrustManager trustManager = null;
+        CertificateChainCaptorTrustManager trustManager = null;
 
-        // Force the use of our PinningTrustManager if the domain was pinned
+        // Force the use of our CertificateChainCaptorTrustManager if the domain was pinned
         if (serverConfig != null) {
-            trustManager = new PinningTrustManager();
+            trustManager = new CertificateChainCaptorTrustManager();
             setTrustManagers(new TrustManager[]{trustManager});
         }
 
@@ -86,11 +85,11 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         // TODO(ad): Handle subdomains here
         String notedHostname = host;
         PinnedDomainConfiguration serverConfig = config.get(notedHostname);
-        PinningTrustManager trustManager = null;
+        CertificateChainCaptorTrustManager trustManager = null;
 
-        // Force the use of our PinningTrustManager if the domain was pinned
+        // Force the use of our CertificateChainCaptorTrustManager if the domain was pinned
         if (serverConfig != null) {
-            trustManager = new PinningTrustManager();
+            trustManager = new CertificateChainCaptorTrustManager();
             setTrustManagers(new TrustManager[]{trustManager});
         }
 
@@ -132,11 +131,11 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
         // TODO(ad): Handle subdomains here
         String notedHostname = host;
         PinnedDomainConfiguration serverConfig = config.get(notedHostname);
-        PinningTrustManager trustManager = null;
+        CertificateChainCaptorTrustManager trustManager = null;
 
-        // Force the use of our PinningTrustManager if the domain was pinned
+        // Force the use of our CertificateChainCaptorTrustManager if the domain was pinned
         if (serverConfig != null) {
-            trustManager = new PinningTrustManager();
+            trustManager = new CertificateChainCaptorTrustManager();
             setTrustManagers(new TrustManager[]{trustManager});
         }
 
@@ -170,7 +169,7 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
 
     private static void performPinningValidationAndSendReport(String serverHostname,
                                                               int serverPort,
-                                                              PinningTrustManager trustManager,
+                                                              CertificateChainCaptorTrustManager trustManager,
                                                               IOException handshakeError,
                                                               String notedHostname,
                                                               PinnedDomainConfiguration serverConfig) throws IOException {

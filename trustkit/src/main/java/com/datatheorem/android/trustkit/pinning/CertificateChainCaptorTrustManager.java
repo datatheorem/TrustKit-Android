@@ -14,8 +14,15 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-// Needed so we can do pinning validation after hostname validation (to avoid wrong pinning errors and reports)
-class PinningTrustManager implements X509TrustManager {
+// A TrustManager that does the default system SSL validation and stores the certificate chain sent
+// by the server and the server's verified certificate chain (if path validation succeeded).
+// This is needed so we can do pinning validation after hostname validation. If we did pinning
+// validation in the checkServerTrusted() method, it would happen before hostname validation on API
+// level 24, resulting in TrustKit reporting pinning errors (PinValidationResult.FAILED) that
+// actually were hostname validation errors
+// (PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED).
+
+class CertificateChainCaptorTrustManager implements X509TrustManager {
 
     private static final X509TrustManager systemTrustManager;
     static {
@@ -36,8 +43,7 @@ class PinningTrustManager implements X509TrustManager {
     // The server's verified certificate chain, only available if path validation succeeded
     private List<Certificate> verifiedServerChain = null;
 
-    // TODO(ad): Rename this class
-    public PinningTrustManager() {
+    public CertificateChainCaptorTrustManager() {
     }
 
     private static X509TrustManager getSystemTrustManager() {
