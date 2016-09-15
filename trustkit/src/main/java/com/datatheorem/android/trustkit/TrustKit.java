@@ -86,7 +86,7 @@ public class TrustKit {
         }
 
         // Then try to load the supplied policy
-        TrustKitConfiguration trustKitConfiguration = null;
+        TrustKitConfiguration trustKitConfiguration;
         try {
             trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(
                     context.getResources().getXml(policyResourceId)
@@ -115,5 +115,6 @@ public class TrustKit {
     }
 
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
+    
     public BackgroundReporter getReporter() { return backgroundReporter; }
 }
