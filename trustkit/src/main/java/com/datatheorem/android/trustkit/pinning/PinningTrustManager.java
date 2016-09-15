@@ -3,22 +3,19 @@ package com.datatheorem.android.trustkit.pinning;
 import android.net.http.X509TrustManagerExtensions;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.util.Base64;
 
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
+import com.datatheorem.android.trustkit.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
-import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +31,7 @@ class PinningTrustManager implements X509TrustManager {
         // Retrieve the default trust manager so we can perform regular SSL validation and wrap it
         // in the Android-specific X509TrustManagerExtensions, which provides an API to compute the
         // cleaned/verified server certificate chain that we eventually need for pinning validation
+        // Also the X509TrustManagerExtensions is able to call the RootTrustManager on Android N
         systemTrustManager = new X509TrustManagerExtensions(getSystemTrustManager());
     }
 
@@ -44,7 +42,7 @@ class PinningTrustManager implements X509TrustManager {
     public PinningTrustManager(@NonNull String serverHostname) {
         this.serverHostname = serverHostname;
         TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
-        this.serverConfig = config.get(serverHostname);
+        this.serverConfig = config.getByPinnedHostname(serverHostname);
     }
 
     // Retrieve the platform's default trust manager. Depending on the device's API level, the trust
@@ -132,7 +130,7 @@ class PinningTrustManager implements X509TrustManager {
         // validation succeeded. On Android N this was already taken care of by the netsec policy
         if ((Build.VERSION.SDK_INT < 24) && (!didChainValidationFail)) {
             didPinningValidationFail = !isPinInChain(validatedServerChain,
-                    new HashSet<>(Arrays.asList(serverConfig.getPublicKeyHashes())));
+                    serverConfig.getPublicKeyHashes());
         }
 
 
@@ -143,8 +141,7 @@ class PinningTrustManager implements X509TrustManager {
                 validationResult = PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
             }
             TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, 0,
-                    servedServerChain, validatedServerChain,
-                    serverHostname, serverConfig, validationResult);
+                    servedServerChain, validatedServerChain, serverConfig, validationResult);
         }
 
         // Throw an exception if needed
@@ -156,14 +153,14 @@ class PinningTrustManager implements X509TrustManager {
             StringBuilder errorBuilder = new StringBuilder()
                     .append("Pin verification failed")
                     .append("\n  Configured pins: ");
-            for (String pin : serverConfig.getPublicKeyHashes()) {
+            for (SubjectPublicKeyInfoPin pin : serverConfig.getPublicKeyHashes()) {
                 errorBuilder.append(pin);
                 errorBuilder.append(" ");
             }
             errorBuilder.append("\n  Peer certificate chain: ");
             for (Certificate certificate : validatedServerChain) {
                 errorBuilder.append("\n    ")
-                        .append(generatePublicKeyHash(certificate))
+                        .append(new SubjectPublicKeyInfoPin(certificate))
                         .append(" - ")
                         .append(((X509Certificate) certificate).getIssuerDN());
             }
@@ -171,11 +168,12 @@ class PinningTrustManager implements X509TrustManager {
         }
     }
 
+    // TODO(ad): Find a better name
     private static boolean isPinInChain(List<X509Certificate> verifiedServerChain,
-                                        Set<String> configuredPins) {
+                                        Set<SubjectPublicKeyInfoPin> configuredPins) {
         boolean wasPinFound = false;
         for (Certificate certificate : verifiedServerChain) {
-            String certificatePin = generatePublicKeyHash(certificate);
+            SubjectPublicKeyInfoPin certificatePin = new SubjectPublicKeyInfoPin(certificate);
             if (configuredPins.contains(certificatePin)) {
                 // Pinning validation succeeded
                 wasPinFound = true;
@@ -183,20 +181,6 @@ class PinningTrustManager implements X509TrustManager {
             }
         }
         return wasPinFound;
-    }
-
-    private static String generatePublicKeyHash(Certificate certificate) {
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Should never happen");
-        }
-        digest.reset();
-
-        byte[] spki = certificate.getPublicKey().getEncoded();
-        byte[] spkiHash = digest.digest(spki);
-        return Base64.encodeToString(spkiHash, Base64.DEFAULT).trim();
     }
 
     @Override

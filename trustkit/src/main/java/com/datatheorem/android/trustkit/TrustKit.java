@@ -1,20 +1,20 @@
 package com.datatheorem.android.trustkit;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.content.res.XmlResourceParser;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.security.NetworkSecurityPolicy;
+import android.support.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.UUID;
 
 
@@ -25,12 +25,9 @@ public class TrustKit {
     protected BackgroundReporter backgroundReporter;
     protected static TrustKit trustKitInstance;
 
-    private TrustKit(Context context, TrustKitConfiguration trustKitConfiguration) {
-        if (trustKitConfiguration != null) {
-            this.trustKitConfiguration = trustKitConfiguration;
-        } else {
-            throw new NullPointerException("No trustkitConfiguration provided.");
-        }
+    protected TrustKit(@NonNull Context context,
+                       @NonNull TrustKitConfiguration trustKitConfiguration) {
+        this.trustKitConfiguration = trustKitConfiguration;
 
         // Create the background reporter for sending pin failure reports
         String appPackageName = context.getPackageName();
@@ -46,7 +43,8 @@ public class TrustKit {
                 appVendorId);
     }
 
-    private static String getOrCreateVendorIdentifier(Context appContext) {
+    @NonNull
+    private static String getOrCreateVendorIdentifier(@NonNull Context appContext) {
         SharedPreferences trustKitSharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(appContext);
         // We store the vendor ID in the App's preferences
@@ -62,6 +60,7 @@ public class TrustKit {
         return appVendorId;
     }
 
+    @NonNull
     public static TrustKit getInstance() {
         if (trustKitInstance == null) {
             throw new IllegalStateException("TrustKit has not been initialized");
@@ -69,20 +68,41 @@ public class TrustKit {
         return trustKitInstance;
     }
 
-    public static void initWithNetworkPolicy(Context context) {
-        if(getNetworkSecurityPolicy(context) != null
-                && Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-            init(context, TrustKitConfiguration.fromXmlPolicy(getNetworkSecurityPolicy(context)));
-        } else {
-            init(context, TrustKitConfiguration.fromXmlPolicy(getTrustKitPolicy(context)));
-        }
+    public static void initWithNetworkPolicy(@NonNull Context context) {
+        // Try to get the default network policy resource ID
+        final int networkSecurityConfigId = context.getResources().getIdentifier(
+                "network_security_config", "xml", context.getPackageName());
+        initWithNetworkPolicy(context, networkSecurityConfigId);
     }
 
-    public static void init(Context appContext, TrustKitConfiguration trustKitConfiguration) {
+    public static void initWithNetworkPolicy(@NonNull Context context, int policyResourceId) {
+        // On Android N, ensure that the system was also able to load the policy
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M &&
+                NetworkSecurityPolicy.getInstance() == null) {
+            // Android did not find a policy because the supplied resource ID is wrong or the policy
+            // file is not properly setup in the manifest, or contains bad data
+            throw new ConfigurationException("TrustKit was initialized with a network policy that" +
+                    "was not properly configured for Android N ");
+        }
 
-        if (getNetworkSecurityPolicy(appContext) != null
-                && Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+        // Then try to load the supplied policy
+        TrustKitConfiguration trustKitConfiguration = null;
+        try {
+            trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(
+                    context.getResources().getXml(policyResourceId)
+            );
+        } catch (XmlPullParserException | IOException e) {
+            throw new ConfigurationException("Could not parse network security policy file");
+        }
 
+        trustKitInstance = new TrustKit(context, trustKitConfiguration);
+    }
+
+    // TODO(ad): Consider removing this? or not? or making it @deprecated?
+    public static void initWithConfiguration(Context appContext, TrustKitConfiguration trustKitConfiguration) {
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M
+                && NetworkSecurityPolicy.getInstance() != null) {
             throw new ConfigurationException("A NetworkSecurityConfigurationPolicy is already " +
                     "defined. Please use TrustKit.initWithNetworkPolicy(Context context); instead");
         }
@@ -96,34 +116,4 @@ public class TrustKit {
 
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
     public BackgroundReporter getReporter() { return backgroundReporter; }
-
-    private static XmlResourceParser getTrustKitPolicy(Context context) {
-        try {
-            ApplicationInfo ai =
-                    context.getPackageManager().getApplicationInfo(context.getPackageName(),
-                            PackageManager.GET_META_DATA);
-            return context.getResources().getXml(ai.metaData.getInt("trustkit_configuration"));
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new IllegalStateException("Should never happen");
-        } catch (Resources.NotFoundException ex) {
-            return null;
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    private static XmlResourceParser getNetworkSecurityPolicy(Context context) {
-        // TODO(ad): This check might not be useful - check how we can get the path of the policy
-        // Maybe use it after the developer initialized with a policy to make sure Android saw it too
-        if (NetworkSecurityPolicy.getInstance() != null) {
-            try {
-                final int networkSecurityConfigId = context.getResources().getIdentifier(
-                        "network_security_config", "xml", context.getPackageName());
-
-                return context.getResources().getXml(networkSecurityConfigId);
-            } catch (Resources.NotFoundException e) {
-                return null;
-            }
-        }
-        return null;
-    }
 }

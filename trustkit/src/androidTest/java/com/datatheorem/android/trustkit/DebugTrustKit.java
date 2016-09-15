@@ -2,8 +2,6 @@ package com.datatheorem.android.trustkit;
 
 
 import android.content.Context;
-
-import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 

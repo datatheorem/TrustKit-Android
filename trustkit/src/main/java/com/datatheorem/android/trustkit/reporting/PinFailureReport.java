@@ -104,7 +104,7 @@ class PinFailureReport implements Serializable {
 
             JSONArray jsonArrayKnownPins = new JSONArray();
             for (SubjectPublicKeyInfoPin knownPin : knownPins) {
-                jsonArrayKnownPins.put(knownPin.get());
+                jsonArrayKnownPins.put(knownPin.toString());
             }
 
             jsonObject.put("known-pins", jsonArrayKnownPins);
@@ -143,7 +143,7 @@ class PinFailureReport implements Serializable {
     public String[] pinsToString(Set<SubjectPublicKeyInfoPin> pins) {
         ArrayList<String> pinsString = new ArrayList<>();
         for (SubjectPublicKeyInfoPin pin : pins) {
-            pinsString.add(pin.get());
+            pinsString.add(pin.toString());
         }
 
         return pinsString.toArray(new String[pinsString.size()]);

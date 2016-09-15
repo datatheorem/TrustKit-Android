@@ -21,9 +21,12 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.Array;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -117,7 +120,9 @@ public class BackgroundReporterTest {
                 .reportURIs(new String[]{String.valueOf(baseUrl)})
                 .publicKeyHashes(pins).build();
 
-        backgroundReporter.pinValidationFailed(443, new X509Certificate[]{getMockCertificate()},
+        ArrayList<X509Certificate> certChain =
+                (ArrayList<X509Certificate>) Arrays.asList(getMockCertificate());
+        backgroundReporter.pinValidationFailed("www.test.com", 443, certChain, certChain,
                 mockPinnedDomainConfiguration, PinValidationResult.FAILED);
 
         RecordedRequest request = server.takeRequest();

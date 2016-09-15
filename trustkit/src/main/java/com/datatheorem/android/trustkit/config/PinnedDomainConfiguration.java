@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 
 public final class PinnedDomainConfiguration {
@@ -26,7 +27,7 @@ public final class PinnedDomainConfiguration {
 
     private final Set<SubjectPublicKeyInfoPin> publicKeyHashes;
     private final boolean enforcePinning;
-    private final ArrayList<URL> reportURIs;
+    private final Set<URL> reportURIs;
     private final boolean includeSubdomains;
     private final String notedHostname;
 
@@ -38,7 +39,7 @@ public final class PinnedDomainConfiguration {
 
         // Create the final list of report URIs
         // Add the default report URI if enabled
-        reportURIs = new ArrayList<>();
+        reportURIs = new HashSet<>();
         if (!builder.disableDefaultReportUri) {
             reportURIs.add(DEFAULT_REPORTING_URL);
         }
@@ -51,15 +52,17 @@ public final class PinnedDomainConfiguration {
     public String getNotedHostname() {
         return notedHostname;
     }
+
     public Set<SubjectPublicKeyInfoPin> getPublicKeyHashes() {
         return publicKeyHashes;
     }
 
+    // TODO(ad): Rename this to shouldEnforcePinning()
     public boolean isEnforcePinning() {
         return enforcePinning;
     }
 
-    public ArrayList<URL> getReportURIs() {
+    public Set<URL> getReportURIs() {
         return reportURIs;
     }
 
@@ -85,7 +88,7 @@ public final class PinnedDomainConfiguration {
         private Set<String> publicKeyHashes;
         private Set<SubjectPublicKeyInfoPin> publicKeyInfoPins;
         private boolean enforcePinning;
-        private ArrayList<URL> reportURIs;
+        private Set<URL> reportURIs;
         private boolean includeSubdomains;
         private boolean disableDefaultReportUri;
 
@@ -108,7 +111,7 @@ public final class PinnedDomainConfiguration {
         }
 
         public Builder reportURIs(@NonNull String[] val) {
-            reportURIs = new ArrayList<>();
+            reportURIs = new HashSet<>();
             for (String url : val) {
                 try {
                     reportURIs.add(new URL(url));
@@ -174,6 +177,4 @@ public final class PinnedDomainConfiguration {
             return new PinnedDomainConfiguration(this);
         }
     }
-
-
 }
