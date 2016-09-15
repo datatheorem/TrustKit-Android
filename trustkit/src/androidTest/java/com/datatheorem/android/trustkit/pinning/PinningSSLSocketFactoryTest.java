@@ -41,7 +41,7 @@ public class PinningSSLSocketFactoryTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        DebugTrustKit.initWithNetworkPolicy(InstrumentationRegistry.getContext());
+        DebugTrustKit.initWithNetworkPolicy(InstrumentationRegistry.getContext(), mockReporter);
     }
 
     @After

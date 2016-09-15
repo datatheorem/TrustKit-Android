@@ -2,6 +2,8 @@ package com.datatheorem.android.trustkit;
 
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 
@@ -13,14 +15,11 @@ public class DebugTrustKit extends TrustKit {
         backgroundReporter = reporter;
     }
 
-    public static void init(Context appContext, TrustKitConfiguration trustKitConfiguration,
-                            BackgroundReporter reporter) {
-        if (trustKitInstance == null) {
-            trustKitInstance = new DebugTrustKit(appContext, trustKitConfiguration, reporter);
-        }
-        else {
-            throw new IllegalStateException("TrustKit was already initialized");
-        }
+    // This lets us inject/mock the background reporter in the tests
+    public static void initWithNetworkPolicy(@NonNull Context context, BackgroundReporter reporter)
+    {
+        initWithNetworkPolicy(context);
+        TrustKit.getInstance().backgroundReporter = reporter;
     }
 
     public static void resetConfiguration() {
