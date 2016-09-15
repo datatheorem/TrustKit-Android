@@ -18,5 +18,32 @@
         </pin-set>
         <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
     </domain-config>
+    <domain-config>
+        <domain includeSubdomains="true">expired.badssl.com</domain>
+        <pin-set enforcePinning="true">
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+        </pin-set>
+        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
+    </domain-config>
+    <domain-config>
+        <domain includeSubdomains="true">untrusted-root.badssl.com</domain>
+        <pin-set enforcePinning="true">
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+        </pin-set>
+        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
+    </domain-config>
+    <domain-config>
+        <domain includeSubdomains="true">wrong.host.badssl.com</domain>
+        <pin-set enforcePinning="true">
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+        </pin-set>
+        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
+    </domain-config>
 
 </network-security-config>
