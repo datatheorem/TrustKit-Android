@@ -38,6 +38,12 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
+    sourceSets {
+        androidTest {
+            res.srcDirs = ['src/androidTest/res']
+        }
+    }
+
     lintOptions {
         abortOnError false
     }

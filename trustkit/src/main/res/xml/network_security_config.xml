@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config>
+        <domain includeSubdomains="true">wrong.host.badssl.com</domain>
+        <pin-set enforcePinning="true">
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+        </pin-set>
+        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
+    </domain-config>
+
+</network-security-config>
