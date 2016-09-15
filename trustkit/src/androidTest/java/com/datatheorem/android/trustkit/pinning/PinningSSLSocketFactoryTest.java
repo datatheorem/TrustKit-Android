@@ -46,8 +46,6 @@ public class PinningSSLSocketFactoryTest {
         DebugTrustKit.resetConfiguration();
     }
 
-    // TODO(ad): Test all three socket methods
-
     //region Utility methods
     // To use when we don't care about the pins configured for the domain
     private void initializeTrustKitWithBadPins(String serverHostname, boolean enforcePinning) {
