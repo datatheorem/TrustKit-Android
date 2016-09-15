@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- TODO(ad): Move this to the androidTest res folder -->
 <network-security-config>
-    <domain-config>
-        <domain includeSubdomains="true">www.datatheorem.com</domain>
+    <domain-config enforcePinning="true">
+        <domain>www.datatheorem.com</domain>
         <!-- Valid pins -->
-        <pin-set enforcePinning="true">
+        <pin-set>
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>
         </pin-set>
         <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
     </domain-config>
-    <domain-config>
-        <domain includeSubdomains="true">www.yahoo.com</domain>
-        <pin-set enforcePinning="true">
+    <domain-config enforcePinning="true">
+        <domain>www.yahoo.com</domain>
+        <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
         </pin-set>
         <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
     </domain-config>
-    <domain-config>
-        <domain includeSubdomains="true">expired.badssl.com</domain>
-        <pin-set enforcePinning="true">
+    <domain-config enforcePinning="true">
+        <domain>expired.badssl.com</domain>
+        <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
         </pin-set>
         <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
     </domain-config>
-    <domain-config>
-        <domain includeSubdomains="true">untrusted-root.badssl.com</domain>
-        <pin-set enforcePinning="true">
+    <domain-config enforcePinning="true">
+        <domain>untrusted-root.badssl.com</domain>
+        <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
         </pin-set>
         <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
     </domain-config>
-    <domain-config>
-        <domain includeSubdomains="true">wrong.host.badssl.com</domain>
-        <pin-set enforcePinning="true">
+    <domain-config enforcePinning="true">
+        <domain>wrong.host.badssl.com</domain>
+        <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
