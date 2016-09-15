@@ -23,8 +23,8 @@ import java.util.List;
  * The BackgroundReporter save a report when a pinning validation fail and send the report
  * to the specific URI.
  */
-public class BackgroundReporter {
-    private static final String appPlatform = "ANDROID";
+public final class BackgroundReporter {
+    private static final String APP_PLATFORM = "ANDROID";
 
     // Main application environment information
     private final String appPackageName;
@@ -45,8 +45,7 @@ public class BackgroundReporter {
         this.appVendorId = appVendorId;
     }
 
-
-    private String certificateToPem(Certificate certificate) {
+    private String certificateToPem(X509Certificate certificate) {
         byte[] certificateData;
         try {
             certificateData = certificate.getEncoded();
@@ -82,13 +81,13 @@ public class BackgroundReporter {
         final PinFailureReport report = new PinFailureReport.Builder()
                 .appBundleId(appPackageName)
                 .appVersion(appVersion)
-                .appPlatform(appPlatform)
+                .appPlatform(APP_PLATFORM)
                 .appVendorId(appVendorId)
                 .trustKitVersion(BuildConfig.VERSION_NAME)
                 .hostname(serverHostname)
                 .port(serverPort)
                 .dateTime(new Date(System.currentTimeMillis()))
-                .notedHostname(notedHostname)
+                .notedHostname(serverConfig.getNotedHostname())
                 .includeSubdomains(serverConfig.isIncludeSubdomains())
                 .enforcePinning(serverConfig.isEnforcePinning())
                 .validatedCertificateChain((String[]) certificateChainAsPem.toArray())

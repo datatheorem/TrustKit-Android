@@ -16,7 +16,7 @@ class PinFailureInfo {
         hostname = report.getServerHostname();
         port = report.getPort();
         validatedCertificateChain = report.getValidatedCertificateChain();
-        knownPins = report.getKnownPins();
+        knownPins = report.pinsToString(report.getKnownPins());
         validationResult = report.getValidationResult();
     }
 
