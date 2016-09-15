@@ -32,7 +32,7 @@ public class DemoMainActivity extends AppCompatActivity {
         TextView textView = (TextView) findViewById(R.id.textview);
 
         TrustKit.initWithNetworkPolicy(this);
-        textView.setText("test");
+        textView.setText(TrustKit.getInstance().getConfiguration().getByPinnedHostname("www.datatheorem.com").toString());
 
     }
 
