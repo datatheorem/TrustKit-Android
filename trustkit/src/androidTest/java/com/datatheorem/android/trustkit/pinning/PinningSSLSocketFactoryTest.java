@@ -16,9 +16,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
-import java.security.cert.CertPathValidatorException;
-import java.security.cert.Certificate;
+import java.net.Socket;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -50,13 +50,13 @@ public class PinningSSLSocketFactoryTest {
 
     //region Utility methods
     // To use when we don't care about the pins configured for the domain
-    private void initializeTrustKitWithBadPins(String serverHostname) {
+    private void initializeTrustKitWithBadPins(String serverHostname, boolean enforcePinning) {
         TrustKitConfiguration trustKitConfig = new TrustKitConfiguration();
         PinnedDomainConfiguration datatheoremConfig = new PinnedDomainConfiguration.Builder()
                 .publicKeyHashes(new String[]{
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" // Bad pin
                 })
-                .enforcePinning(false)
+                .enforcePinning(enforcePinning)
                 .build();
         trustKitConfig.put(serverHostname, datatheoremConfig);
         DebugTrustKit.init(InstrumentationRegistry.getContext(), trustKitConfig, mockReporter);
@@ -68,7 +68,7 @@ public class PinningSSLSocketFactoryTest {
     public void testPinnedDomainExpiredChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "expired.badssl.com";
-        initializeTrustKitWithBadPins(serverHostname);
+        initializeTrustKitWithBadPins(serverHostname, true);
 
         // Create an PinningSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new PinningSSLSocketFactory();
@@ -76,7 +76,9 @@ public class PinningSSLSocketFactoryTest {
         try {
             test.createSocket(serverHostname, 443);
         } catch (SSLHandshakeException e) {
-            didReceiveHandshakeError = true;
+            if (e.getCause() instanceof CertificateException) {
+                didReceiveHandshakeError = true;
+            }
         }
 
         assertTrue(didReceiveHandshakeError);
@@ -84,8 +86,9 @@ public class PinningSSLSocketFactoryTest {
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
                 eq(serverHostname),
-                eq(443),
-                (List<Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
@@ -96,19 +99,15 @@ public class PinningSSLSocketFactoryTest {
     public void testPinnedDomainWrongHostnameChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "wrong.host.badssl.com";
-        initializeTrustKitWithBadPins(serverHostname);
+        initializeTrustKitWithBadPins(serverHostname, true);
 
         // Create an PinningSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new PinningSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
-        } catch (SSLPeerUnverifiedException e) {
-            // Hostname validation failed on API level 24
-            didReceiveHandshakeError = true;
         } catch (SSLHandshakeException e) {
             if (e.getCause() instanceof CertificateException) {
-                // Hostname validation failed on API level 16
                 didReceiveHandshakeError = true;
             }
         }
@@ -117,8 +116,9 @@ public class PinningSSLSocketFactoryTest {
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
                 eq(serverHostname),
-                eq(443),
-                (List<Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
@@ -129,7 +129,7 @@ public class PinningSSLSocketFactoryTest {
     public void testPinnedDomainUntrustedRootChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "untrusted-root.badssl.com";
-        initializeTrustKitWithBadPins(serverHostname);
+        initializeTrustKitWithBadPins(serverHostname, true);
 
         // Create an PinningSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new PinningSSLSocketFactory();
@@ -137,7 +137,9 @@ public class PinningSSLSocketFactoryTest {
         try {
             test.createSocket(serverHostname, 443);
         } catch (SSLHandshakeException e) {
-            didReceiveHandshakeError = true;
+            if (e.getCause() instanceof CertificateException) {
+                didReceiveHandshakeError = true;
+            }
         }
 
         assertTrue(didReceiveHandshakeError);
@@ -145,8 +147,9 @@ public class PinningSSLSocketFactoryTest {
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
                 eq(serverHostname),
-                eq(443),
-                (List<Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
@@ -174,8 +177,9 @@ public class PinningSSLSocketFactoryTest {
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
                 eq(serverHostname),
-                eq(443),
-                (List<Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -185,16 +189,18 @@ public class PinningSSLSocketFactoryTest {
     @Test
     public void testPinnedDomainInvalidPin() throws IOException {
         // Initialize TrustKit
-        String serverHostname = "www.datatheorem.com";
-        initializeTrustKitWithBadPins(serverHostname);
+        String serverHostname = "www.yahoo.com";
+        initializeTrustKitWithBadPins(serverHostname, true);
 
         // Create an PinningSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new PinningSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
-        } catch (SSLPeerUnverifiedException e) {
-            didReceiveHandshakeError = true;
+        } catch (SSLHandshakeException e) {
+            if (e.getCause() instanceof CertificateException) {
+                didReceiveHandshakeError = true;
+            }
         }
 
         assertTrue(didReceiveHandshakeError);
@@ -202,8 +208,9 @@ public class PinningSSLSocketFactoryTest {
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
                 eq(serverHostname),
-                eq(443),
-                (List<Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -216,7 +223,7 @@ public class PinningSSLSocketFactoryTest {
     public void testNonPinnedDomainExpiredChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "expired.badssl.com";
-        initializeTrustKitWithBadPins("www.someotherdomain.com");
+        initializeTrustKitWithBadPins("www.someotherdomain.com", true);
 
         // Create an PinningSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new PinningSSLSocketFactory();
@@ -224,7 +231,9 @@ public class PinningSSLSocketFactoryTest {
         try {
             test.createSocket(serverHostname, 443);
         } catch (SSLHandshakeException e) {
-            didReceiveHandshakeError = true;
+            if (e.getCause() instanceof CertificateException) {
+                didReceiveHandshakeError = true;
+            }
         }
 
         assertTrue(didReceiveHandshakeError);
@@ -232,8 +241,9 @@ public class PinningSSLSocketFactoryTest {
         // Ensure the background reporter was NOT called as we only want reports for pinned domains
         verify(mockReporter, never()).pinValidationFailed(
                 eq(serverHostname),
-                eq(443),
-                (List<Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -244,7 +254,7 @@ public class PinningSSLSocketFactoryTest {
     public void testNonPinnedDomainWrongHostnameChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "wrong.host.badssl.com";
-        initializeTrustKitWithBadPins("www.someotherdomain.com");
+        initializeTrustKitWithBadPins("www.someotherdomain.com", true);
 
         // Create an PinningSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new PinningSSLSocketFactory();
@@ -252,13 +262,7 @@ public class PinningSSLSocketFactoryTest {
         try {
             test.createSocket(serverHostname, 443);
         } catch (SSLPeerUnverifiedException e) {
-            // Hostname validation failed on API level 24
             didReceiveHandshakeError = true;
-        } catch (SSLHandshakeException e) {
-            if (e.getCause() instanceof CertificateException) {
-                // Hostname validation failed on API level 16
-                didReceiveHandshakeError = true;
-            }
         }
 
         assertTrue(didReceiveHandshakeError);
@@ -266,8 +270,9 @@ public class PinningSSLSocketFactoryTest {
         // Ensure the background reporter was NOT called as we only want reports for pinned domains
         verify(mockReporter, never()).pinValidationFailed(
                 eq(serverHostname),
-                eq(443),
-                (List<Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -278,7 +283,7 @@ public class PinningSSLSocketFactoryTest {
     public void testNonPinnedDomainUntrustedRootChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "untrusted-root.badssl.com";
-        initializeTrustKitWithBadPins("www.someotherdomain.com");
+        initializeTrustKitWithBadPins("www.someotherdomain.com", true);
 
         // Create an PinningSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new PinningSSLSocketFactory();
@@ -286,7 +291,9 @@ public class PinningSSLSocketFactoryTest {
         try {
             test.createSocket(serverHostname, 443);
         } catch (SSLHandshakeException e) {
-            didReceiveHandshakeError = true;
+            if (e.getCause() instanceof CertificateException) {
+                didReceiveHandshakeError = true;
+            }
         }
 
         assertTrue(didReceiveHandshakeError);
@@ -294,8 +301,9 @@ public class PinningSSLSocketFactoryTest {
         // Ensure the background reporter was NOT called as we only want reports for pinned domains
         verify(mockReporter, never()).pinValidationFailed(
                 eq(serverHostname),
-                eq(443),
-                (List<Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(serverHostname),
                 eq(DebugTrustKit.getInstance().getConfiguration().get(serverHostname)),
                 eq(PinValidationResult.FAILED)
@@ -306,7 +314,7 @@ public class PinningSSLSocketFactoryTest {
     public void testNonPinnedDomainSuccess() throws IOException {
         // Initialize TrustKit
         String serverHostname = "www.datatheorem.com";
-        initializeTrustKitWithBadPins("www.someotherdomain.com");
+        initializeTrustKitWithBadPins("www.someotherdomain.com", true);
 
         // Create an PinningSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new PinningSSLSocketFactory();
@@ -316,7 +324,8 @@ public class PinningSSLSocketFactoryTest {
         verify(mockReporter, never()).pinValidationFailed(
                 anyString(),
                 anyInt(),
-                (List<Certificate>) any(),
+                (List<X509Certificate>) any(),
+                (List<X509Certificate>) any(),
                 anyString(),
                 any(PinnedDomainConfiguration.class),
                 any(PinValidationResult.class)

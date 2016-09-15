@@ -55,6 +55,9 @@ public class TrustKit {
     }
 
     public static TrustKit getInstance() {
+        if (trustKitInstance == null) {
+            throw new IllegalStateException("TrustKit has not been initialized");
+        }
         return trustKitInstance;
     }
 

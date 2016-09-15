@@ -12,6 +12,7 @@ import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,16 +64,17 @@ public class BackgroundReporter {
 
 
     public void pinValidationFailed(String serverHostname, Integer serverPort,
-                                          List<Certificate> certificateChain,
+                                    List<X509Certificate> servedCertificateChain,
+                                          List<X509Certificate> validatedCertificateChain,
                                           String notedHostname,
                                           PinnedDomainConfiguration serverConfig,
                                           PinValidationResult validationResult) {
 
         TrustKitLog.i("Generating pin failure report for " + serverHostname);
-
+        // TODO(ad): Also send the validated chain
         // Convert the certificates to PEM strings
         ArrayList<String> certificateChainAsPem = new ArrayList<>();
-        for (Certificate certificate : certificateChain) {
+        for (Certificate certificate : servedCertificateChain) {
             certificateChainAsPem.add(certificateToPem(certificate));
         }
 

@@ -64,7 +64,7 @@ public class BackgroundReporterTest {
 
         trustKitConfiguration.put("www.test.com", testPinnedDomainConfiguration);
         TrustKit.init(context, trustKitConfiguration);
-        this.backgroundReporter = new BackgroundReporter(true);
+        //this.backgroundReporter = new BackgroundReporter(true);
         mockBroadcastReceiver = new MockBroadcastReceiver();
         LocalBroadcastManager.getInstance(context)
                 .registerReceiver(mockBroadcastReceiver, new IntentFilter("test-id"));
@@ -96,9 +96,9 @@ public class BackgroundReporterTest {
 
         HttpUrl baseUrl = server.url("/report");
 
-        backgroundReporter.pinValidationFailed("www.test.com", 443, new String[]{certificate},
-                "www.test.com", new URL[] {baseUrl.url()}, true, false, true,
-                new String[]{pin}, PinValidationResult.FAILED);;
+        //backgroundReporter.pinValidationFailed("www.test.com", 443, new String[]{certificate},
+        //        "www.test.com", new URL[] {baseUrl.url()}, true, false, true,
+        //        new String[]{pin}, PinValidationResult.FAILED);;
 
         RecordedRequest request = server.takeRequest();
         //Check if the request is well formed
@@ -131,9 +131,9 @@ public class BackgroundReporterTest {
 
         HttpUrl baseUrl = server.url("/report");
 
-        backgroundReporter.pinValidationFailed("www.test.com", 442, new String[]{certificate},
-                "www.test.com", new URL[] {baseUrl.url()}, true, false, true,
-                new String[]{pin}, PinValidationResult.FAILED);;
+        //backgroundReporter.pinValidationFailed("www.test.com", 442, new String[]{certificate},
+        //        "www.test.com", new URL[] {baseUrl.url()}, true, false, true,
+        //        new String[]{pin}, PinValidationResult.FAILED);;
 
 
         //Check if the report is not sent through the system because the same report was sent
