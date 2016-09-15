@@ -37,10 +37,15 @@ public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
         PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder =
                 new PinnedDomainConfiguration.Builder();
         Set<String> knownPins = null;
+        boolean enforcePinning = false;
+        boolean disableDefaultReportUri = false;
+        ArrayList<String> reportUris = null;
+
+
         boolean isADomain = false;
         boolean isAPin = false;
         boolean isAReportUri = false;
-        ArrayList<String> reportUris = null;
+
 
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -62,6 +67,10 @@ public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
                     if (reportUris == null) {
                         reportUris = new ArrayList<>();
                     }
+                } else if ("domain-config".equals(parser.getName())) {
+                    enforcePinning = parser.getAttributeBooleanValue(null, "enforcePinning", false);
+                    disableDefaultReportUri =
+                            parser.getAttributeBooleanValue(null, "disableDefaultReportUri", false);
                 }
             } else if (eventType == XmlPullParser.END_TAG) {
                 if ("domain".equals(parser.getName())) {
@@ -80,8 +89,15 @@ public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
                 if ("domain-config".equals(parser.getName())){
                     pinnedDomainConfigBuilder
                             .pinnedDomainName(domainName)
-                            .reportURIs(reportUris.toArray(new String[reportUris.size()]))
+                            .enforcePinning(enforcePinning)
+                            .disableDefaultReportUri(disableDefaultReportUri)
                             .publicKeyHashes(knownPins);
+
+                    if (reportUris != null) {
+                        pinnedDomainConfigBuilder
+                                .reportURIs(reportUris.toArray(new String[reportUris.size()]));
+                    }
+
                     trustKitConfiguration.add(pinnedDomainConfigBuilder.build());
                 }
 
