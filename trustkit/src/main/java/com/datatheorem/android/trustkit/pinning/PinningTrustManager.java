@@ -24,7 +24,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 
-class PinningTrustManager implements X509TrustManager {
+public class PinningTrustManager implements X509TrustManager {
 
     private static final X509TrustManagerExtensions systemTrustManager;
     static {
@@ -49,6 +49,7 @@ class PinningTrustManager implements X509TrustManager {
     // manager will consecutively do path validation (all API levels), hostname validation
     // (API level 16 to ???), and pinning validation if a network policy was configured (API level
     // 24+)
+    @NonNull
     private static X509TrustManager getSystemTrustManager() {
         X509TrustManager systemTrustManager = null;
         TrustManagerFactory trustManagerFactory;
@@ -70,6 +71,10 @@ class PinningTrustManager implements X509TrustManager {
             if (trustManager instanceof X509TrustManager) {
                 systemTrustManager = (X509TrustManager)trustManager;
             }
+        }
+
+        if (systemTrustManager == null) {
+            throw new IllegalStateException("Should never happen");
         }
         return systemTrustManager;
     }
@@ -138,6 +143,7 @@ class PinningTrustManager implements X509TrustManager {
         if (didChainValidationFail || didPinningValidationFail) {
             PinValidationResult validationResult = PinValidationResult.FAILED;
             if (didChainValidationFail) {
+                // Hostname or path validation failed - not a pinning error
                 validationResult = PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
             }
             TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, 0,
