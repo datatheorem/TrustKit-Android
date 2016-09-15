@@ -10,7 +10,6 @@ import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 
-import java.lang.reflect.Array;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
@@ -23,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -43,7 +41,7 @@ class PinningTrustManager implements X509TrustManager {
     private final PinnedDomainConfiguration serverConfig;
 
 
-    public PinningTrustManager(String serverHostname) {
+    public PinningTrustManager(@NonNull String serverHostname) {
         this.serverHostname = serverHostname;
         TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
         this.serverConfig = config.get(serverHostname);

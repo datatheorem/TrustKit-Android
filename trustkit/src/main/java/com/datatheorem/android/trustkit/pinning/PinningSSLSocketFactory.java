@@ -19,6 +19,7 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
     @Override
     public Socket createSocket(String host, int port, InetAddress localAddr, int localPort)
             throws IOException {
+        // For the use of our trust manager
         setTrustManagers(new TrustManager[]{new PinningTrustManager(host)});
 
         // Try to create the socket, which will trigger the SSL handshake
@@ -27,6 +28,7 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
 
     @Override
     public Socket createSocket(Socket k, String host, int port, boolean close) throws IOException {
+        // For the use of our trust manager
         setTrustManagers(new TrustManager[]{new PinningTrustManager(host)});
 
         // Try to create the socket, which will trigger the SSL handshake
@@ -35,6 +37,7 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
 
     @Override
     public Socket createSocket(String host, int port) throws IOException {
+        // For the use of our trust manager
         setTrustManagers(new TrustManager[]{new PinningTrustManager(host)});
 
         // Try to create the socket, which will trigger the SSL handshake
