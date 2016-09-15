@@ -32,14 +32,14 @@ ext{
                     compileSdk : 24,
                     gradlePlugin : '2.1.0',
                     buildTools  : '24.0.2',
-                    minSdk : 17,
+                    minSdk : 16,
                     targetSdk: 24
             ]
     ]
 
     libVersions = [
         junit: '4.12',
-        robolectric: '3.0',
+        robolectric: '3.1.1',
         mockito: '2.0.+',
         mockwebserver : '3.4.1',
         android : [

@@ -1,15 +1,16 @@
-package com.datatheorem.android.trustkit.config;
+package com.datatheorem.android.trustkit;
 
 import android.content.res.XmlResourceParser;
+
+import com.datatheorem.android.trustkit.config.ConfigurationException;
+import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 
 public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
@@ -17,7 +18,7 @@ public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
 
     public PinnedDomainConfiguration getByPinnedHostname(String pinnedHostname) {
         for (PinnedDomainConfiguration pinnedDomainConfiguration : this) {
-            if (pinnedHostname.equals(pinnedDomainConfiguration.getPinnedDomainName())) {
+            if (pinnedHostname.equals(pinnedDomainConfiguration.getNotedHostname())) {
                 return pinnedDomainConfiguration;
             }
         }
@@ -25,8 +26,7 @@ public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
         return null;
     }
 
-    // TODO(ad): Implement the same sanity checks as https://github.com/datatheorem/TrustKit/blob/master/TrustKit/parse_configuration.m
-    public static TrustKitConfiguration fromXmlPolicy(XmlResourceParser parser) {
+    protected static TrustKitConfiguration fromXmlPolicy(XmlResourceParser parser) {
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         String domainName = null;
         PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder =

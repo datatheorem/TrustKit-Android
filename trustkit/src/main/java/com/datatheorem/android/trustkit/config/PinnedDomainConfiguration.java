@@ -29,10 +29,10 @@ public final class PinnedDomainConfiguration {
     private final boolean enforcePinning;
     private final ArrayList<URL> reportURIs;
     private final boolean includeSubdomains;
-    private final String pinnedDomainName;
+    private final String notedHostname;
 
     private PinnedDomainConfiguration(Builder builder) {
-        pinnedDomainName = builder.pinnedDomainName;
+        notedHostname = builder.pinnedDomainName;
         publicKeyHashes = builder.publicKeyInfoPins;
         enforcePinning = builder.enforcePinning;
         includeSubdomains = builder.includeSubdomains;
@@ -49,8 +49,8 @@ public final class PinnedDomainConfiguration {
         }
     }
 
-    public String getPinnedDomainName() {
-        return pinnedDomainName;
+    public String getNotedHostname() {
+        return notedHostname;
     }
     public Set<SubjectPublicKeyInfoPin> getPublicKeyHashes() {
         return publicKeyHashes;
@@ -72,7 +72,7 @@ public final class PinnedDomainConfiguration {
     public String toString() {
         return new StringBuilder()
                 .append("PinnedDomainConfiguration{")
-                .append("pinnedDomain = " + pinnedDomainName + "\n")
+                .append("notedHostname = " + notedHostname + "\n")
                 .append("knownPins = " + Arrays.toString(publicKeyHashes.toArray()) + "\n")
                 .append("enforcePinning = " +enforcePinning + "\n")
                 .append("reportUris = " + reportURIs + "\n")
@@ -131,26 +131,35 @@ public final class PinnedDomainConfiguration {
         }
 
         /*
-        All sanity checks run during the build() method. It prevents any bad configuration to be
-        added to the main configuration.
+            All sanity checks run during the build() method preventing any bad configuration to be
+            added to the main configuration.
          */
         public PinnedDomainConfiguration build() {
+            // Check if a pinned domain is present
             if (pinnedDomainName == null || pinnedDomainName.equals("")) {
-                throw new ConfigurationException("TrustKit was initialized with no pinned domains.");
+                throw new ConfigurationException("TrustKit was initialized with no pinned domain.");
             }
 
+            // Check if the pinned domain is well formatted
             try {
                 pinnedDomainName.getBytes("UTF-8");
             } catch (UnsupportedEncodingException e) {
                 throw new ConfigurationException("TrustKit was initialized with an invalid domain");
             }
 
-            if (InternetDomainName.from(pinnedDomainName).isPublicSuffix()){
-//                    && includeSubdomains && InternetDomainName.isValid(pinnedDomainName)) {
+            // Check if the pinned domain is valid:
+            // TrustKit should not work if the configuration asks to pin connections for subdomains
+            // for *.com and other TLDs
+            if (InternetDomainName.from(pinnedDomainName).isPublicSuffix()
+                    && !InternetDomainName.isValid(pinnedDomainName)
+                    && includeSubdomains){
                 throw new ConfigurationException("TrustKit was initialized with includeSubdomains "+
                         "for a domain suffix " + InternetDomainName.from(pinnedDomainName));
             }
 
+            // Check if the configuration has at least two pins
+            // TrustKit should not work if the configuration contains only one pin
+            // more info (https://tools.ietf.org/html/rfc7469#page-21)
             if (publicKeyHashes.size() < 2) {
                 throw new ConfigurationException("TrustKit was initialized with less than two pins"+
                         ", (ie. no backup pins for domain " + pinnedDomainName + ". This might " +

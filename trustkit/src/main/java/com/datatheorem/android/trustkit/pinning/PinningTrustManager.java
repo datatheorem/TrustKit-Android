@@ -38,18 +38,18 @@ class PinningTrustManager implements X509TrustManager {
 
     private final String serverHostname;
     private final int serverPort;
-    private final String notedHostname; // TODO(ad): Put this in the serverConfig
+
     private final PinnedDomainConfiguration serverConfig; // null if the domain is not pinned
 
     public PinningTrustManager(String serverHostname, int serverPort, String notedHostname,
                                PinnedDomainConfiguration serverConfig) {
 
+        //TODO (jb): change it to use TrustKitLog.i()
         System.out.println("Initialized trust manager with" + serverHostname + ":" + serverPort
                 + " " + notedHostname + " " + serverConfig);
 
         this.serverHostname = serverHostname;
         this.serverPort = serverPort;
-        this.notedHostname = notedHostname;
         this.serverConfig = serverConfig;
     }
 
@@ -57,9 +57,8 @@ class PinningTrustManager implements X509TrustManager {
         X509TrustManager systemTrustManager = null;
         TrustManagerFactory trustManagerFactory;
         try {
-            trustManagerFactory = TrustManagerFactory.getInstance(
-                    TrustManagerFactory.getDefaultAlgorithm()
-            );
+            trustManagerFactory =
+                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Should never happen");
         }
@@ -88,14 +87,15 @@ class PinningTrustManager implements X509TrustManager {
     public void checkServerTrusted(X509Certificate[] chain, String authType) throws
             CertificateException {
         // Perform default certificate validation
+        //// TODO: 9/13/16 (jb) switch to TrustKitLog.i(message)
         System.out.println("Performing default system validation");
         try {
             systemTrustManager.checkServerTrusted(chain, authType);
         } catch (CertificateException e) {
             // Send a pin failure report
             PinValidationResult result = PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
-            TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
-                    chain, notedHostname, serverConfig, result);
+            TrustKit.getInstance().getReporter().pinValidationFailed(serverPort, chain,
+                    serverConfig, result);
 
             // Then re-throw the exception to close the SSL connection
             throw e;
@@ -114,8 +114,8 @@ class PinningTrustManager implements X509TrustManager {
                 // Send a pin failure report
                 PinValidationResult result =
                         PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
-                TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
-                        chain, notedHostname, serverConfig, result);
+                TrustKit.getInstance().getReporter().pinValidationFailed(serverPort, chain,
+                        serverConfig, result);
 
                 // Then re-throw the exception to close the SSL connection
                 throw new CertificateException("Received SSLPeerUnverifiedException from " +
@@ -124,7 +124,8 @@ class PinningTrustManager implements X509TrustManager {
 
             // Perform pinning validation
             boolean wasPinFound = false;
-            List<SubjectPublicKeyInfoPin> serverPins = new ArrayList<>(serverConfig.getPublicKeyHashes());
+            List<SubjectPublicKeyInfoPin> serverPins =
+                    new ArrayList<>(serverConfig.getPublicKeyHashes());
             for (Certificate certificate : cleanedChainList) {
                 String certificatePin = generatePublicKeyHash((X509Certificate) certificate);
 
@@ -140,8 +141,8 @@ class PinningTrustManager implements X509TrustManager {
             if (!wasPinFound) {
                 // Send a pin failure report
                 PinValidationResult result = PinValidationResult.FAILED;
-                TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, serverPort,
-                        chain, notedHostname, serverConfig, result);
+                TrustKit.getInstance().getReporter().pinValidationFailed(serverPort, chain,
+                        serverConfig, result);
 
                 // TODO(ad): Add more details to this exception (configured pins, etc.)
                 throw new CertificateException("Pinning validation failed");

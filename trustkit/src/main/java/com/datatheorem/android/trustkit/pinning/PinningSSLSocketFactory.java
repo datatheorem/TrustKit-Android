@@ -2,11 +2,10 @@ package com.datatheorem.android.trustkit.pinning;
 
 
 import android.net.SSLCertificateSocketFactory;
-import android.util.Log;
 
 import com.datatheorem.android.trustkit.TrustKit;
+import com.datatheorem.android.trustkit.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
-import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 
 import java.io.IOException;
 import java.net.InetAddress;

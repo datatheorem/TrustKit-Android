@@ -31,7 +31,6 @@ public final class BackgroundReporter {
     private final boolean shouldRateLimitsReports;
     private final PinFailureReportHttpSender pinFailureReportHttpSender;
 
-
     public BackgroundReporter(boolean shouldRateLimitsReports, String appPackageName,
                               String appVersion, String appVendorId) {
         this.shouldRateLimitsReports = shouldRateLimitsReports;
@@ -40,7 +39,6 @@ public final class BackgroundReporter {
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;
     }
-
 
     private String certificateToPem(X509Certificate certificate) {
         byte[] certificateData;
@@ -57,14 +55,12 @@ public final class BackgroundReporter {
         return certificateAsPem;
     }
 
-
-    public final void pinValidationFailed(String serverHostname, Integer serverPort,
+    public final void pinValidationFailed(Integer serverPort,
                                           X509Certificate[] receivedCertificateChain,
-                                          String notedHostname,
                                           PinnedDomainConfiguration serverConfig,
                                           PinValidationResult validationResult) {
 
-        TrustKitLog.i("Pin failure report for " + serverHostname);
+        TrustKitLog.i("Pin failure report for " + serverConfig.getNotedHostname());
         TrustKitLog.i(String.valueOf(receivedCertificateChain.length));
 
         // Convert the certificates to PEM strings
@@ -81,10 +77,10 @@ public final class BackgroundReporter {
                 .appPlatform(APP_PLATFORM)
                 .appVendorId(appVendorId)
                 .trustKitVersion(BuildConfig.VERSION_NAME)
-                .hostname(serverHostname)
+                .hostname(serverConfig.getNotedHostname())
                 .port(serverPort)
                 .dateTime(new Date(System.currentTimeMillis()))
-                .notedHostname(notedHostname)
+                .notedHostname(serverConfig.getNotedHostname())
                 .includeSubdomains(serverConfig.isIncludeSubdomains())
                 .enforcePinning(serverConfig.isEnforcePinning())
                 .validatedCertificateChain(certificateChainAsPem)
@@ -93,7 +89,7 @@ public final class BackgroundReporter {
 
         // If a similar report hasn't been sent recently, send it now
         if (shouldRateLimitsReports && ReportsRateLimiter.shouldRateLimit(report)) {
-            TrustKitLog.i("Pin failure report for " + serverHostname
+            TrustKitLog.i("Pin failure report for " + serverConfig.getNotedHostname()
                     + " was not sent due to rate-limiting");
             return;
         }
