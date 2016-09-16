@@ -8,10 +8,18 @@ repositories {
 dependencies {
     compile "com.android.support:support-annotations:$rootProject.libVersions.android.appCompat"
     compile "com.android.support:support-v4:$rootProject.libVersions.android.appCompat"
+    // TODO investigate if you can extract the needed files efficiently or find a way to handle
+    // Domain name verification with a lighter lib (without regex)
+    compile "com.google.guava:guava:$rootProject.libVersions.guava"
+
 
     androidTestCompile "junit:junit:$rootProject.libVersions.junit"
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile "com.android.support.test:runner:$rootProject.libVersions.android.testRunner"
+    androidTestCompile "com.android.support.test:rules:$rootProject.libVersions.android.testRunner"
+    androidTestCompile "org.mockito:mockito-core:1.10.19"
+    androidTestCompile "com.crittercism.dexmaker:dexmaker:1.4"
+    androidTestCompile "com.crittercism.dexmaker:dexmaker-dx:1.4"
+    androidTestCompile "com.crittercism.dexmaker:dexmaker-mockito:1.4"
 
     testCompile "junit:junit:$rootProject.libVersions.junit"
 
@@ -26,10 +34,9 @@ android {
     defaultConfig {
         compileSdkVersion toolVersions.android.compileSdk
         buildToolsVersion toolVersions.android.buildTools
-        //noinspection GroovyAssignabilityCheck
         minSdkVersion toolVersions.android.minSdk
-        versionCode 1
-        versionName "0.1.0"
+        versionCode trustkitVersionCode
+        versionName trustkitVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -41,3 +48,4 @@ android {
         unitTests.returnDefaultValues = true
     }
 }
+

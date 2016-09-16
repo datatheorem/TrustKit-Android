@@ -12,7 +12,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 
-public class PinningTrustManagerTest {
+public class CertificateChainCaptorTrustManagerTest {
 
     @Test
     public void someConnection() {
@@ -22,7 +22,7 @@ public class PinningTrustManagerTest {
             url = new URL("https://www.google.com/");
             urlConnection = (HttpsURLConnection) url.openConnection();
             SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, new TrustManager[]{new PinningTrustManager(null,null,null,null)}, null);
+            context.init(null, new TrustManager[]{new PinningTrustManager("lol")}, null);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
 
             InputStream in = urlConnection.getInputStream();

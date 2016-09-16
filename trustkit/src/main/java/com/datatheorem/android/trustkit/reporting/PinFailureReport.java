@@ -3,6 +3,7 @@ package com.datatheorem.android.trustkit.reporting;
 import android.text.format.DateFormat;
 
 import com.datatheorem.android.trustkit.PinValidationResult;
+import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.json.JSONArray;
@@ -11,7 +12,9 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * Data representation of a pinning validation failure
@@ -31,7 +34,7 @@ class PinFailureReport implements Serializable {
     private boolean enforcePinning;
     private String[] validatedCertificateChain;
     private Date dateTime;
-    private String[] knownPins;
+    private Set<SubjectPublicKeyInfoPin> knownPins;
     private int validationResult;
 
     private PinFailureReport(Builder builder) {
@@ -71,7 +74,7 @@ class PinFailureReport implements Serializable {
         return port;
     }
 
-    public String[] getKnownPins() {
+    public Set<SubjectPublicKeyInfoPin> getKnownPins() {
         return knownPins;
     }
 
@@ -100,8 +103,8 @@ class PinFailureReport implements Serializable {
             jsonObject.put("date-time", DateFormat.format("yyyy-MM-dd'T'HH:mm:ssZ", dateTime));
 
             JSONArray jsonArrayKnownPins = new JSONArray();
-            for (String knownPin : knownPins) {
-                jsonArrayKnownPins.put(knownPin);
+            for (SubjectPublicKeyInfoPin knownPin : knownPins) {
+                jsonArrayKnownPins.put(knownPin.toString());
             }
 
             jsonObject.put("known-pins", jsonArrayKnownPins);
@@ -132,9 +135,18 @@ class PinFailureReport implements Serializable {
                 ", enforcePinning=" + enforcePinning +
                 ", validatedCertificateChain=" + Arrays.toString(validatedCertificateChain) +
                 ", dateTime=" + dateTime +
-                ", knownPins=" + Arrays.toString(knownPins) +
+                ", knownPins=" + Arrays.toString(pinsToString(knownPins)) +
                 ", validationResult=" + validationResult +
                 '}';
+    }
+
+    public String[] pinsToString(Set<SubjectPublicKeyInfoPin> pins) {
+        ArrayList<String> pinsString = new ArrayList<>();
+        for (SubjectPublicKeyInfoPin pin : pins) {
+            pinsString.add(pin.toString());
+        }
+
+        return pinsString.toArray(new String[pinsString.size()]);
     }
 
     public static final class Builder {
@@ -150,7 +162,7 @@ class PinFailureReport implements Serializable {
         private boolean enforcePinning;
         private String[] validatedCertificateChain;
         private Date dateTime;
-        private String[] knownPins;
+        private Set<SubjectPublicKeyInfoPin> knownPins;
         private PinValidationResult validationResult;
 
         public Builder() {
@@ -217,7 +229,7 @@ class PinFailureReport implements Serializable {
             return this;
         }
 
-        public Builder knownPins(String[] val) {
+        public Builder knownPins(Set<SubjectPublicKeyInfoPin> val) {
             knownPins = val;
             return this;
         }

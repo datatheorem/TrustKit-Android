@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <domain-config disableDefaultReportUri="true" enforcePinning="true">
+    <domain-config>
         <domain includeSubdomains="true">www.datatheorem.com</domain>
         <pin-set>
             <pin digest="SHA-256">HXXQgxueCIU5TTLHob/bPbwcKOKw6DkfsTWYHbxbqTY=</pin>
             <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
         </pin-set>
+        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
     </domain-config>
 
 </network-security-config>
