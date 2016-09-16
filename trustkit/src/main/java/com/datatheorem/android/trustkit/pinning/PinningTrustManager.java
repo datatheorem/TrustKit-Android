@@ -122,8 +122,7 @@ public class PinningTrustManager implements X509TrustManager {
             if ((Build.VERSION.SDK_INT >= 24)
                     && (e.getMessage().startsWith("Pin verification failed"))) {
                 // A pinning failure triggered by the Android N netsec policy
-                // TODO(ad): Check if it does path validation first so that we're not silencing
-                // that error when enforcePinning is false
+                // This can only happen after path validation was successful
                 didPinningValidationFail = true;
             } else {
                 // Path or hostname validation failed
@@ -174,7 +173,6 @@ public class PinningTrustManager implements X509TrustManager {
         }
     }
 
-    // TODO(ad): Find a better name
     private static boolean isPinInChain(List<X509Certificate> verifiedServerChain,
                                         Set<SubjectPublicKeyInfoPin> configuredPins) {
         boolean wasPinFound = false;

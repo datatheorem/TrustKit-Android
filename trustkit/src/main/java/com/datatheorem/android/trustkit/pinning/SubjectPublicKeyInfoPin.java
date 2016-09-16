@@ -4,7 +4,6 @@ import android.util.Base64;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
