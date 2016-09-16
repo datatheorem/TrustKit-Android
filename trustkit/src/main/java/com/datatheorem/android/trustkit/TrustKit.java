@@ -115,6 +115,6 @@ public class TrustKit {
     }
 
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
-    
+
     public BackgroundReporter getReporter() { return backgroundReporter; }
 }

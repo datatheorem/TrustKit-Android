@@ -24,6 +24,7 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
 
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -108,34 +109,6 @@ public class PinningSSLSocketFactoryTest {
         );
     }
 
-    @Test
-    public void testPinnedDomainUntrustedRootChain() throws IOException {
-        // Initialize TrustKit
-        String serverHostname = "untrusted-root.badssl.com";
-
-        // Create an PinningSSLSocketFactory and ensure connection fails
-        SSLSocketFactory test = new PinningSSLSocketFactory();
-        boolean didReceiveHandshakeError = false;
-        try {
-            test.createSocket(serverHostname, 443);
-        } catch (SSLHandshakeException e) {
-            if ((e.getCause() instanceof CertificateException
-                    && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
-                didReceiveHandshakeError = true;
-            }
-        }
-        assertTrue(didReceiveHandshakeError);
-
-        // Ensure the background reporter was called
-        verify(mockReporter).pinValidationFailed(
-                eq(serverHostname),
-                eq(0),
-                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
-                eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
-        );
-    }
 
     @Test
     public void testPinnedDomainSuccess() throws IOException {
@@ -182,6 +155,66 @@ public class PinningSSLSocketFactoryTest {
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
                 eq(PinValidationResult.FAILED)
+        );
+    }
+
+    @Test
+    public void testPinnedDomainInvalidPinAndPinningNotEnforced() throws IOException {
+        String serverHostname = "www.github.com";
+
+        // Create an PinningSSLSocketFactory and ensure connection succeeds
+        SSLSocketFactory test = new PinningSSLSocketFactory();
+        boolean didReceiveHandshakeError = false;
+        try {
+            test.createSocket(serverHostname, 443);
+        } catch (SSLHandshakeException e) {
+            if ((e.getCause() instanceof CertificateException
+                    && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
+                didReceiveHandshakeError = true;
+            }
+        }
+
+        // Handshake was successful
+        assertFalse(didReceiveHandshakeError);
+
+        // Ensure the background reporter was called
+        verify(mockReporter).pinValidationFailed(
+                eq(serverHostname),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
+                eq(PinValidationResult.FAILED)
+        );
+    }
+
+    @Test
+    public void testPinnedDomainUntrustedChainAndPinningNotEnforced() throws IOException {
+        String serverHostname = "untrusted-root.badssl.com";
+
+        // Create an PinningSSLSocketFactory and ensure connection succeeds
+        SSLSocketFactory test = new PinningSSLSocketFactory();
+        boolean didReceiveHandshakeError = false;
+        try {
+            test.createSocket(serverHostname, 443);
+        } catch (SSLHandshakeException e) {
+            if ((e.getCause() instanceof CertificateException
+                    && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
+                didReceiveHandshakeError = true;
+            }
+        }
+
+        // Ensure the SSL handshake failed
+        assertTrue(didReceiveHandshakeError);
+
+        // Ensure the background reporter was called
+        verify(mockReporter).pinValidationFailed(
+                eq(serverHostname),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
+                eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
         );
     }
     //endregion
