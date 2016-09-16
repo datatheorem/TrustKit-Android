@@ -67,6 +67,7 @@ public class BackgroundReporter {
                                           PinValidationResult validationResult) {
 
         TrustKitLog.i("Generating pin failure report for " + serverHostname);
+
         // TODO(ad): Also send the validated chain
         // Convert the certificates to PEM strings
         ArrayList<String> certificateChainAsPem = new ArrayList<>();
@@ -89,7 +90,7 @@ public class BackgroundReporter {
                 .dateTime(new Date(System.currentTimeMillis()))
                 .notedHostname(serverConfig.getNotedHostname())
                 .includeSubdomains(serverConfig.isIncludeSubdomains())
-                .enforcePinning(serverConfig.isEnforcePinning())
+                .enforcePinning(serverConfig.shouldEnforcePinning())
                 .validatedCertificateChain(certificateChainAsPem.toArray(new String[certificateChainAsPem.size()]))
                 .knownPins(serverConfig.getPublicKeyHashes())
                 .validationResult(validationResult).build();
@@ -102,17 +103,19 @@ public class BackgroundReporter {
         }
 
         final HashSet<URL> reportUriSet = (HashSet<URL>) serverConfig.getReportURIs();
-        new AsyncTask() {
+        new AsyncTask<HashSet<URL>, Void, Void>() {
+            @SafeVarargs
             @Override
-            protected Object doInBackground(Object[] params) {
+            protected final Void doInBackground(HashSet<URL>... params) {
                 for (final URL reportUri : reportUriSet) {
                     pinFailureReportHttpSender.send(reportUri, report);
                 }
                 return null;
             }
 
+
             @Override
-            protected void onPostExecute(Object o) {
+            protected void onPostExecute(Void aVoid) {
                 if (pinFailureReportHttpSender.getResponseCode() >= 200
                         && pinFailureReportHttpSender.getResponseCode() < 300) {
                     TrustKitLog.i("Background upload - task completed successfully: pinning " +
@@ -122,6 +125,7 @@ public class BackgroundReporter {
                             " error");
                 }
             }
-        }.execute();
+
+        }.execute(reportUriSet);
     }
 }

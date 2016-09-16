@@ -18,9 +18,8 @@ import java.util.Set;
 public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
     // TODO(ad): Investigate whether we can add TSKIgnorePinningForUserDefinedTrustAnchors and TSKSwizzleNetworkDelegates
 
-    // TODO(ad): Rename to something like findConfiguration
     @Nullable
-    public PinnedDomainConfiguration getByPinnedHostname(@NonNull String serverHostname) {
+    public PinnedDomainConfiguration findConfiguration(@NonNull String serverHostname) {
         for (PinnedDomainConfiguration pinnedDomainConfiguration : this) {
             // TODO(ad): Handle includeSubdomains here
             if (serverHostname.equals(pinnedDomainConfiguration.getNotedHostname())) {
@@ -41,49 +40,45 @@ public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
         boolean disableDefaultReportUri = false;
         ArrayList<String> reportUris = null;
 
-
-        boolean isADomain = false;
-        boolean isAPin = false;
-        boolean isAReportUri = false;
-
+        boolean isATagDomain = false;
+        boolean isATagPin = false;
+        boolean isATagReportUri = false;
 
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
                 if ("domain".equals(parser.getName())){
-                    isADomain = true;
+                    isATagDomain = true;
                     pinnedDomainConfigBuilder
                             .includeSubdomains(parser.getAttributeBooleanValue(0, false));
                 } else if ("pin".equals(parser.getName())) {
-                    isAPin = true;
-                    isADomain = false;
+                    isATagPin = true;
                     if (knownPins == null) {
                         knownPins = new HashSet<>();
                     }
-                } else if ("report-uri".equals(parser.getName())) {
-                    isAReportUri = true;
-                    isAPin = false;
-                    isADomain = false;
-                    if (reportUris == null) {
-                        reportUris = new ArrayList<>();
-                    }
-                } else if ("domain-config".equals(parser.getName())) {
+                } else if ("trustkit-config".equals(parser.getName())) {
                     enforcePinning = parser.getAttributeBooleanValue(null, "enforcePinning", false);
                     disableDefaultReportUri =
                             parser.getAttributeBooleanValue(null, "disableDefaultReportUri", false);
+                } else if ("report-uri".equals(parser.getName())) {
+                    isATagReportUri = true;
+                    isATagPin = false;
+                    isATagDomain = false;
+                    if (reportUris == null) {
+                        reportUris = new ArrayList<>();
+                    }
                 }
             } else if (eventType == XmlPullParser.END_TAG) {
                 if ("domain".equals(parser.getName())) {
-                    isADomain = false;
+                    isATagDomain = false;
                 }
 
                 if ("pin".equals(parser.getName())) {
-                    isAPin = false;
+                    isATagPin = false;
                 }
 
-
                 if ("report-uri".equals(parser.getName())){
-                    isAReportUri = false;
+                    isATagReportUri = false;
                 }
 
                 if ("domain-config".equals(parser.getName())){
@@ -98,20 +93,23 @@ public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
                                 .reportURIs(reportUris.toArray(new String[reportUris.size()]));
                     }
 
+
                     trustKitConfiguration.add(pinnedDomainConfigBuilder.build());
+                    domainName = "";
+                    enforcePinning = false;
+                    disableDefaultReportUri = false;
+                    knownPins = null;
                 }
-
-
             } else if (eventType == XmlPullParser.TEXT) {
-                if (isADomain){
+                if (isATagDomain){
                     domainName = parser.getText();
                 }
 
-                if (isAPin) {
+                if (isATagPin) {
                     knownPins.add(parser.getText());
                 }
 
-                if (isAReportUri) {
+                if (isATagReportUri) {
                     reportUris.add(parser.getText());
                 }
             }

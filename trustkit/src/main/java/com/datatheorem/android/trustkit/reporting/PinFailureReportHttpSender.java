@@ -1,6 +1,7 @@
 package com.datatheorem.android.trustkit.reporting;
 
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
+import com.google.common.annotations.Beta;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

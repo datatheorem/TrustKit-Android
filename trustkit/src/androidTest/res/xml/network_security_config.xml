@@ -7,7 +7,6 @@
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>
         </pin-set>
-        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
     </domain-config>
     <domain-config enforcePinning="true">
         <domain>www.yahoo.com</domain>
@@ -16,7 +15,9 @@
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
         </pin-set>
-        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
+        <trustkit-config enforcePinnign="true" disableDefaultReportUri="true">
+            <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
+        </trustkit-config>
     </domain-config>
     <domain-config enforcePinning="false">
         <domain>www.github.com</domain>

@@ -99,6 +99,7 @@ public class TrustKit {
     }
 
     // TODO(ad): Consider removing this? or not? or making it @deprecated?
+    // // TODO: 9/16/16 (jb) Move to dev?
     public static void initWithConfiguration(Context appContext, TrustKitConfiguration trustKitConfiguration) {
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M

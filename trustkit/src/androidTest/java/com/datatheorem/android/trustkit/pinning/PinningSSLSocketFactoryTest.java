@@ -75,7 +75,7 @@ public class PinningSSLSocketFactoryTest {
                 eq(0),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
+                eq(DebugTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
                 eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
         );
     }
@@ -104,7 +104,7 @@ public class PinningSSLSocketFactoryTest {
                 eq(0),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
+                eq(DebugTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
                 eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
         );
     }
@@ -124,7 +124,7 @@ public class PinningSSLSocketFactoryTest {
                 eq(0),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
+                eq(DebugTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
                 eq(PinValidationResult.FAILED)
         );
     }
@@ -153,7 +153,7 @@ public class PinningSSLSocketFactoryTest {
                 eq(0),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
+                eq(DebugTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
                 eq(PinValidationResult.FAILED)
         );
     }
@@ -183,7 +183,7 @@ public class PinningSSLSocketFactoryTest {
                 eq(0),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
+                eq(DebugTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
                 eq(PinValidationResult.FAILED)
         );
     }
@@ -213,7 +213,7 @@ public class PinningSSLSocketFactoryTest {
                 eq(0),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
+                eq(DebugTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
                 eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
         );
     }
@@ -243,7 +243,7 @@ public class PinningSSLSocketFactoryTest {
                 eq(0),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(DebugTrustKit.getInstance().getConfiguration().getByPinnedHostname(serverHostname)),
+                eq(DebugTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
                 eq(PinValidationResult.FAILED)
         );
     }

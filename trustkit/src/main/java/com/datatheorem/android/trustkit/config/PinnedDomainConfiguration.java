@@ -26,7 +26,7 @@ public final class PinnedDomainConfiguration {
     }
 
     private final Set<SubjectPublicKeyInfoPin> publicKeyHashes;
-    private final boolean enforcePinning;
+    private final boolean shouldEnforcePinning;
     private final Set<URL> reportURIs;
     private final boolean includeSubdomains;
     private final String notedHostname;
@@ -34,7 +34,7 @@ public final class PinnedDomainConfiguration {
     private PinnedDomainConfiguration(Builder builder) {
         notedHostname = builder.pinnedDomainName;
         publicKeyHashes = builder.publicKeyInfoPins;
-        enforcePinning = builder.enforcePinning;
+        shouldEnforcePinning = builder.enforcePinning;
         includeSubdomains = builder.includeSubdomains;
 
         // Create the final list of report URIs
@@ -57,9 +57,8 @@ public final class PinnedDomainConfiguration {
         return publicKeyHashes;
     }
 
-    // TODO(ad): Rename this to shouldEnforcePinning()
-    public boolean isEnforcePinning() {
-        return enforcePinning;
+    public boolean shouldEnforcePinning() {
+        return shouldEnforcePinning;
     }
 
     public Set<URL> getReportURIs() {
@@ -76,7 +75,7 @@ public final class PinnedDomainConfiguration {
                 .append("PinnedDomainConfiguration{")
                 .append("notedHostname = " + notedHostname + "\n")
                 .append("knownPins = " + Arrays.toString(publicKeyHashes.toArray()) + "\n")
-                .append("enforcePinning = " +enforcePinning + "\n")
+                .append("shouldEnforcePinning = " + shouldEnforcePinning + "\n")
                 .append("reportUris = " + reportURIs + "\n")
                 .append("includeSubdomains = " + includeSubdomains + "\n")
                 .append("}")
