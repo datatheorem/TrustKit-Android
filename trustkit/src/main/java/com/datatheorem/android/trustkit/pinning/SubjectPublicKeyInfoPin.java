@@ -38,9 +38,15 @@ public final class SubjectPublicKeyInfoPin {
         pin = spkiPin;
     }
 
-    // TODO(ad): Override equals() so that Set.contains() will work
+    @Override
+    public boolean equals(Object arg0) {
+        return (arg0 instanceof SubjectPublicKeyInfoPin) && arg0.toString().equals(this.toString());
+    }
 
-    // TODO(ad): Override toString()
+    @Override
+    public int hashCode() {
+        return pin.hashCode();
+    }
 
     @Override
     public String toString(){ return pin; }
