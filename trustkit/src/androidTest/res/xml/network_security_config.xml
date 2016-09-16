@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TODO(ad): Move this to the androidTest res folder -->
 <network-security-config>
     <domain-config enforcePinning="true">
         <domain>www.datatheorem.com</domain>
