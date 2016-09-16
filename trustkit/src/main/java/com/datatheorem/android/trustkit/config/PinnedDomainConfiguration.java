@@ -1,6 +1,7 @@
 package com.datatheorem.android.trustkit.config;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 
 import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
 import com.google.common.net.InternetDomainName;
@@ -8,8 +9,12 @@ import com.google.common.net.InternetDomainName;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 
@@ -30,12 +35,14 @@ public final class PinnedDomainConfiguration {
     private final Set<URL> reportURIs;
     private final boolean includeSubdomains;
     private final String notedHostname;
+    private final Date expirationDate;
 
     private PinnedDomainConfiguration(Builder builder) {
         notedHostname = builder.pinnedDomainName;
         publicKeyHashes = builder.publicKeyInfoPins;
         shouldEnforcePinning = builder.enforcePinning;
         includeSubdomains = builder.includeSubdomains;
+        expirationDate = builder.expirationDate;
 
         // Create the final list of report URIs
         // Add the default report URI if enabled
@@ -47,6 +54,7 @@ public final class PinnedDomainConfiguration {
         if (builder.reportURIs != null) {
             reportURIs.addAll(builder.reportURIs);
         }
+
     }
 
     public String getNotedHostname() {
@@ -82,6 +90,10 @@ public final class PinnedDomainConfiguration {
                 .toString();
     }
 
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
     public static final class Builder {
         private String pinnedDomainName;
         private Set<String> publicKeyHashes;
@@ -90,6 +102,7 @@ public final class PinnedDomainConfiguration {
         private Set<URL> reportURIs;
         private boolean includeSubdomains;
         private boolean disableDefaultReportUri;
+        private Date expirationDate;
 
         public Builder() {
         }
@@ -128,6 +141,12 @@ public final class PinnedDomainConfiguration {
 
         public Builder disableDefaultReportUri(boolean val) {
             disableDefaultReportUri = val;
+            return this;
+        }
+
+        public Builder expirationDate(Date date) throws ParseException {
+
+            expirationDate = date;
             return this;
         }
 

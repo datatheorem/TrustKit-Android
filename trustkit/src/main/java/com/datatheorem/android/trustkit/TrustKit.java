@@ -15,6 +15,7 @@ import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.UUID;
 
 
@@ -91,7 +92,7 @@ public class TrustKit {
             trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(
                     context.getResources().getXml(policyResourceId)
             );
-        } catch (XmlPullParserException | IOException e) {
+        } catch (ParseException | XmlPullParserException | IOException e) {
             throw new ConfigurationException("Could not parse network security policy file");
         }
 
