@@ -222,7 +222,7 @@ public class PinningSSLSocketFactoryTest {
     //region Tests for when the domain is NOT pinned
     @Test
     public void testNonPinnedDomainUntrustedRootChain() throws IOException {
-        String serverHostname = "incomplete-chain.badssl.com";
+        String serverHostname = "www.cacert.org";
 
         // Create an PinningSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new PinningSSLSocketFactory();
