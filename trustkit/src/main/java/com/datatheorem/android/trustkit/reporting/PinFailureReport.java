@@ -4,7 +4,6 @@ import android.text.format.DateFormat;
 
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
-import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,45 +12,112 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
- * Data representation of a pinning validation failure
+ * A pinning validation failure report.
  */
-class PinFailureReport implements Serializable {
+// TODO(ad): Remove public
+public class PinFailureReport implements Serializable {
+    // Fields specific to TrustKit reports
+    private static final String APP_PLATFORM = "ANDROID";
     private String appBundleId;
     private String appVersion;
     private String appVendorId;
-    private String appPlatform;
     private String trustKitVersion;
-    //called serverHostname
+    private PinValidationResult validationResult;
+
+    // Fields from the HPKP spec
     private String serverHostname;
-    private int port;
-    //pinned serverHostname checked
+    private int serverPort; // Not properly returned right now and will always be 0
     private String notedHostname;
     private boolean includeSubdomains;
     private boolean enforcePinning;
-    private String[] validatedCertificateChain;
+    private List<String> servedCertificateChainAsPem;
+    private List<String> validatedCertificateChainAsPem;
     private Date dateTime;
     private Set<SubjectPublicKeyInfoPin> knownPins;
-    private int validationResult;
 
-    private PinFailureReport(Builder builder) {
-        appBundleId = builder.appBundleId;
-        appVersion = builder.appVersion;
-        appVendorId = builder.appVendorId;
-        appPlatform = builder.appPlatform;
-        trustKitVersion = builder.trustKitVersion;
-        serverHostname = builder.hostname;
-        port = builder.port;
-        notedHostname = builder.notedHostname;
-        includeSubdomains = builder.includeSubdomains;
-        enforcePinning = builder.enforcePinning;
-        validatedCertificateChain = builder.validatedCertificateChain;
-        dateTime = builder.dateTime;
-        knownPins = builder.knownPins;
-        validationResult = builder.validationResult.ordinal();
+    // TODO(ad): Remove public
+    public PinFailureReport(String appBundleId, String appVersion, String appVendorId,
+                            String trustKitVersion, String hostname, int port,
+                            String notedHostname, boolean includeSubdomains,
+                            boolean enforcePinning, List<String> servedCertificateChain,
+                            List<String> validatedCertificateChain, Date dateTime,
+                            Set<SubjectPublicKeyInfoPin> knownPins,
+                            PinValidationResult validationResult) {
+        this.appBundleId = appBundleId;
+        this.appVersion = appVersion;
+        this.appVendorId = appVendorId;
+        this.trustKitVersion = trustKitVersion;
+        this.serverHostname = hostname;
+        this.serverPort = port;
+        this.notedHostname = notedHostname;
+        this.includeSubdomains = includeSubdomains;
+        this.enforcePinning = enforcePinning;
+        this.servedCertificateChainAsPem = servedCertificateChain;
+        this.validatedCertificateChainAsPem = validatedCertificateChain;
+        this.dateTime = dateTime;
+        this.knownPins = knownPins;
+        this.validationResult = validationResult;
+    }
+
+    public JSONObject toJson() {
+        JSONObject jsonReport = new JSONObject();
+        try {
+            jsonReport.put("app-bundle-id", appBundleId);
+            jsonReport.put("app-version", String.valueOf(appVersion));
+            jsonReport.put("app-vendor-id", appVendorId);
+            jsonReport.put("app-platform", APP_PLATFORM);
+            jsonReport.put("trustkit-version", trustKitVersion);
+            jsonReport.put("hostname", serverHostname);
+            jsonReport.put("serverPort", serverPort);
+            jsonReport.put("noted-hostname", notedHostname);
+            jsonReport.put("include-subdomains", includeSubdomains);
+            jsonReport.put("enforce-pinning", enforcePinning);
+            jsonReport.put("validation-result", validationResult.ordinal());
+            jsonReport.put("date-time", DateFormat.format("yyyy-MM-dd'T'HH:mm:ssZ", dateTime));
+
+            JSONArray ValidatedCertificateChainAsJson = new JSONArray();
+            for (String validatedCertificate : validatedCertificateChainAsPem) {
+                ValidatedCertificateChainAsJson.put(validatedCertificate);
+            }
+            jsonReport.put("validated-certificate-chain", ValidatedCertificateChainAsJson);
+
+
+            JSONArray ServedCertificateChainAsJson = new JSONArray();
+            for (String validatedCertificate : servedCertificateChainAsPem) {
+                ServedCertificateChainAsJson.put(validatedCertificate);
+            }
+            jsonReport.put("served-certificate-chain", ServedCertificateChainAsJson);
+
+            JSONArray jsonArrayKnownPins = new JSONArray();
+            for (SubjectPublicKeyInfoPin knownPin : knownPins) {
+                jsonArrayKnownPins.put(knownPin.toString());
+            }
+            jsonReport.put("known-pins", jsonArrayKnownPins);
+
+        } catch (JSONException ex) {
+            // Should never happen
+            throw new IllegalStateException("JSON error for report:" + this.toString());
+        }
+        return jsonReport;
+    }
+
+    @Override
+    public String toString() {
+        return toJson().toString();
+    }
+
+    // TODO(ad): Remove this
+    public String[] pinsToString(Set<SubjectPublicKeyInfoPin> pins) {
+        ArrayList<String> pinsString = new ArrayList<>();
+        for (SubjectPublicKeyInfoPin pin : pins) {
+            pinsString.add(pin.toString());
+        }
+
+        return pinsString.toArray(new String[pinsString.size()]);
     }
 
     public String getNotedHostname() {
@@ -62,188 +128,15 @@ class PinFailureReport implements Serializable {
         return serverHostname;
     }
 
-    public String[] getValidatedCertificateChain() {
-        return validatedCertificateChain;
+    public List<String> getValidatedCertificateChainAsPem() {
+        return validatedCertificateChainAsPem;
     }
 
-    public int getValidationResult() {
+    public PinValidationResult getValidationResult() {
         return validationResult;
     }
 
-    public int getPort() {
-        return port;
+    public int getServerPort() {
+        return serverPort;
     }
-
-    public Set<SubjectPublicKeyInfoPin> getKnownPins() {
-        return knownPins;
-    }
-
-    public JSONObject toJson() {
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("app-bundle-id", appBundleId);
-            jsonObject.put("app-version", String.valueOf(appVersion));
-            jsonObject.put("app-vendor-id", appVendorId);
-            jsonObject.put("app-platform", appPlatform);
-            jsonObject.put("trustkit-version", trustKitVersion);
-            jsonObject.put("hostname", serverHostname);
-            jsonObject.put("port", port);
-            jsonObject.put("noted-hostname", notedHostname);
-            jsonObject.put("include-subdomains", includeSubdomains);
-            jsonObject.put("enforce-pinning", enforcePinning);
-
-            JSONArray jsonArrayValidatedCertificateChain = new JSONArray();
-
-            for (String validatedCertificate : validatedCertificateChain) {
-                jsonArrayValidatedCertificateChain.put(validatedCertificate);
-            }
-
-            jsonObject.put("validated-certificate-chain", jsonArrayValidatedCertificateChain);
-
-            jsonObject.put("date-time", DateFormat.format("yyyy-MM-dd'T'HH:mm:ssZ", dateTime));
-
-            JSONArray jsonArrayKnownPins = new JSONArray();
-            for (SubjectPublicKeyInfoPin knownPin : knownPins) {
-                jsonArrayKnownPins.put(knownPin.toString());
-            }
-
-            jsonObject.put("known-pins", jsonArrayKnownPins);
-            jsonObject.put("validation-result", validationResult);
-
-            return jsonObject;
-
-        } catch (JSONException ex) {
-            TrustKitLog.e(" JSON serialization error, report : \n " + this.toString());
-            ex.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return "PinFailureReport{" +
-                "appBundleId='" + appBundleId + '\'' +
-                ", appVersion=" + appVersion +
-                ", appVendorId='" + appVendorId + '\'' +
-                ", appPlatform='" + appPlatform+ '\'' +
-                ", trustKitVersion='" + trustKitVersion + '\'' +
-                ", serverHostname='" + serverHostname + '\'' +
-                ", port=" + port +
-                ", notedHostname='" + notedHostname + '\'' +
-                ", includeSubdomains=" + includeSubdomains +
-                ", enforcePinning=" + enforcePinning +
-                ", validatedCertificateChain=" + Arrays.toString(validatedCertificateChain) +
-                ", dateTime=" + dateTime +
-                ", knownPins=" + Arrays.toString(pinsToString(knownPins)) +
-                ", validationResult=" + validationResult +
-                '}';
-    }
-
-    public String[] pinsToString(Set<SubjectPublicKeyInfoPin> pins) {
-        ArrayList<String> pinsString = new ArrayList<>();
-        for (SubjectPublicKeyInfoPin pin : pins) {
-            pinsString.add(pin.toString());
-        }
-
-        return pinsString.toArray(new String[pinsString.size()]);
-    }
-
-    public static final class Builder {
-        private String appBundleId;
-        private String appVersion;
-        private String appVendorId;
-        private String appPlatform;
-        private String trustKitVersion;
-        private String hostname;
-        private int port;
-        private String notedHostname;
-        private boolean includeSubdomains;
-        private boolean enforcePinning;
-        private String[] validatedCertificateChain;
-        private Date dateTime;
-        private Set<SubjectPublicKeyInfoPin> knownPins;
-        private PinValidationResult validationResult;
-
-        public Builder() {
-        }
-
-        public Builder appBundleId(String val) {
-            appBundleId = val;
-            return this;
-        }
-
-        public Builder appVersion(String val) {
-
-            appVersion = val;
-            return this;
-        }
-
-        public Builder appVendorId(String val) {
-            appVendorId = val;
-            return this;
-        }
-
-        public Builder appPlatform(String val) {
-            appPlatform = val;
-            return this;
-        }
-
-        public Builder trustKitVersion(String val) {
-            trustKitVersion = val;
-            return this;
-        }
-
-        public Builder hostname(String val) {
-            hostname = val;
-            return this;
-        }
-
-        public Builder port(int val) {
-            port = val;
-            return this;
-        }
-
-        public Builder notedHostname(String val) {
-            notedHostname = val;
-            return this;
-        }
-
-        public Builder includeSubdomains(boolean val) {
-            includeSubdomains = val;
-            return this;
-        }
-
-        public Builder enforcePinning(boolean val) {
-            enforcePinning = val;
-            return this;
-        }
-
-        public Builder validatedCertificateChain(String[] val) {
-            validatedCertificateChain = val;
-            return this;
-        }
-
-        public Builder dateTime(Date val) {
-            dateTime = val;
-            return this;
-        }
-
-        public Builder knownPins(Set<SubjectPublicKeyInfoPin> val) {
-            knownPins = val;
-            return this;
-        }
-
-        public Builder validationResult(PinValidationResult val) {
-            validationResult = val;
-            return this;
-        }
-
-        public PinFailureReport build() {
-            return new PinFailureReport(this);
-        }
-
-    }
-
-
 }

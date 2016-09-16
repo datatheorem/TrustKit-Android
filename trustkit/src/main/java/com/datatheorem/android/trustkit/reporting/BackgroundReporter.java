@@ -4,6 +4,7 @@ package com.datatheorem.android.trustkit.reporting;
 import android.os.AsyncTask;
 import android.util.Base64;
 
+import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -22,8 +23,6 @@ import java.util.List;
  * to the specific URI.
  */
 public class BackgroundReporter {
-    private static final String APP_PLATFORM = "ANDROID";
-
     // Main application environment information
     private final String appPackageName;
     private final String appVersion;
@@ -31,13 +30,13 @@ public class BackgroundReporter {
 
     // Configuration and Objects managing all the operation done by the BackgroundReporter
     private final boolean shouldRateLimitsReports;
-    private final PinFailureReportHttpSender pinFailureReportHttpSender;
+    private final PinFailureReportHttpSender reportSender;
 
 
     public BackgroundReporter(boolean shouldRateLimitsReports, String appPackageName,
                               String appVersion, String appVendorId) {
         this.shouldRateLimitsReports = shouldRateLimitsReports;
-        this.pinFailureReportHttpSender = new PinFailureReportHttpSender();
+        this.reportSender = new PinFailureReportHttpSender();
         this.appPackageName = appPackageName;
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;
@@ -60,39 +59,32 @@ public class BackgroundReporter {
     }
 
 
-    public void pinValidationFailed(String serverHostname, Integer serverPort,
+    public void pinValidationFailed(String serverHostname,
+                                    Integer serverPort,
                                     List<X509Certificate> servedCertificateChain,
-                                          List<X509Certificate> validatedCertificateChain,
-                                          PinnedDomainConfiguration serverConfig,
-                                          PinValidationResult validationResult) {
+                                    List<X509Certificate> validatedCertificateChain,
+                                    PinnedDomainConfiguration serverConfig,
+                                    PinValidationResult validationResult) {
 
         TrustKitLog.i("Generating pin failure report for " + serverHostname);
-        // TODO(ad): Also send the validated chain
+
         // Convert the certificates to PEM strings
-        ArrayList<String> certificateChainAsPem = new ArrayList<>();
-        for (X509Certificate certificate : servedCertificateChain) {
-            certificateChainAsPem.add(certificateToPem(certificate));
+        ArrayList<String> validatedCertificateChainAsPem = new ArrayList<>();
+        for (X509Certificate certificate : validatedCertificateChain) {
+            validatedCertificateChainAsPem.add(certificateToPem(certificate));
         }
-        // TOOD(ad): Investigate if we can put as many things as we can in the asynctask to avoid
-        // slowing down the handshake
-        // TODO(ad): Also put in the report the validatedCertificateChain
+        ArrayList<String> servedCertificateChainAsPem = new ArrayList<>();
+        for (X509Certificate certificate : servedCertificateChain) {
+            servedCertificateChainAsPem.add(certificateToPem(certificate));
+        }
+
         // Generate the corresponding pin failure report
-        final PinFailureReport report = new PinFailureReport.Builder()
-                .appBundleId(appPackageName)
-                .appVersion(appVersion)
-                .appPlatform(APP_PLATFORM)
-                .appVendorId(appVendorId)
-                // TODO(ad): Put the right version number
-                .trustKitVersion("123")
-                .hostname(serverHostname)
-                .port(serverPort)
-                .dateTime(new Date(System.currentTimeMillis()))
-                .notedHostname(serverConfig.getNotedHostname())
-                .includeSubdomains(serverConfig.isIncludeSubdomains())
-                .enforcePinning(serverConfig.isEnforcePinning())
-                .validatedCertificateChain(certificateChainAsPem.toArray(new String[certificateChainAsPem.size()]))
-                .knownPins(serverConfig.getPublicKeyHashes())
-                .validationResult(validationResult).build();
+        final PinFailureReport report = new PinFailureReport(appPackageName, appVersion,
+                appVendorId, BuildConfig.VERSION_NAME, serverHostname, serverPort,
+                serverConfig.getNotedHostname(), serverConfig.isIncludeSubdomains(),
+                serverConfig.isEnforcePinning(), servedCertificateChainAsPem,
+                validatedCertificateChainAsPem, new Date(System.currentTimeMillis()),
+                serverConfig.getPublicKeyHashes(), validationResult);
 
         // If a similar report hasn't been sent recently, send it now
         if (shouldRateLimitsReports && ReportsRateLimiter.shouldRateLimit(report)) {
@@ -106,15 +98,15 @@ public class BackgroundReporter {
             @Override
             protected Object doInBackground(Object[] params) {
                 for (final URL reportUri : reportUriSet) {
-                    pinFailureReportHttpSender.send(reportUri, report);
+                    reportSender.send(reportUri, report);
                 }
                 return null;
             }
 
             @Override
             protected void onPostExecute(Object o) {
-                if (pinFailureReportHttpSender.getResponseCode() >= 200
-                        && pinFailureReportHttpSender.getResponseCode() < 300) {
+                if (reportSender.getResponseCode() >= 200
+                        && reportSender.getResponseCode() < 300) {
                     TrustKitLog.i("Background upload - task completed successfully: pinning " +
                             "failure report sent");
                 } else {

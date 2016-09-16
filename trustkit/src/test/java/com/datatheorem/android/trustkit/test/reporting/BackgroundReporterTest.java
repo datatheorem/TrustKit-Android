@@ -76,7 +76,7 @@ public class BackgroundReporterTest {
                 .build();
 
         trustKitConfiguration.add(testPinnedDomainConfiguration);
-        TrustKit.init(context, trustKitConfiguration);
+        //TrustKit.init(context, trustKitConfiguration);
         this.backgroundReporter =
                 new BackgroundReporter(true, RuntimeEnvironment.application.getPackageName(),
                         RuntimeEnvironment.application.getPackageManager().getPackageInfo(

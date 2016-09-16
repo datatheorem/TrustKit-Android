@@ -24,6 +24,9 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 
+/**
+ *
+ */
 public class PinningTrustManager implements X509TrustManager {
 
     private static final X509TrustManagerExtensions systemTrustManager;
@@ -39,6 +42,11 @@ public class PinningTrustManager implements X509TrustManager {
     private final PinnedDomainConfiguration serverConfig;
 
 
+    /**
+     * @param serverHostname
+     * @throws CertificateException if the certificate chain is not trusted
+     *         by this TrustManager.
+     */
     public PinningTrustManager(@NonNull String serverHostname) {
         this.serverHostname = serverHostname;
         TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();

@@ -32,7 +32,7 @@ public class TrustKitTest{
 
     @Test
     public void initTest(){
-        TrustKit.init(RuntimeEnvironment.application, trustKitConfiguration);
+        //TrustKit.init(RuntimeEnvironment.application, trustKitConfiguration);
         Assert.assertNotNull(TrustKit.getInstance());
         Assert.assertNotNull(TrustKit.getInstance().getConfiguration());
         Assert.assertNotNull(TrustKit.getInstance().getReporter());
