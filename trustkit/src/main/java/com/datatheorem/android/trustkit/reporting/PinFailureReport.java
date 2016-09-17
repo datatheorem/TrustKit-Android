@@ -10,7 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,8 +18,7 @@ import java.util.Set;
 /**
  * A pinning validation failure report.
  */
-// TODO(ad): Remove public
-public class PinFailureReport implements Serializable {
+class PinFailureReport implements Serializable {
     // Fields specific to TrustKit reports
     private static final String APP_PLATFORM = "ANDROID";
     private String appBundleId;
@@ -39,8 +38,8 @@ public class PinFailureReport implements Serializable {
     private Date dateTime;
     private Set<SubjectPublicKeyInfoPin> knownPins;
 
-    // TODO(ad): Remove public
-    public PinFailureReport(String appBundleId, String appVersion, String appVendorId,
+
+    PinFailureReport(String appBundleId, String appVersion, String appVendorId,
                             String trustKitVersion, String hostname, int port,
                             String notedHostname, boolean includeSubdomains,
                             boolean enforcePinning, List<String> servedCertificateChain,
