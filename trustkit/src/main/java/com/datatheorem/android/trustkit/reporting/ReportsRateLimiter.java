@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 // Very basic implementation to rate-limit identical reports to once a day
-// TODO(ad): Remove public
-public final class ReportsRateLimiter {
+final class ReportsRateLimiter {
     private static final long MAX_SECONDS_BETWEEN_CACHE_RESET = 3600*24;
     private static Set<List<Object>> reportsCache = new HashSet<>();
     private static Date lastReportsCacheResetDate = new Date();

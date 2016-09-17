@@ -1,11 +1,9 @@
-package com.datatheorem.android.trustkit.test.reporting;
+package com.datatheorem.android.trustkit.reporting;
 
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
-import com.datatheorem.android.trustkit.reporting.PinFailureReport;
-import com.datatheorem.android.trustkit.reporting.ReportsRateLimiter;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,8 +60,10 @@ public class ReportsRateLimiterTest {
             assertFalse(ReportsRateLimiter.shouldRateLimit(report));
             assertTrue(ReportsRateLimiter.shouldRateLimit(report));
 
-
             // Set the last time the cache was reset to more than 24 hours ago and ensure the report
             // is sent again
+
+            // TODO(ad): implement
+            //https://github.com/datatheorem/TrustKit/blob/master/TrustKitTests/TSKReporterTests.m
         }
 }
