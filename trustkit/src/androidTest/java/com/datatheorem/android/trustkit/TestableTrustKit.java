@@ -8,9 +8,9 @@ import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 
 // The main TrustKit class with some extra utility methods needed in the tests
-public class DebugTrustKit extends TrustKit {
-    private DebugTrustKit(Context context, TrustKitConfiguration trustKitConfiguration,
-                          BackgroundReporter reporter) {
+public class TestableTrustKit extends TrustKit {
+    private TestableTrustKit(Context context, TrustKitConfiguration trustKitConfiguration,
+                             BackgroundReporter reporter) {
         super(context, trustKitConfiguration);
         backgroundReporter = reporter;
     }
