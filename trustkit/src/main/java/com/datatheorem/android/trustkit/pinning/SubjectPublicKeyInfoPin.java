@@ -2,15 +2,17 @@ package com.datatheorem.android.trustkit.pinning;
 
 import android.util.Base64;
 
-import com.datatheorem.android.trustkit.config.ConfigurationException;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 
+
+/**
+ * A pin is the base64-encoded SHA-256 hash of the certificate's Subject Public Key Info, as
+ * described in the HPKP RFC https://tools.ietf.org/html/rfc7469s .
+ */
 public final class SubjectPublicKeyInfoPin {
-    // A pin is the base64-encoded SHA-256 hash of the certificate's Subject Public Key Info
-    // as described in the HPKP RFC https://tools.ietf.org/html/rfc7469s
+
     private String pin;
 
     public SubjectPublicKeyInfoPin(Certificate certificate) {
@@ -32,7 +34,7 @@ public final class SubjectPublicKeyInfoPin {
         // Validate the format of the pin
         byte[] spkiSha256Hash = Base64.decode(spkiPin, Base64.DEFAULT);
         if (spkiSha256Hash.length != 32) {
-            throw new ConfigurationException("Invalid pin - unexpected length");
+            throw new IllegalArgumentException("Invalid pin: length is not 32 bytes");
         }
         pin = spkiPin;
     }
