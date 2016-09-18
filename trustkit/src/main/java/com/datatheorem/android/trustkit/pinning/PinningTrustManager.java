@@ -42,11 +42,6 @@ public class PinningTrustManager implements X509TrustManager {
     private final PinnedDomainConfiguration serverConfig;
 
 
-    /**
-     * @param serverHostname
-     * @throws CertificateException if the certificate chain is not trusted
-     *         by this TrustManager.
-     */
     public PinningTrustManager(@NonNull String serverHostname) {
         this.serverHostname = serverHostname;
         TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
@@ -58,7 +53,7 @@ public class PinningTrustManager implements X509TrustManager {
     // (API level 16 to ???), and pinning validation if a network policy was configured (API level
     // 24+)
     @NonNull
-    private static X509TrustManager getSystemTrustManager() {
+    public static X509TrustManager getSystemTrustManager() {
         X509TrustManager systemTrustManager = null;
         TrustManagerFactory trustManagerFactory;
         try {
