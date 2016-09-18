@@ -30,6 +30,10 @@ public class BackgroundReporter {
 
     // Configuration and Objects managing all the operation done by the BackgroundReporter
     private final boolean shouldRateLimitsReports;
+
+    // TODO(ad): Using a single reportSender will create a race-condition when multiple threads try
+    // to send reports at the same time: the response code in reportSender will be overriden.
+    // Fix this.
     private final PinFailureReportHttpSender reportSender;
 
 
@@ -42,7 +46,7 @@ public class BackgroundReporter {
         this.appVendorId = appVendorId;
     }
 
-    private String certificateToPem(X509Certificate certificate) {
+    private static String certificateToPem(X509Certificate certificate) {
         byte[] certificateData;
         try {
             certificateData = certificate.getEncoded();
