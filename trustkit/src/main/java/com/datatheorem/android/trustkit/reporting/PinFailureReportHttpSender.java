@@ -18,7 +18,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-
+// TODO(ad): Merge this into the AsyncTask
 class PinFailureReportHttpSender {
 
     // Use the default SSL socket factory to not do pinning validation when sending reports
