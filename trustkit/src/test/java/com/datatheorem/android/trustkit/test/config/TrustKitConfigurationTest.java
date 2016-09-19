@@ -1,7 +1,5 @@
 package com.datatheorem.android.trustkit.test.config;
 
-import android.content.pm.PackageManager;
-
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
@@ -10,12 +8,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,12 +46,12 @@ public class TrustKitConfigurationTest {
 
     @Test
     public void getByPinnedHostnameTest_HappyCase() {
-        Assert.assertNotNull(trustKitConfiguration.getByPinnedHostname(domainName));
-        Assert.assertEquals(mockPinnedDomainConfiguration, trustKitConfiguration.getByPinnedHostname(domainName));
+        Assert.assertNotNull(trustKitConfiguration.findConfiguration(domainName));
+        Assert.assertEquals(mockPinnedDomainConfiguration, trustKitConfiguration.findConfiguration(domainName));
     }
 
     @Test
     public void getByPinnedHostnameTest_SadCase() {
-        Assert.assertNull(trustKitConfiguration.getByPinnedHostname("www.toto.com"));
+        Assert.assertNull(trustKitConfiguration.findConfiguration("www.toto.com"));
     }
 }

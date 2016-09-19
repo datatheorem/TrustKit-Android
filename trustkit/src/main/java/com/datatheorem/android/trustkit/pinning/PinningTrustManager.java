@@ -42,10 +42,11 @@ public class PinningTrustManager implements X509TrustManager {
     private final PinnedDomainConfiguration serverConfig;
 
 
+
     public PinningTrustManager(@NonNull String serverHostname) {
         this.serverHostname = serverHostname;
         TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
-        this.serverConfig = config.getByPinnedHostname(serverHostname);
+        this.serverConfig = config.findConfiguration(serverHostname);
     }
 
     // Retrieve the platform's default trust manager. Depending on the device's API level, the trust
@@ -156,7 +157,7 @@ public class PinningTrustManager implements X509TrustManager {
         if (didChainValidationFail) {
             throw new CertificateException("Certificate validation failed for " + serverHostname);
         }
-        else if ((didPinningValidationFail) && (serverConfig.isEnforcePinning())) {
+        else if ((didPinningValidationFail) && (serverConfig.shouldEnforcePinning())) {
             // Pinning failed and is enforced - throw an exception to cancel the handshake
             StringBuilder errorBuilder = new StringBuilder()
                     .append("Pin verification failed")

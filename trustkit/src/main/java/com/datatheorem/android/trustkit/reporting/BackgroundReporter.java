@@ -98,9 +98,10 @@ public class BackgroundReporter {
         }
 
         final HashSet<URL> reportUriSet = (HashSet<URL>) serverConfig.getReportURIs();
-        new AsyncTask() {
+        new AsyncTask<HashSet<URL>, Void, Void>() {
+            @SafeVarargs
             @Override
-            protected Object doInBackground(Object[] params) {
+            protected final Void doInBackground(HashSet<URL>... params) {
                 for (final URL reportUri : reportUriSet) {
                     reportSender.send(reportUri, report);
                 }
@@ -118,6 +119,7 @@ public class BackgroundReporter {
                             " error");
                 }
             }
-        }.execute();
+
+        }.execute(reportUriSet);
     }
 }

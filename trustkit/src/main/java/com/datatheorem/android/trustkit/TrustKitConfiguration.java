@@ -11,27 +11,44 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
-public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
+public final class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
     // TODO(ad): Investigate whether we can add TSKIgnorePinningForUserDefinedTrustAnchors and TSKSwizzleNetworkDelegates
 
-    // TODO(ad): Rename to something like findConfiguration
+    /**
+     * Return a configuration or null if the specified domain is not pinned.
+     * @param serverHostname
+     * @return
+     */
     @Nullable
-    public PinnedDomainConfiguration getByPinnedHostname(@NonNull String serverHostname) {
+    public PinnedDomainConfiguration findConfiguration(@NonNull String serverHostname) {
         for (PinnedDomainConfiguration pinnedDomainConfiguration : this) {
             // TODO(ad): Handle includeSubdomains here
+
+            // Check if the configuration for this domain exists and is still valid
             if (serverHostname.equals(pinnedDomainConfiguration.getNotedHostname())) {
-                return pinnedDomainConfiguration;
+                if (pinnedDomainConfiguration.getExpirationDate() == null) {
+                    return pinnedDomainConfiguration;
+                } else if (pinnedDomainConfiguration.getExpirationDate() != null
+                        && pinnedDomainConfiguration.getExpirationDate().compareTo(new Date()) > 0){
+                    return pinnedDomainConfiguration;
+                } else {
+                    return  null;
+                }
             }
         }
         return null;
     }
 
     protected static TrustKitConfiguration fromXmlPolicy(XmlResourceParser parser)
-            throws XmlPullParserException, IOException {
+            throws XmlPullParserException, IOException, ParseException {
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         String domainName = null;
         PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder =
@@ -40,50 +57,53 @@ public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
         boolean enforcePinning = false;
         boolean disableDefaultReportUri = false;
         ArrayList<String> reportUris = null;
+        Date expirationDate = null;
 
-
-        boolean isADomain = false;
-        boolean isAPin = false;
-        boolean isAReportUri = false;
-
+        boolean isATagDomain = false;
+        boolean isATagPin = false;
+        boolean isATagReportUri = false;
 
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
                 if ("domain".equals(parser.getName())){
-                    isADomain = true;
+                    isATagDomain = true;
                     pinnedDomainConfigBuilder
                             .includeSubdomains(parser.getAttributeBooleanValue(0, false));
                 } else if ("pin".equals(parser.getName())) {
-                    isAPin = true;
-                    isADomain = false;
+                    isATagPin = true;
                     if (knownPins == null) {
                         knownPins = new HashSet<>();
                     }
-                } else if ("report-uri".equals(parser.getName())) {
-                    isAReportUri = true;
-                    isAPin = false;
-                    isADomain = false;
-                    if (reportUris == null) {
-                        reportUris = new ArrayList<>();
-                    }
-                } else if ("domain-config".equals(parser.getName())) {
+                } else if ("trustkit-config".equals(parser.getName())) {
                     enforcePinning = parser.getAttributeBooleanValue(null, "enforcePinning", false);
                     disableDefaultReportUri =
                             parser.getAttributeBooleanValue(null, "disableDefaultReportUri", false);
+                } else if ("pin-set".equals(parser.getName())) {
+                    SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-DD", Locale.getDefault());
+                    String expirationDateAttr = parser.getAttributeValue(null, "expiration");
+                    if (expirationDateAttr != null) {
+                        expirationDate =  df.parse(expirationDateAttr);
+                    }
+                } else if ("report-uri".equals(parser.getName())) {
+                    isATagReportUri = true;
+                    isATagPin = false;
+                    isATagDomain = false;
+                    if (reportUris == null) {
+                        reportUris = new ArrayList<>();
+                    }
                 }
             } else if (eventType == XmlPullParser.END_TAG) {
                 if ("domain".equals(parser.getName())) {
-                    isADomain = false;
+                    isATagDomain = false;
                 }
 
                 if ("pin".equals(parser.getName())) {
-                    isAPin = false;
+                    isATagPin = false;
                 }
 
-
                 if ("report-uri".equals(parser.getName())){
-                    isAReportUri = false;
+                    isATagReportUri = false;
                 }
 
                 if ("domain-config".equals(parser.getName())){
@@ -98,20 +118,28 @@ public class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
                                 .reportURIs(reportUris.toArray(new String[reportUris.size()]));
                     }
 
+                    if (expirationDate != null) {
+                        pinnedDomainConfigBuilder.expirationDate(expirationDate);
+                    }
+
+
                     trustKitConfiguration.add(pinnedDomainConfigBuilder.build());
+                    domainName = "";
+                    enforcePinning = false;
+                    disableDefaultReportUri = false;
+                    knownPins = null;
+                    expirationDate = null;
                 }
-
-
             } else if (eventType == XmlPullParser.TEXT) {
-                if (isADomain){
+                if (isATagDomain){
                     domainName = parser.getText();
                 }
 
-                if (isAPin) {
+                if (isATagPin) {
                     knownPins.add(parser.getText());
                 }
 
-                if (isAReportUri) {
+                if (isATagReportUri) {
                     reportUris.add(parser.getText());
                 }
             }
