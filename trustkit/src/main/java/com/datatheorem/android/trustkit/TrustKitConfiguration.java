@@ -19,6 +19,9 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+// TODO(ad): Do not extend HashSet here as it makes the configuration mutable (using HashSet's
+// public methods such as add(), etc.) although it should never change once it has been initialized.
+// HashSet is the right structure tho so let's just use one as a private attribute instead.
 public final class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
 
     /**
