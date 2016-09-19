@@ -64,9 +64,9 @@ public class BackgroundReporterTest {
 
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         PinnedDomainConfiguration testPinnedDomainConfiguration = new PinnedDomainConfiguration.Builder()
-                .enforcePinning(false)
-                .disableDefaultReportUri(true)
-                .includeSubdomains(false)
+                .shouldEnforcePinning(false)
+                .shouldDisableDefaultReportUri(true)
+                .shouldIncludeSubdomains(false)
                 .reportURIs(new String[]{server.url("/report").toString()})
                 .publicKeyHashes(pins)
                 .pinnedDomainName("www.test.com")
@@ -112,8 +112,8 @@ public class BackgroundReporterTest {
         PinnedDomainConfiguration mockPinnedDomainConfiguration =
                 new PinnedDomainConfiguration.Builder()
                 .pinnedDomainName("www.test.com")
-                .includeSubdomains(true)
-                .enforcePinning(true)
+                .shouldIncludeSubdomains(true)
+                .shouldEnforcePinning(true)
                 .reportURIs(new String[]{String.valueOf(baseUrl)})
                 .publicKeyHashes(pins).build();
 

@@ -85,8 +85,8 @@ public class BackgroundReporter {
         // Generate the corresponding pin failure report
         final PinFailureReport report = new PinFailureReport(appPackageName, appVersion,
                 appVendorId, BuildConfig.VERSION_NAME, serverHostname, serverPort,
-                serverConfig.getNotedHostname(), serverConfig.isIncludeSubdomains(),
-                serverConfig.isEnforcePinning(), servedCertificateChainAsPem,
+                serverConfig.getNotedHostname(), serverConfig.shouldIncludeSubdomains(),
+                serverConfig.shouldEnforcePinning(), servedCertificateChainAsPem,
                 validatedCertificateChainAsPem, new Date(System.currentTimeMillis()),
                 serverConfig.getPublicKeyHashes(), validationResult);
 
@@ -109,9 +109,8 @@ public class BackgroundReporter {
             }
 
             @Override
-            protected void onPostExecute(Object o) {
-                if (reportSender.getResponseCode() >= 200
-                        && reportSender.getResponseCode() < 300) {
+            protected void onPostExecute(Void aVoid) {
+                if (reportSender.getResponseCode() >= 200 && reportSender.getResponseCode() < 300) {
                     TrustKitLog.i("Background upload - task completed successfully: pinning " +
                             "failure report sent");
                 } else {

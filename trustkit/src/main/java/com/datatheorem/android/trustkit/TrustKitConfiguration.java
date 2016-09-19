@@ -30,7 +30,7 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
     @Nullable
     public PinnedDomainConfiguration findConfiguration(@NonNull String serverHostname) {
         for (PinnedDomainConfiguration pinnedDomainConfiguration : this) {
-            // TODO(ad): Handle includeSubdomains here
+            // TODO(ad): Handle shouldIncludeSubdomains here
 
             // Check if the configuration for this domain exists and is still valid
             if (serverHostname.equals(pinnedDomainConfiguration.getNotedHostname())) {
@@ -69,16 +69,16 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
                 if ("domain".equals(parser.getName())){
                     isATagDomain = true;
                     pinnedDomainConfigBuilder
-                            .includeSubdomains(parser.getAttributeBooleanValue(0, false));
+                            .shouldIncludeSubdomains(parser.getAttributeBooleanValue(0, false));
                 } else if ("pin".equals(parser.getName())) {
                     isATagPin = true;
                     if (knownPins == null) {
                         knownPins = new HashSet<>();
                     }
                 } else if ("trustkit-config".equals(parser.getName())) {
-                    enforcePinning = parser.getAttributeBooleanValue(null, "enforcePinning", false);
+                    enforcePinning = parser.getAttributeBooleanValue(null, "shouldEnforcePinning", false);
                     disableDefaultReportUri =
-                            parser.getAttributeBooleanValue(null, "disableDefaultReportUri", false);
+                            parser.getAttributeBooleanValue(null, "shouldDisableDefaultReportUri", false);
                 } else if ("pin-set".equals(parser.getName())) {
                     SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-DD", Locale.getDefault());
                     String expirationDateAttr = parser.getAttributeValue(null, "expiration");
@@ -109,8 +109,8 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
                 if ("domain-config".equals(parser.getName())){
                     pinnedDomainConfigBuilder
                             .pinnedDomainName(domainName)
-                            .enforcePinning(enforcePinning)
-                            .disableDefaultReportUri(disableDefaultReportUri)
+                            .shouldEnforcePinning(enforcePinning)
+                            .shouldDisableDefaultReportUri(disableDefaultReportUri)
                             .publicKeyHashes(knownPins);
 
                     if (reportUris != null) {

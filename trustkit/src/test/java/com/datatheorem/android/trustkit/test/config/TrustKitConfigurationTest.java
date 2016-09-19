@@ -32,9 +32,9 @@ public class TrustKitConfigurationTest {
         pins.add(pin);
         pins.add(pin2);
         mockPinnedDomainConfiguration = new PinnedDomainConfiguration.Builder()
-                .enforcePinning(false)
-                .disableDefaultReportUri(true)
-                .includeSubdomains(false)
+                .shouldEnforcePinning(false)
+                .shouldDisableDefaultReportUri(true)
+                .shouldIncludeSubdomains(false)
                 .publicKeyHashes(pins)
                 .pinnedDomainName("www.test.com")
                 .build();

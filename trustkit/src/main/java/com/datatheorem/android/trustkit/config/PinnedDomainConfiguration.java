@@ -1,7 +1,6 @@
 package com.datatheorem.android.trustkit.config;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 
 import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
 import com.google.common.net.InternetDomainName;
@@ -10,11 +9,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 
@@ -33,21 +30,21 @@ public final class PinnedDomainConfiguration {
     private final Set<SubjectPublicKeyInfoPin> publicKeyHashes;
     private final boolean shouldEnforcePinning;
     private final Set<URL> reportURIs;
-    private final boolean includeSubdomains;
+    private final boolean shouldIncludeSubdomains;
     private final String notedHostname;
     private final Date expirationDate;
 
     private PinnedDomainConfiguration(Builder builder) {
         notedHostname = builder.pinnedDomainName;
         publicKeyHashes = builder.publicKeyInfoPins;
-        shouldEnforcePinning = builder.enforcePinning;
-        includeSubdomains = builder.includeSubdomains;
+        shouldEnforcePinning = builder.shouldEnforcePinning;
+        shouldIncludeSubdomains = builder.shouldIncludeSubdomains;
         expirationDate = builder.expirationDate;
 
         // Create the final list of report URIs
         // Add the default report URI if enabled
         reportURIs = new HashSet<>();
-        if (!builder.disableDefaultReportUri) {
+        if (!builder.shouldDisableDefaultReportUri) {
             reportURIs.add(DEFAULT_REPORTING_URL);
         }
         // Add the supplied report URIs
@@ -73,19 +70,20 @@ public final class PinnedDomainConfiguration {
         return reportURIs;
     }
 
-    public boolean isIncludeSubdomains() {
-        return includeSubdomains;
+    public boolean shouldIncludeSubdomains() {
+        return shouldIncludeSubdomains;
     }
 
     @Override
     public String toString() {
         return new StringBuilder()
                 .append("PinnedDomainConfiguration{")
-                .append("notedHostname = " + notedHostname + "\n")
-                .append("knownPins = " + Arrays.toString(publicKeyHashes.toArray()) + "\n")
-                .append("shouldEnforcePinning = " + shouldEnforcePinning + "\n")
-                .append("reportUris = " + reportURIs + "\n")
-                .append("includeSubdomains = " + includeSubdomains + "\n")
+                .append("notedHostname = ").append(notedHostname).append("\n")
+                .append("knownPins = ").append(Arrays.toString(publicKeyHashes.toArray()))
+                .append("\n")
+                .append("shouldEnforcePinning = ").append(shouldEnforcePinning).append("\n")
+                .append("reportUris = ").append(reportURIs).append("\n")
+                .append("shouldIncludeSubdomains = ").append(shouldIncludeSubdomains).append("\n")
                 .append("}")
                 .toString();
     }
@@ -98,10 +96,10 @@ public final class PinnedDomainConfiguration {
         private String pinnedDomainName;
         private Set<String> publicKeyHashes;
         private Set<SubjectPublicKeyInfoPin> publicKeyInfoPins;
-        private boolean enforcePinning;
+        private boolean shouldEnforcePinning;
         private Set<URL> reportURIs;
-        private boolean includeSubdomains;
-        private boolean disableDefaultReportUri;
+        private boolean shouldIncludeSubdomains;
+        private boolean shouldDisableDefaultReportUri;
         private Date expirationDate;
 
         public Builder() {
@@ -117,8 +115,8 @@ public final class PinnedDomainConfiguration {
             return this;
         }
 
-        public Builder enforcePinning(boolean val) {
-            enforcePinning = val;
+        public Builder shouldEnforcePinning(boolean val) {
+            shouldEnforcePinning = val;
             return this;
         }
 
@@ -134,13 +132,13 @@ public final class PinnedDomainConfiguration {
             return this;
         }
 
-        public Builder includeSubdomains(boolean val) {
-            includeSubdomains = val;
+        public Builder shouldIncludeSubdomains(boolean val) {
+            shouldIncludeSubdomains = val;
             return this;
         }
 
-        public Builder disableDefaultReportUri(boolean val) {
-            disableDefaultReportUri = val;
+        public Builder shouldDisableDefaultReportUri(boolean val) {
+            shouldDisableDefaultReportUri = val;
             return this;
         }
 
@@ -172,8 +170,8 @@ public final class PinnedDomainConfiguration {
             // for *.com and other TLDs
             if (InternetDomainName.from(pinnedDomainName).isPublicSuffix()
                     && !InternetDomainName.isValid(pinnedDomainName)
-                    && includeSubdomains){
-                throw new ConfigurationException("TrustKit was initialized with includeSubdomains "+
+                    && shouldIncludeSubdomains){
+                throw new ConfigurationException("TrustKit was initialized with shouldIncludeSubdomains "+
                         "for a domain suffix " + InternetDomainName.from(pinnedDomainName));
             }
 

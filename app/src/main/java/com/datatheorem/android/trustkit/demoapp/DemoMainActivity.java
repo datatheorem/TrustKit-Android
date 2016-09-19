@@ -25,7 +25,7 @@ public class DemoMainActivity extends AppCompatActivity {
 //        final TrustKitConfiguration trustKitConfig = new TrustKitConfiguration();
 //        PinnedDomainConfiguration datatheoremConfig = new PinnedDomainConfiguration.Builder()
 //                .publicKeyHashes(new String[]{"HXXQgxueCIU5TTLHob/bPbwcKOKw6DkfsTWYHbxbqTY="})
-//                .enforcePinning(false)
+//                .shouldEnforcePinning(false)
 //                .build();
 //        trustKitConfig.put("www.datatheorem.com", datatheoremConfig);
 //
