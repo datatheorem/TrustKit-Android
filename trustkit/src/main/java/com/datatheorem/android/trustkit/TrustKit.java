@@ -99,23 +99,6 @@ public class TrustKit {
         trustKitInstance = new TrustKit(context, trustKitConfiguration);
     }
 
-    // TODO(ad): Consider removing this? or not? or making it @deprecated?
-    // // TODO: 9/16/16 (jb) Move to dev?
-    public static void initWithConfiguration(Context appContext, TrustKitConfiguration trustKitConfiguration) {
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M
-                && NetworkSecurityPolicy.getInstance() != null) {
-            throw new ConfigurationException("A NetworkSecurityConfigurationPolicy is already " +
-                    "defined. Please use TrustKit.initWithNetworkPolicy(Context context); instead");
-        }
-
-        if (trustKitInstance == null) {
-            trustKitInstance = new TrustKit(appContext, trustKitConfiguration);
-        } else {
-            throw new IllegalStateException("Already instantiated");
-        }
-    }
-
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
 
     public BackgroundReporter getReporter() { return backgroundReporter; }

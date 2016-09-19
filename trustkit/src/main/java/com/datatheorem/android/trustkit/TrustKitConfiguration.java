@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.Set;
 
 public final class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
-    // TODO(ad): Investigate whether we can add TSKIgnorePinningForUserDefinedTrustAnchors and TSKSwizzleNetworkDelegates
 
     /**
      * Return a configuration or null if the specified domain is not pinned.
