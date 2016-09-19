@@ -6,7 +6,7 @@ import com.datatheorem.android.trustkit.BuildConfig;
 
 public final class TrustKitLog {
     private static final String INFO_LABEL = " TRUSTKIT INFO : \n ";
-    private static final String ERROR_LABEL = " TRUSKIT ERROR : \n";
+    private static final String ERROR_LABEL = " TRUSTKIT ERROR : \n";
 
     public static void e(String message) {
         if (BuildConfig.DEBUG) {

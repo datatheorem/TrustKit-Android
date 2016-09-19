@@ -25,7 +25,7 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
     /**
      * Return a configuration or null if the specified domain is not pinned.
      * @param serverHostname
-     * @return
+     * @return PinnedDomainConfiguration
      */
     @Nullable
     public PinnedDomainConfiguration findConfiguration(@NonNull String serverHostname) {
