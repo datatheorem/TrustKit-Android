@@ -41,8 +41,6 @@ public class PinningTrustManager implements X509TrustManager {
     private final String serverHostname;
     private final PinnedDomainConfiguration serverConfig;
 
-
-
     public PinningTrustManager(@NonNull String serverHostname) {
         this.serverHostname = serverHostname;
         TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
@@ -58,9 +56,8 @@ public class PinningTrustManager implements X509TrustManager {
         X509TrustManager systemTrustManager = null;
         TrustManagerFactory trustManagerFactory;
         try {
-            trustManagerFactory = TrustManagerFactory.getInstance(
-                    TrustManagerFactory.getDefaultAlgorithm()
-            );
+            trustManagerFactory =
+                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Should never happen");
         }
@@ -119,8 +116,8 @@ public class PinningTrustManager implements X509TrustManager {
         // the root certificate from the Android trust store and removes unrelated
         // extra certificates an attacker might add: https://koz.io/pinning-cve-2016-2402/
         try {
-            validatedServerChain = systemTrustManager.checkServerTrusted(chain, authType,
-                    serverHostname);
+            validatedServerChain =
+                    systemTrustManager.checkServerTrusted(chain, authType, serverHostname);
 
         } catch (CertificateException e) {
             if ((Build.VERSION.SDK_INT >= 24)
@@ -156,8 +153,7 @@ public class PinningTrustManager implements X509TrustManager {
         // Throw an exception if needed
         if (didChainValidationFail) {
             throw new CertificateException("Certificate validation failed for " + serverHostname);
-        }
-        else if ((didPinningValidationFail) && (serverConfig.shouldEnforcePinning())) {
+        } else if ((didPinningValidationFail) && (serverConfig.shouldEnforcePinning())) {
             // Pinning failed and is enforced - throw an exception to cancel the handshake
             StringBuilder errorBuilder = new StringBuilder()
                     .append("Pin verification failed")

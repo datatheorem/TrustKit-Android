@@ -72,7 +72,7 @@ public class BackgroundReporterTest {
                 .pinnedDomainName("www.test.com")
                 .build();
 
-        trustKitConfiguration.add(testPinnedDomainConfiguration);
+        trustKitConfiguration.getPinnedDomainConfigurations().add(testPinnedDomainConfiguration);
         //TrustKit.init(context, trustKitConfiguration);
         this.backgroundReporter =
                 new BackgroundReporter(true, RuntimeEnvironment.application.getPackageName(),

@@ -89,7 +89,7 @@ public class TrustKit {
         // Then try to load the supplied policy
         TrustKitConfiguration trustKitConfiguration;
         try {
-            trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(
+            trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(context.getPackageName(),
                     context.getResources().getXml(policyResourceId)
             );
         } catch (ParseException | XmlPullParserException | IOException e) {

@@ -40,7 +40,7 @@ public class TrustKitConfigurationTest {
                 .build();
 
         domainName = mockPinnedDomainConfiguration.getNotedHostname();
-        trustKitConfiguration.add(mockPinnedDomainConfiguration);
+        trustKitConfiguration.getPinnedDomainConfigurations().add(mockPinnedDomainConfiguration);
 
     }
 

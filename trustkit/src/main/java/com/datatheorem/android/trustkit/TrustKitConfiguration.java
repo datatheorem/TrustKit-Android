@@ -1,6 +1,7 @@
 package com.datatheorem.android.trustkit;
 
 import android.content.res.XmlResourceParser;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -19,10 +20,40 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-// TODO(ad): Do not extend HashSet here as it makes the configuration mutable (using HashSet's
-// public methods such as add(), etc.) although it should never change once it has been initialized.
-// HashSet is the right structure tho so let's just use one as a private attribute instead.
-public final class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
+public final class TrustKitConfiguration{
+
+    private HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations;
+    private boolean shouldOverridePinningIfDebug = false;
+    private Uri caFilePathIfDebug = null;
+
+
+    public void setOverridePins(boolean overridePins) {
+        this.shouldOverridePinningIfDebug = overridePins;
+    }
+
+    public boolean shouldOverridePinningIfDebug() {
+        return shouldOverridePinningIfDebug;
+    }
+
+    public void setCaFilePathIfDebug(String caFilePathIfDebug) {
+        this.caFilePathIfDebug = Uri.parse(caFilePathIfDebug);
+    }
+
+    public Uri getCaFilePathIfDebug() {
+        return caFilePathIfDebug;
+    }
+
+    public HashSet<PinnedDomainConfiguration> getPinnedDomainConfigurations() {
+        return pinnedDomainConfigurations;
+    }
+
+    public TrustKitConfiguration() {
+        this.pinnedDomainConfigurations = new HashSet<>();
+    }
+
+    public TrustKitConfiguration(HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations) {
+        this.pinnedDomainConfigurations = pinnedDomainConfigurations;
+    }
 
     /**
      * Return a configuration or null if the specified domain is not pinned.
@@ -31,7 +62,7 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
      */
     @Nullable
     public PinnedDomainConfiguration findConfiguration(@NonNull String serverHostname) {
-        for (PinnedDomainConfiguration pinnedDomainConfiguration : this) {
+        for (PinnedDomainConfiguration pinnedDomainConfiguration : this.pinnedDomainConfigurations){
             // TODO(ad): Handle shouldIncludeSubdomains here
 
             // Check if the configuration for this domain exists and is still valid
@@ -49,7 +80,7 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
         return null;
     }
 
-    protected static TrustKitConfiguration fromXmlPolicy(XmlResourceParser parser)
+    protected static TrustKitConfiguration fromXmlPolicy(String packageName ,XmlResourceParser parser)
             throws XmlPullParserException, IOException, ParseException {
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         String domainName = null;
@@ -64,6 +95,7 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
         boolean isATagDomain = false;
         boolean isATagPin = false;
         boolean isATagReportUri = false;
+        boolean isATagDebugOverrides = false;
 
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -78,9 +110,11 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
                         knownPins = new HashSet<>();
                     }
                 } else if ("trustkit-config".equals(parser.getName())) {
-                    enforcePinning = parser.getAttributeBooleanValue(null, "shouldEnforcePinning", false);
+                    enforcePinning =
+                            parser.getAttributeBooleanValue(null, "shouldEnforcePinning", false);
                     disableDefaultReportUri =
-                            parser.getAttributeBooleanValue(null, "shouldDisableDefaultReportUri", false);
+                            parser.getAttributeBooleanValue(null, "shouldDisableDefaultReportUri",
+                                    false);
                 } else if ("pin-set".equals(parser.getName())) {
                     SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-DD", Locale.getDefault());
                     String expirationDateAttr = parser.getAttributeValue(null, "expiration");
@@ -93,6 +127,23 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
                     isATagDomain = false;
                     if (reportUris == null) {
                         reportUris = new ArrayList<>();
+                    }
+                } else if ("debug-overrides".equals(parser.getName())) {
+                    isATagDebugOverrides = true;
+                } else if ("certificates".equals(parser.getName())) {
+                    if (isATagDebugOverrides) {
+                        trustKitConfiguration.setOverridePins(
+                                parser.getAttributeBooleanValue(null, "overridePins", false));
+                        String caPathFromUser = parser.getAttributeValue(null, "src");
+                        if (!caPathFromUser.equals("user") && !caPathFromUser.equals("system")) {
+
+                            if (caPathFromUser.contains("assets") || caPathFromUser.startsWith("R.")) {
+                                trustKitConfiguration.setCaFilePathIfDebug("android.resource://"
+                                        + packageName + "/" + caPathFromUser);
+                            } else {
+                                trustKitConfiguration.setCaFilePathIfDebug(caPathFromUser);
+                            }
+                        }
                     }
                 }
             } else if (eventType == XmlPullParser.END_TAG) {
@@ -124,8 +175,8 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
                         pinnedDomainConfigBuilder.expirationDate(expirationDate);
                     }
 
-
-                    trustKitConfiguration.add(pinnedDomainConfigBuilder.build());
+                    trustKitConfiguration.pinnedDomainConfigurations
+                            .add(pinnedDomainConfigBuilder.build());
                     domainName = "";
                     enforcePinning = false;
                     disableDefaultReportUri = false;
@@ -149,10 +200,11 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
             eventType = parser.next();
         }
 
-        if (trustKitConfiguration.size() < 0) {
+        if (trustKitConfiguration.pinnedDomainConfigurations.size() < 0) {
             throw new ConfigurationException("something wrong with your configuration");
         }
 
         return trustKitConfiguration;
     }
+
 }
