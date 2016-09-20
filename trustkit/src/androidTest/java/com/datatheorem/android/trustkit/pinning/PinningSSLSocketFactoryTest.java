@@ -110,7 +110,6 @@ public class PinningSSLSocketFactoryTest {
         );
     }
 
-
     @Test
     public void testPinnedDomainSuccess() throws IOException {
         String serverHostname = "www.datatheorem.com";

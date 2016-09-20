@@ -67,7 +67,7 @@ public class BackgroundReporterTest {
                 .shouldEnforcePinning(false)
                 .shouldDisableDefaultReportUri(true)
                 .shouldIncludeSubdomains(false)
-                .reportURIs(new String[]{server.url("/report").toString()})
+                .reportUris(new String[]{server.url("/report").toString()})
                 .publicKeyHashes(pins)
                 .pinnedDomainName("www.test.com")
                 .build();
@@ -114,7 +114,7 @@ public class BackgroundReporterTest {
                 .pinnedDomainName("www.test.com")
                 .shouldIncludeSubdomains(true)
                 .shouldEnforcePinning(true)
-                .reportURIs(new String[]{String.valueOf(baseUrl)})
+                .reportUris(new String[]{String.valueOf(baseUrl)})
                 .publicKeyHashes(pins).build();
 
         ArrayList<X509Certificate> certChain =

@@ -6,26 +6,15 @@ import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
 import com.google.common.net.InternetDomainName;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 
 public final class PinnedDomainConfiguration {
-    private static final URL DEFAULT_REPORTING_URL;
-    static {
-        java.net.URL defaultUrl;
-        try {
-            defaultUrl = new java.net.URL("https://overmind.datatheorem.com/trustkit/report");
-        } catch (java.net.MalformedURLException e) {
-            throw new IllegalStateException("Bad DEFAULT_REPORTING_URL");
-        }
-        DEFAULT_REPORTING_URL = defaultUrl;
-    }
+
 
     private final Set<SubjectPublicKeyInfoPin> publicKeyHashes;
     private final boolean shouldEnforcePinning;
@@ -36,22 +25,11 @@ public final class PinnedDomainConfiguration {
 
     private PinnedDomainConfiguration(Builder builder) {
         notedHostname = builder.pinnedDomainName;
-        publicKeyHashes = builder.publicKeyInfoPins;
+        publicKeyHashes = builder.publicKeyHashes;
         shouldEnforcePinning = builder.shouldEnforcePinning;
         shouldIncludeSubdomains = builder.shouldIncludeSubdomains;
         expirationDate = builder.expirationDate;
-
-        // Create the final list of report URIs
-        // Add the default report URI if enabled
-        reportURIs = new HashSet<>();
-        if (!builder.shouldDisableDefaultReportUri) {
-            reportURIs.add(DEFAULT_REPORTING_URL);
-        }
-        // Add the supplied report URIs
-        if (builder.reportURIs != null) {
-            reportURIs.addAll(builder.reportURIs);
-        }
-
+        reportURIs = builder.reportURIs;
     }
 
     public String getNotedHostname() {
@@ -94,12 +72,10 @@ public final class PinnedDomainConfiguration {
 
     public static final class Builder {
         private String pinnedDomainName;
-        private Set<String> publicKeyHashes;
-        private Set<SubjectPublicKeyInfoPin> publicKeyInfoPins;
+        private Set<SubjectPublicKeyInfoPin> publicKeyHashes;
         private boolean shouldEnforcePinning;
         private Set<URL> reportURIs;
         private boolean shouldIncludeSubdomains;
-        private boolean shouldDisableDefaultReportUri;
         private Date expirationDate;
 
         public Builder() {
@@ -110,7 +86,7 @@ public final class PinnedDomainConfiguration {
             return this;
         }
 
-        public Builder publicKeyHashes(@NonNull Set<String> val) {
+        public Builder publicKeyHashes(@NonNull Set<SubjectPublicKeyInfoPin> val) {
             publicKeyHashes = val;
             return this;
         }
@@ -120,25 +96,13 @@ public final class PinnedDomainConfiguration {
             return this;
         }
 
-        public Builder reportURIs(@NonNull String[] val) {
-            reportURIs = new HashSet<>();
-            for (String url : val) {
-                try {
-                    reportURIs.add(new URL(url));
-                } catch (MalformedURLException e) {
-                    throw new ConfigurationException("Malformed url for reportUrl " + url);
-                }
-            }
+        public Builder reportUris(@NonNull Set<URL> val) {
+            reportURIs = val;
             return this;
         }
 
         public Builder shouldIncludeSubdomains(boolean val) {
             shouldIncludeSubdomains = val;
-            return this;
-        }
-
-        public Builder shouldDisableDefaultReportUri(boolean val) {
-            shouldDisableDefaultReportUri = val;
             return this;
         }
 
@@ -183,11 +147,6 @@ public final class PinnedDomainConfiguration {
                         ", (ie. no backup pins for domain " + pinnedDomainName + ". This might " +
                         "brick your App; please review the Getting Started guide in " +
                         "./docs/getting-started.md");
-            }
-
-            publicKeyInfoPins = new HashSet<>(publicKeyHashes.size());
-            for (String publicKeyHash : publicKeyHashes) {
-                publicKeyInfoPins.add(new SubjectPublicKeyInfoPin(publicKeyHash));
             }
 
             return new PinnedDomainConfiguration(this);
