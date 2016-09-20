@@ -97,7 +97,7 @@ public class BackgroundReporter {
             return;
         }
 
-        final HashSet<URL> reportUriSet = (HashSet<URL>) serverConfig.getReportURIs();
+        final HashSet<URL> reportUriSet = (HashSet<URL>) serverConfig.getReportUris();
         new AsyncTask<HashSet<URL>, Void, Void>() {
             @SafeVarargs
             @Override

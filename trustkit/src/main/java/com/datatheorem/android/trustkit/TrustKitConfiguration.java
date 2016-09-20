@@ -1,39 +1,26 @@
 package com.datatheorem.android.trustkit;
 
-import android.content.res.XmlResourceParser;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
-import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.net.URL;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 
 // TODO(ad): Do not extend HashSet here as it makes the configuration mutable (using HashSet's
 // public methods such as add(), etc.) although it should never change once it has been initialized.
 // HashSet is the right structure tho so let's just use one as a private attribute instead.
-public final class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
-
-    private static final URL DEFAULT_REPORTING_URL;
-    static {
-        java.net.URL defaultUrl;
-        try {
-            defaultUrl = new java.net.URL("https://overmind.datatheorem.com/trustkit/report");
-        } catch (java.net.MalformedURLException e) {
-            throw new IllegalStateException("Bad DEFAULT_REPORTING_URL");
-        }
-        DEFAULT_REPORTING_URL = defaultUrl;
-    }
+class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
 
     /**
      * Return a configuration or null if the specified domain is not pinned.
@@ -53,6 +40,7 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
                         && pinnedDomainConfiguration.getExpirationDate().compareTo(new Date()) > 0){
                     return pinnedDomainConfiguration;
                 } else {
+                    // TODO(ad): Log the fact that the configuration expired
                     return  null;
                 }
             }
@@ -60,7 +48,7 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
         return null;
     }
 
-    protected static TrustKitConfiguration fromXmlPolicy(XmlResourceParser parser)
+    public static TrustKitConfiguration fromXmlPolicy(XmlPullParser parser)
             throws XmlPullParserException, IOException, ParseException {
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder =
@@ -68,7 +56,7 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
 
         // The result of parsing a full domain-config tag
         TrustkitConfigTag trustkitTag = null;
-        Set<SubjectPublicKeyInfoPin> publicKeyPins = null;
+        PinSetTag pinSetTag = null;
         DomainTag domainTag = null;
 
         int eventType = parser.getEventType();
@@ -77,12 +65,12 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
                 if ("domain-config".equals(parser.getName())) {
                     // New domain configuration - reset all the settings from the previous domain
                     trustkitTag = null;
-                    publicKeyPins = null;
+                    pinSetTag = null;
                     domainTag = null;
                 } else if ("domain".equals(parser.getName())) {
                     domainTag = readDomain(parser);
                 } else if ("pin-set".equals(parser.getName())) {
-                    publicKeyPins = readPinSet(parser);
+                    pinSetTag = readPinSet(parser);
                 }
                 else if ("trustkit-config".equals(parser.getName())) {
                     trustkitTag = readTrustkitConfig(parser);
@@ -93,22 +81,20 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
                     // End of a domain configuration - store the results
                     pinnedDomainConfigBuilder
                             .pinnedDomainName(domainTag.hostname)
-                            .publicKeyHashes(publicKeyPins)
+                            .publicKeyHashes(pinSetTag.pins)
                             .shouldIncludeSubdomains(domainTag.includeSubdomains)
-                            .shouldEnforcePinning(trustkitTag.enforcePinning);
+                            .shouldEnforcePinning(trustkitTag.enforcePinning)
+                            .shouldDisableDefaultReportUri(trustkitTag.disableDefaultReportUri);
 
                     if (trustkitTag.reportUris != null) {
                         pinnedDomainConfigBuilder.reportUris(trustkitTag.reportUris);
                     }
 
-                    /*
-                    if (expirationDate != null) {
-                        // TODO(ad): Do not store the config if it is expired
-                        pinnedDomainConfigBuilder.expirationDate(expirationDate);
-                    }*/
+                    if (pinSetTag.expirationDate != null) {
+                        pinnedDomainConfigBuilder.expirationDate(pinSetTag.expirationDate);
+                    }
 
                     // TODO(ad): Add debug overrides
-
                     trustKitConfiguration.add(pinnedDomainConfigBuilder.build());
                 }
             }
@@ -122,10 +108,16 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
         return trustKitConfiguration;
     }
 
-    private static Set<SubjectPublicKeyInfoPin> readPinSet(XmlPullParser parser) throws IOException,
+    private static class PinSetTag {
+        Date expirationDate;
+        List<String> pins;
+    }
+
+    private static PinSetTag readPinSet(XmlPullParser parser) throws IOException,
             XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "pin-set");
-        HashSet<SubjectPublicKeyInfoPin> pinSet = new HashSet<>();
+        PinSetTag tag = new PinSetTag();
+        tag.pins = new ArrayList<>();
 
         // Look for the expiration attribute
         // TODO(ad): The next line throws an exception when running the tests
@@ -133,39 +125,34 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
                     SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-DD", Locale.getDefault());
                     String expirationDateAttr = parser.getAttributeValue(null, "expiration");
                     if (expirationDateAttr != null) {
-                        expirationDate =  df.parse(expirationDateAttr);
+                        pinSetTag.expirationDate =  df.parse(expirationDateAttr);
 
                     }
                     */
 
         // Parse until the corresponding close pin-set tag
-        int eventType = parser.next();
-        while (!((eventType == XmlPullParser.END_TAG) && "pin-set".equals(parser.getName()))) {
+        int eventType = parser.nextTag();
+        while ((eventType != XmlPullParser.END_TAG) && !"pin-set".equals(parser.getName())) {
             // Look for the next pin tag
             if ((eventType == XmlPullParser.START_TAG) && "pin".equals(parser.getName())) {
                 // Found one
                 // Sanity check on the digest value
-                /*
                 String digest = parser.getAttributeValue(null, "digest");
                 if (!digest.equals("SHA-256")) {
                     throw new IllegalArgumentException("Unexpected digest value: " + digest);
-                }*/
-
-                // Parse until we find the text
-                while (eventType != XmlPullParser.TEXT) {
-                    eventType = parser.next();
                 }
                 // Parse the pin value
-                pinSet.add(new SubjectPublicKeyInfoPin(parser.getText()));
+                tag.pins.add(parser.nextText());
             }
-            parser.next();
+            parser.nextTag();
         }
-        return pinSet;
+        return tag;
     }
 
     private static class TrustkitConfigTag {
         boolean enforcePinning = false;
-        Set<URL> reportUris;
+        boolean disableDefaultReportUri = false;
+        List<String> reportUris;
     }
 
     private static TrustkitConfigTag readTrustkitConfig(XmlPullParser parser) throws IOException,
@@ -173,7 +160,7 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
         parser.require(XmlPullParser.START_TAG, null, "trustkit-config");
 
         TrustkitConfigTag result = new TrustkitConfigTag();
-        HashSet<URL> reportUris = new HashSet<>();
+        ArrayList<String> reportUris = new ArrayList<>();
 
         // Look for the enforcePinning attribute - default value is false
         String enforcePinning = parser.getAttributeValue(null, "enforcePinning");
@@ -191,15 +178,11 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
             // Look for the next report-uri tag
             if ((eventType == XmlPullParser.START_TAG) && "report-uri".equals(parser.getName())) {
                 // Found one - parse the report-uri value
-                reportUris.add(new URL(parser.getText()));
+                reportUris.add(parser.nextText());
             }
             parser.next();
         }
 
-        // Add the default report URL
-        if (!disableDefaultReportUri) {
-            reportUris.add(DEFAULT_REPORTING_URL);
-        }
         result.reportUris = reportUris;
         return result;
     }
@@ -219,14 +202,8 @@ public final class TrustKitConfiguration extends HashSet<PinnedDomainConfigurati
         result.includeSubdomains = (includeSubdomains != null)
                 && includeSubdomains.equals("true");
 
-        // Parse until we find the text
-        int eventType = parser.next();
-        while (eventType != XmlPullParser.TEXT) {
-            eventType = parser.next();
-        }
-        // Read the hostname
-        result.hostname = parser.getText();
-
+        // Parse the domain text
+        result.hostname = parser.nextText();
         return result;
     }
 }
