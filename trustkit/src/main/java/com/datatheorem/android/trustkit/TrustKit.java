@@ -9,14 +9,21 @@ import android.security.NetworkSecurityPolicy;
 import android.support.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
+import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.text.ParseException;
 import java.util.UUID;
+
+import javax.net.ssl.TrustManager;
 
 
 public class TrustKit {
@@ -94,6 +101,17 @@ public class TrustKit {
             );
         } catch (ParseException | XmlPullParserException | IOException e) {
             throw new ConfigurationException("Could not parse network security policy file");
+        }
+
+        // Try to process the debug-overrides setting and parse the custom CA certificates
+        // TODO(ad): Put the debug overrides config here; make sure to check for the debug flag
+        // String debugOverridesCaPath = trustKitConfiguration.getDebugOverridesCaPath()
+        String debugOverridesCaPath = null;
+        try {
+            TrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCaPath);
+        } catch (CertificateException | NoSuchAlgorithmException | KeyManagementException
+                | KeyStoreException | IOException e) {
+            throw new ConfigurationException("Could not parse <debug-overrides> certificates");
         }
 
         trustKitInstance = new TrustKit(context, trustKitConfiguration);

@@ -47,7 +47,8 @@ public class PinningSSLSocketFactoryTest {
 
     @After
     public void tearDown() {
-        TestableTrustKit.resetConfiguration();
+        TestableTrustKit.reset();
+        TestableTrustManagerBuilder.reset();
     }
 
     //region Tests for when the domain is NOT pinned
@@ -144,7 +145,6 @@ public class PinningSSLSocketFactoryTest {
                 didReceiveHandshakeError = true;
             }
         }
-
         assertTrue(didReceiveHandshakeError);
 
         // Ensure the background reporter was called
