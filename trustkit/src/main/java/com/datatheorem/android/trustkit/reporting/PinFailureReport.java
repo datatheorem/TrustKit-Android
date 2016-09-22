@@ -71,7 +71,7 @@ class PinFailureReport implements Serializable {
             jsonReport.put("app-platform", "ANDROID");
             jsonReport.put("trustkit-version", trustKitVersion);
             jsonReport.put("hostname", serverHostname);
-            jsonReport.put("serverPort", serverPort);
+            jsonReport.put("port", serverPort);
             jsonReport.put("noted-hostname", notedHostname);
             jsonReport.put("include-subdomains", includeSubdomains);
             jsonReport.put("enforce-pinning", enforcePinning);

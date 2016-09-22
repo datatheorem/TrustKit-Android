@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit;
 
+import android.content.Context;
 import android.content.res.XmlResourceParser;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -11,7 +12,12 @@ import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,8 +30,7 @@ public final class TrustKitConfiguration{
 
     private HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations;
     private boolean shouldOverridePinningIfDebug = false;
-    private Uri caFilePathIfDebug = null;
-
+    private Certificate caIfDebug = null;
 
     public void setOverridePins(boolean overridePins) {
         this.shouldOverridePinningIfDebug = overridePins;
@@ -35,12 +40,12 @@ public final class TrustKitConfiguration{
         return shouldOverridePinningIfDebug;
     }
 
-    public void setCaFilePathIfDebug(String caFilePathIfDebug) {
-        this.caFilePathIfDebug = Uri.parse(caFilePathIfDebug);
+    private void setCaFilePathIfDebug(Certificate caIfDebug) {
+        this.caIfDebug = caIfDebug;
     }
 
-    public Uri getCaFilePathIfDebug() {
-        return caFilePathIfDebug;
+    public Certificate getCaFilePathIfDebug() {
+        return caIfDebug;
     }
 
     public HashSet<PinnedDomainConfiguration> getPinnedDomainConfigurations() {
@@ -80,8 +85,8 @@ public final class TrustKitConfiguration{
         return null;
     }
 
-    protected static TrustKitConfiguration fromXmlPolicy(String packageName ,XmlResourceParser parser)
-            throws XmlPullParserException, IOException, ParseException {
+    protected static TrustKitConfiguration fromXmlPolicy(Context context , XmlResourceParser parser)
+            throws XmlPullParserException, IOException, ParseException, CertificateException {
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         String domainName = null;
         PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder =
@@ -135,14 +140,25 @@ public final class TrustKitConfiguration{
                         trustKitConfiguration.setOverridePins(
                                 parser.getAttributeBooleanValue(null, "overridePins", false));
                         String caPathFromUser = parser.getAttributeValue(null, "src");
-                        if (!caPathFromUser.equals("user") && !caPathFromUser.equals("system")) {
 
-                            if (caPathFromUser.contains("assets") || caPathFromUser.startsWith("R.")) {
-                                trustKitConfiguration.setCaFilePathIfDebug("android.resource://"
-                                        + packageName + "/" + caPathFromUser);
-                            } else {
-                                trustKitConfiguration.setCaFilePathIfDebug(caPathFromUser);
-                            }
+                        //The framework expects the certificate to be in the res/raw/ folder of
+                        //the application. It could be possible to put it in other folders but
+                        //I haven't seen any other examples in the android source code for now.
+                        //So I've decided to
+                        if (!caPathFromUser.equals("user") && !caPathFromUser.equals("system")
+                                && !caPathFromUser.equals("") && caPathFromUser.startsWith("@raw")){
+
+                            InputStream stream =
+                                    context.getResources().openRawResource(
+                                            context.getResources().getIdentifier(
+                                                    caPathFromUser.split("/")[1], "raw",
+                                                    context.getPackageName()));
+
+                            Certificate certificate =
+                                    CertificateFactory.getInstance("X.509")
+                                            .generateCertificate(stream);
+
+                            trustKitConfiguration.setCaFilePathIfDebug(certificate);
                         }
                     }
                 }

@@ -23,7 +23,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-
 /**
  *
  */
@@ -70,7 +69,7 @@ public class PinningTrustManager implements X509TrustManager {
 
         for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
             if (trustManager instanceof X509TrustManager) {
-                systemTrustManager = (X509TrustManager)trustManager;
+                systemTrustManager = (X509TrustManager) trustManager;
             }
         }
 

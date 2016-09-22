@@ -125,7 +125,7 @@ public class BackgroundReporter {
         new AsyncTask<HashSet<URL>, Void, Void>() {
             private int responseCode = -1;
 
-            public int getResponseCode() {
+            int getResponseCode() {
                 return responseCode;
             }
 
@@ -148,14 +148,16 @@ public class BackgroundReporter {
 
                         connection.connect();
 
-                        final OutputStream stream = new BufferedOutputStream(connection.getOutputStream());
+                        final OutputStream stream =
+                                new BufferedOutputStream(connection.getOutputStream());
                         stream.write(report.toJson().toString().getBytes("UTF-8"));
                         stream.flush();
                         stream.close();
 
                         responseCode = connection.getResponseCode();
                     } catch (IOException e) {
-                        TrustKitLog.e("Background upload - task completed with error:" + e.getMessage());
+                        TrustKitLog.e("Background upload - task completed with error:"
+                                + e.getMessage());
                     } finally {
                         if (connection != null) {
                             connection.disconnect();
