@@ -16,9 +16,12 @@ import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.text.ParseException;
 import java.util.UUID;
@@ -96,19 +99,22 @@ public class TrustKit {
         // Then try to load the supplied policy
         TrustKitConfiguration trustKitConfiguration;
         try {
-            trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(
+            trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(context,
                     context.getResources().getXml(policyResourceId)
             );
         } catch (ParseException | XmlPullParserException | IOException e) {
             throw new ConfigurationException("Could not parse network security policy file");
+        } catch (CertificateException e) {
+            throw new ConfigurationException("Could not find the debug certificate in the network " +
+                    "security police file");
         }
 
         // Try to process the debug-overrides setting and parse the custom CA certificates
         // TODO(ad): Put the debug overrides config here; make sure to check for the debug flag
         // String debugOverridesCaPath = trustKitConfiguration.getDebugOverridesCaPath()
-        String debugOverridesCaPath = null;
+        Certificate debugOverridesCa = trustKitConfiguration.getCaFilePathIfDebug();
         try {
-            TrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCaPath);
+            TrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCa);
         } catch (CertificateException | NoSuchAlgorithmException | KeyManagementException
                 | KeyStoreException | IOException e) {
             throw new ConfigurationException("Could not parse <debug-overrides> certificates");

@@ -17,13 +17,16 @@ import java.util.Set;
 import javax.net.ssl.X509TrustManager;
 
 
+
 class PinningTrustManager implements X509TrustManager {
+
 
     // The trust manager we use to do the default SSL validation
     private final X509TrustManagerExtensions baselineTrustManager;
 
     private final String serverHostname;
     private final PinnedDomainConfiguration serverConfig;
+
 
     public PinningTrustManager(@NonNull String serverHostname,
                                @NonNull PinnedDomainConfiguration serverConfig,
@@ -62,6 +65,7 @@ class PinningTrustManager implements X509TrustManager {
         // the root certificate from the Android trust store and removes unrelated
         // extra certificates an attacker might add: https://koz.io/pinning-cve-2016-2402/
         try {
+
             validatedServerChain = baselineTrustManager.checkServerTrusted(chain, authType,
                     serverHostname);
 
@@ -98,8 +102,7 @@ class PinningTrustManager implements X509TrustManager {
         // Throw an exception if needed
         if (didChainValidationFail) {
             throw new CertificateException("Certificate validation failed for " + serverHostname);
-        }
-        else if ((didPinningValidationFail) && (serverConfig.shouldEnforcePinning())) {
+        } else if ((didPinningValidationFail) && (serverConfig.shouldEnforcePinning())) {
             // Pinning failed and is enforced - throw an exception to cancel the handshake
             StringBuilder errorBuilder = new StringBuilder()
                     .append("Pin verification failed")

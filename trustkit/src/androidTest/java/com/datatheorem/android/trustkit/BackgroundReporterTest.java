@@ -1,33 +1,29 @@
-package com.datatheorem.android.trustkit.reporting;
+package com.datatheorem.android.trustkit;
 
-import com.datatheorem.android.trustkit.BuildConfig;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+
+import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
-import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 
-@Config(constants = BuildConfig.class, sdk = 22)
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class BackgroundReporterTest {
-    private MockWebServer server;
     private BackgroundReporter backgroundReporter;
 
     @Before
@@ -38,33 +34,30 @@ public class BackgroundReporterTest {
         pins.add(pin);
         pins.add(pin2);
 
-        server = new MockWebServer();
-        server.start();
-        /*
+
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         PinnedDomainConfiguration testPinnedDomainConfiguration =
                 new PinnedDomainConfiguration.Builder()
                 .shouldEnforcePinning(false)
                 .shouldDisableDefaultReportUri(true)
                 .shouldIncludeSubdomains(false)
-                .reportUris(new String[]{server.url("/report").toString()})
                 .publicKeyHashes(pins)
                 .pinnedDomainName("www.test.com")
                 .build();
 
         trustKitConfiguration.getPinnedDomainConfigurations().add(testPinnedDomainConfiguration);
-        //TrustKit.init(context, trustKitConfiguration);
+        TrustKit.initWithNetworkPolicy(InstrumentationRegistry.getContext());
+
         this.backgroundReporter =
-                new BackgroundReporter(true, RuntimeEnvironment.application.getPackageName(),
-                        RuntimeEnvironment.application.getPackageManager().getPackageInfo(
-                                RuntimeEnvironment.application.getPackageName(), 0).versionName,
-                        UUID.randomUUID().toString());
-        */
+                new BackgroundReporter(true, InstrumentationRegistry.getContext().getPackageName(),
+                        InstrumentationRegistry.getContext().getPackageManager().getPackageInfo(
+                                InstrumentationRegistry.getContext().getPackageName(), 0)
+                                .versionName, UUID.randomUUID().toString());
+
     }
 
     @After
     public void tearDown() throws Exception {
-        server.shutdown();
 
     }
 
@@ -74,42 +67,30 @@ public class BackgroundReporterTest {
      */
     @Test
     public void testPinValidationFailed_HappyCase() throws Exception {
-        String pin = "pin-sha256=\"rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE=\"";
-        String pin2 = "pin-sha256=\"0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=\"";
-        server.enqueue(new MockResponse().setResponseCode(204));
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                return new MockResponse().setBody(request.getBody());
-            }
-        });
+        String pin = "rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE=";
+        String pin2 = "0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=";
 
-        HttpUrl baseUrl = server.url("/report");
         Set<String> pins = new HashSet<>();
         pins.add(pin);
         pins.add(pin2);
 
-        /*
         PinnedDomainConfiguration mockPinnedDomainConfiguration =
                 new PinnedDomainConfiguration.Builder()
                 .pinnedDomainName("www.test.com")
                 .shouldIncludeSubdomains(true)
                 .shouldEnforcePinning(true)
-                .reportUris(new String[]{String.valueOf(baseUrl)})
                 .publicKeyHashes(pins).build();
 
+        ArrayList<X509Certificate> certChain = new ArrayList<>();
+        certChain.add(getMockCertificate());
 
-        ArrayList<X509Certificate> certChain =
-                (ArrayList<X509Certificate>) Arrays.asList(getMockCertificate());
         backgroundReporter.pinValidationFailed("www.test.com", 443, certChain, certChain,
                 mockPinnedDomainConfiguration, PinValidationResult.FAILED);
 
-        RecordedRequest request = server.takeRequest();
         //Check if the request is well formed
-        Assert.assertEquals("/report", request.getPath());
-        Assert.assertEquals("POST", request.getMethod());
-        Assert.assertEquals(true, reportRequiredFields(request.getBody().readUtf8Line()));
-        */
+//        Assert.assertEquals("/report", request.getPath());
+//        Assert.assertEquals("POST", request.getMethod());
+//        Assert.assertEquals(true, reportRequiredFields(request.getBody().readUtf8Line()));
     }
 
 //    @Test
@@ -139,48 +120,7 @@ public class BackgroundReporterTest {
 //
 //    }
 
-    private boolean reportRequiredFields(String json) {
-        return json.contains("app-bundle-id")  && json.contains("app-version")
-                && json.contains("app-vendor-id") && json.contains("app-platform")
-                && json.contains("trustkit-version") && json.contains("hostname")
-                && json.contains("port") && json.contains("noted-hostname")
-                && json.contains("include-subdomains") && json.contains("enforce-pinning")
-                && json.contains("validated-certificate-chain") && json.contains("date-time")
-                && json.contains("known-pins") && json.contains("validation-result");
-    }
-
     private X509Certificate getMockCertificate() {
-//        String certificate = "-----BEGIN CERTIFICATE-----\n" +
-//                "MIIE2TCCA8GgAwIBAgIQFVDTs9tHXX3ivhstjNW2zANBgkqhkiG9w0BAQUFADA8\n" +
-//                "MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMVGhhd3RlLCBJbmMuMRYwFAYDVQQDEw1U\n" +
-//                "aGF3dGUgU1NMIENBMB4XDTE0MTAwMjAwMDAwMFoXDTE1MTEwMTIzNTk1OVowgZcx\n" +
-//                "CzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRIwEAYDVQQHFAlQYWxv\n" +
-//                "IEFsdG8xGzAZBgNVBAoUEkRhdGEgVGhlb3JlbSwgSW5jLjEkMCIGA1UECxQbU2Nh\n" +
-//                "biBhbmQgU2VjdXJlIE1vYmlsZSBBcHBzMRwwGgYDVQQDFBN3d3cuZGF0YXRoZW9y\n" +
-//                "ZW0uY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5bCuLK3XOnNs\n" +
-//                "i8CJvHU4H5yY3d4G1qzq7EeMydKuScMM8Nqsp4CySKTbrUhi/uIc08II9yBxM+q4\n" +
-//                "NmrEg0tgVvTqvUjmMN/MrYQrSGVLxPq5gadI7UxfWeGSo9DpvgXaw1Vvehs2jGFK\n" +
-//                "jLzDYbzJOhv/pqpv4UCV/xfeuqmTNqqzsp+tB5Zn6gXIvIFsxfpjbeId4OWviLnC\n" +
-//                "q957++coddvqBZd2sWkyzE2un5itXRKfnMGSBTB0cU9/9fXeGhzA+u01Xj+BfpHR\n" +
-//                "uP/eX+rHsgc3a4hbsSWDG5278ujJ5+4To9Bn/rTZy7uALTM2oBZvsFX4567RhB1\n" +
-//                "IYbMDE5y8QIDAQABo4IBeTCCAXUwHgYDVR0RBBcwFYITd3d3LmRhdGF0aGVvcmVt\n" +
-//                "LmNvbTAJBgNVHRMEAjAAMHIGA1UdIARrMGkwZwYKYIZIAYb4RQEHNjBZMCYGCCsG\n" +
-//                "AQUFBwIBFhpodHRwczovL3d3dy50aGF3dGUuY29tL2NwczAvBggrBgEFBQcCAjAj\n" +
-//                "DCFodHRwczovL3d3dy50aGF3dGUuY29tL3JlcG9zaXRvcnkwDgYDVR0PAQH/BAQD\n" +
-//                "AgWgMB8GA1UdIwQYMBaAFKeig7s0RUA9/NUwTxK5PqEBn/bbMCsGA1UdHwQkMCIw\n" +
-//                "IKAeoByGGmh0dHA6Ly90Yi5zeW1jYi5jb20vdGIuY3JsMB0GA1UdJQQWMBQGCCsG\n" +
-//                "AQUFBwMBBggrBgEFBQcDAjBXBggrBgEFBQcBAQRLMEkwHwYIKwYBBQUHMAGGE2h0\n" +
-//                "dHA6Ly90Yi5zeW1jZC5jb20wJgYIKwYBBQUHMAKGGmh0dHA6Ly90Yi5zeW1jYi5j\n" +
-//                "b20vdGIuY3J0MA0GCSqGSIb3DQEBBQUAA4IBAQB2qnnrsAICkV9HNuBdXe+cThHV\n" +
-//                "8+5+LBz3zGDpC1rCyq/DIGu0vaa/gasM+MswPj+AEI4f1K1x9K9KedjilVfXH+QI\n" +
-//                "tfRzLO8iR0TbPsC6Y1avuXhal1BuvZ9UQayHRDPUEncsf+SHbIOD2GJzXy7vVk5a\n" +
-//                "VjkvxLtjMprWIi+P7Hbn2qj03qX9KM1DnNsB28jqg7r2rpXNUPUKsxekfrMTaJgg\n" +
-//                "zTnCN/EQvF5eGvAjjHckr1SlogV9o/y4k0x6YmPWR/vopMEPyOj+JhflKCdg+6w3\n" +
-//                "79ESvZUhmgT2285c1Nu5vJjtr8x51zCNIpEoVqdkCU4c1aVZGZogSWl1rAIi\n" +
-//                "-----END CERTIFICATE-----";
-
-
-
         String certificate = "-----BEGIN CERTIFICATE-----\n"+
                 "MIIDGTCCAgGgAwIBAgIJAI1jD1qixIPLMA0GCSqGSIb3DQEBBQUAMCMxITAfBgNV\n"+
                 "BAMMGGV2aWxjZXJ0LmRhdGF0aGVvcmVtLmNvbTAeFw0xNTEyMjAxMzU4NDNaFw0y\n"+

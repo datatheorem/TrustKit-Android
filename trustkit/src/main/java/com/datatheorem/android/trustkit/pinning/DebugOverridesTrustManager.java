@@ -34,36 +34,24 @@ class DebugOverridesTrustManager implements X509TrustManager {
     // A trust manager configured with custom/debug CA certificates
     private final X509TrustManager customCaTrustManager;
 
-    public DebugOverridesTrustManager(@NonNull String debugCaFilePath)
+    public DebugOverridesTrustManager(@NonNull Certificate debugCaFile)
             throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException,
             KeyManagementException {
-        customCaTrustManager = getCustomCaTrustManager(debugCaFilePath);
+        customCaTrustManager = getCustomCaTrustManager(debugCaFile);
         systemTrustManager = SystemTrustManager.getDefault();
     }
 
-    private static X509TrustManager getCustomCaTrustManager(String debugCaFilePath) throws
+    private static X509TrustManager getCustomCaTrustManager(Certificate debugCaFile) throws
             CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {
         X509TrustManager debugTrustManager = null;
 
-        // Copied & pasted from https://developer.android.com/training/articles/security-ssl.html
-        // Load CAs from an InputStream
-        CertificateFactory cf;
-        cf = CertificateFactory.getInstance("X.509");
-
-        InputStream caInput = new BufferedInputStream(new FileInputStream(debugCaFilePath));
-        Certificate ca;
-        try {
-            ca = cf.generateCertificate(caInput);
-            System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
-        } finally {
-            caInput.close();
-        }
+        System.out.println("ca=" + ((X509Certificate) debugCaFile).getSubjectDN());
 
         // Create a KeyStore containing our trusted CAs
         String keyStoreType = KeyStore.getDefaultType();
         KeyStore keyStore = KeyStore.getInstance(keyStoreType);
         keyStore.load(null, null);
-        keyStore.setCertificateEntry("ca", ca);
+        keyStore.setCertificateEntry("ca", debugCaFile);
 
         // Create a TrustManager that trusts the CAs in our KeyStore
         String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();

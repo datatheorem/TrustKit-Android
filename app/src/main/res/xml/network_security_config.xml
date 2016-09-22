@@ -58,5 +58,9 @@
         </pin-set>
         <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
     </domain-config>
-
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="@raw/good"/>
+        </trust-anchors>
+    </debug-overrides>
 </network-security-config>

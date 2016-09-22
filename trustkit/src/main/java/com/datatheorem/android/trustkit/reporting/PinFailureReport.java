@@ -20,7 +20,7 @@ import java.util.Set;
  */
 class PinFailureReport implements Serializable {
     // Fields specific to TrustKit reports
-    private static final String APP_PLATFORM = "ANDROID";
+//    private static final String APP_PLATFORM = "ANDROID";
     private String appBundleId;
     private String appVersion;
     private String appVendorId;
@@ -68,10 +68,10 @@ class PinFailureReport implements Serializable {
             jsonReport.put("app-bundle-id", appBundleId);
             jsonReport.put("app-version", String.valueOf(appVersion));
             jsonReport.put("app-vendor-id", appVendorId);
-            jsonReport.put("app-platform", APP_PLATFORM);
+            jsonReport.put("app-platform", "ANDROID");
             jsonReport.put("trustkit-version", trustKitVersion);
             jsonReport.put("hostname", serverHostname);
-            jsonReport.put("serverPort", serverPort);
+            jsonReport.put("port", serverPort);
             jsonReport.put("noted-hostname", notedHostname);
             jsonReport.put("include-subdomains", includeSubdomains);
             jsonReport.put("enforce-pinning", enforcePinning);
@@ -107,16 +107,6 @@ class PinFailureReport implements Serializable {
     @Override
     public String toString() {
         return toJson().toString();
-    }
-
-    // TODO(ad): Remove this
-    public String[] pinsToString(Set<SubjectPublicKeyInfoPin> pins) {
-        ArrayList<String> pinsString = new ArrayList<>();
-        for (SubjectPublicKeyInfoPin pin : pins) {
-            pinsString.add(pin.toString());
-        }
-
-        return pinsString.toArray(new String[pinsString.size()]);
     }
 
     public String getNotedHostname() {

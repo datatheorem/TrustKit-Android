@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.demoapp;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,16 @@ import android.widget.TextView;
 
 import com.datatheorem.android.trustkit.TrustKit;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+
 public class DemoMainActivity extends AppCompatActivity {
 
     @Override
@@ -19,21 +30,10 @@ public class DemoMainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-
-//        final TrustKitConfiguration trustKitConfig = new TrustKitConfiguration();
-//        PinnedDomainConfiguration datatheoremConfig = new PinnedDomainConfiguration.Builder()
-//                .publicKeyHashes(new String[]{"HXXQgxueCIU5TTLHob/bPbwcKOKw6DkfsTWYHbxbqTY="})
-//                .shouldEnforcePinning(false)
-//                .build();
-//        trustKitConfig.put("www.datatheorem.com", datatheoremConfig);
-//
         TextView textView = (TextView) findViewById(R.id.textview);
 
         TrustKit.initWithNetworkPolicy(this);
-        textView.setText(TrustKit.getInstance().getConfiguration().findConfiguration("www.datatheorem.com").toString());
-
+        textView.setText(TrustKit.getInstance().getConfiguration().getCaFilePathIfDebug().toString());
     }
 
     @Override

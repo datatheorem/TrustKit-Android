@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -10,6 +11,10 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,10 +22,40 @@ import java.util.HashSet;
 import java.util.List;
 
 
-// TODO(ad): Do not extend HashSet here as it makes the configuration mutable (using HashSet's
-// public methods such as add(), etc.) although it should never change once it has been initialized.
-// HashSet is the right structure tho so let's just use one as a private attribute instead.
-class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
+
+public final class TrustKitConfiguration{
+
+    private HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations;
+    private boolean shouldOverridePinningIfDebug = false;
+    private Certificate caIfDebug = null;
+
+    public void setOverridePins(boolean overridePins) {
+        this.shouldOverridePinningIfDebug = overridePins;
+    }
+
+    public boolean shouldOverridePinningIfDebug() {
+        return shouldOverridePinningIfDebug;
+    }
+
+    private void setCaFilePathIfDebug(Certificate caIfDebug) {
+        this.caIfDebug = caIfDebug;
+    }
+
+    public Certificate getCaFilePathIfDebug() {
+        return caIfDebug;
+    }
+
+    public HashSet<PinnedDomainConfiguration> getPinnedDomainConfigurations() {
+        return pinnedDomainConfigurations;
+    }
+
+    public TrustKitConfiguration() {
+        this.pinnedDomainConfigurations = new HashSet<>();
+    }
+
+    public TrustKitConfiguration(HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations) {
+        this.pinnedDomainConfigurations = pinnedDomainConfigurations;
+    }
 
     /**
      * Return a configuration or null if the specified domain is not pinned.
@@ -29,7 +64,7 @@ class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
      */
     @Nullable
     public PinnedDomainConfiguration findConfiguration(@NonNull String serverHostname) {
-        for (PinnedDomainConfiguration pinnedDomainConfiguration : this) {
+        for (PinnedDomainConfiguration pinnedDomainConfiguration : this.pinnedDomainConfigurations){
             // TODO(ad): Handle shouldIncludeSubdomains here
 
             // Check if the configuration for this domain exists and is still valid
@@ -48,16 +83,21 @@ class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
         return null;
     }
 
-    public static TrustKitConfiguration fromXmlPolicy(XmlPullParser parser)
-            throws XmlPullParserException, IOException, ParseException {
+
+    public static TrustKitConfiguration fromXmlPolicy(Context context, XmlPullParser parser)
+            throws XmlPullParserException, IOException, ParseException, CertificateException {
+
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder =
                 new PinnedDomainConfiguration.Builder();
+
 
         // The result of parsing a full domain-config tag
         TrustkitConfigTag trustkitTag = null;
         PinSetTag pinSetTag = null;
         DomainTag domainTag = null;
+        DebugOverridesTag debugOverridesTag = null;
+
 
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -67,13 +107,15 @@ class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
                     trustkitTag = null;
                     pinSetTag = null;
                     domainTag = null;
+                    debugOverridesTag = null;
                 } else if ("domain".equals(parser.getName())) {
                     domainTag = readDomain(parser);
                 } else if ("pin-set".equals(parser.getName())) {
                     pinSetTag = readPinSet(parser);
-                }
-                else if ("trustkit-config".equals(parser.getName())) {
+                } else if ("trustkit-config".equals(parser.getName())) {
                     trustkitTag = readTrustkitConfig(parser);
+                } else if ("debug-overrides".equals(parser.getName())) {
+                    debugOverridesTag = readDebugOverrides(parser, context);
                 }
 
             } else if (eventType == XmlPullParser.END_TAG) {
@@ -94,14 +136,22 @@ class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
                         pinnedDomainConfigBuilder.expirationDate(pinSetTag.expirationDate);
                     }
 
+
                     // TODO(ad): Add debug overrides
-                    trustKitConfiguration.add(pinnedDomainConfigBuilder.build());
+                    trustKitConfiguration.pinnedDomainConfigurations
+                            .add(pinnedDomainConfigBuilder.build());
+
+                    trustKitConfiguration.setOverridePins(debugOverridesTag.overridePins);
+                    if (debugOverridesTag.caFileIfDebug != null) {
+                        trustKitConfiguration.setCaFilePathIfDebug(debugOverridesTag.caFileIfDebug);
+                    }
+
                 }
             }
             eventType = parser.next();
         }
 
-        if (trustKitConfiguration.size() < 0) {
+        if (trustKitConfiguration.pinnedDomainConfigurations.size() < 0) {
             throw new ConfigurationException("something wrong with your configuration");
         }
 
@@ -163,14 +213,14 @@ class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
         ArrayList<String> reportUris = new ArrayList<>();
 
         // Look for the enforcePinning attribute - default value is false
-        String enforcePinning = parser.getAttributeValue(null, "enforcePinning");
-        result.enforcePinning = (enforcePinning != null) && enforcePinning.equals("true");
+        result.enforcePinning =
+                Boolean.parseBoolean(parser.getAttributeValue(null, "enforcePinning"));
+
 
         // Look for the disableDefaultReportUri attribute
-        String disableDefaultReportUriStr
-                = parser.getAttributeValue(null, "disableDefaultReportUri");
-        boolean disableDefaultReportUri = (disableDefaultReportUriStr != null)
-                && disableDefaultReportUriStr.equals("true");
+        result.disableDefaultReportUri
+                = Boolean.parseBoolean(parser.getAttributeValue(null, "disableDefaultReportUri"));
+
 
         // Parse until the corresponding close trustkit-config tag
         int eventType = parser.next();
@@ -198,13 +248,48 @@ class TrustKitConfiguration extends HashSet<PinnedDomainConfiguration> {
         DomainTag result = new DomainTag();
 
         // Look for the includeSubdomains attribute - default value is false
-        String includeSubdomains = parser.getAttributeValue(null, "includeSubdomains");
-        result.includeSubdomains = (includeSubdomains != null)
-                && includeSubdomains.equals("true");
+
+        result.includeSubdomains =
+                Boolean.parseBoolean(parser.getAttributeValue(null, "includeSubdomains"));
 
         // Parse the domain text
         result.hostname = parser.nextText();
         return result;
     }
+
+    private static class DebugOverridesTag {
+        boolean overridePins = false;
+        Certificate caFileIfDebug = null;
+    }
+
+    private static DebugOverridesTag readDebugOverrides(XmlPullParser parser, Context context)
+            throws CertificateException, IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, "debug-overrides");
+        DebugOverridesTag result = new DebugOverridesTag();
+
+        result.overridePins = Boolean.parseBoolean(parser.getAttributeValue(null, "overridePins"));
+
+        String caPathFromUser = parser.getAttributeValue(null, "src");
+        //The framework expects the certificate to be in the res/raw/ folder of
+        //the application. It could be possible to put it in other folders but
+        //I haven't seen any other examples in the android source code for now.
+        //So I've decided to
+        if (!caPathFromUser.equals("user") && !caPathFromUser.equals("system")
+                && !caPathFromUser.equals("") && caPathFromUser.startsWith("@raw")) {
+
+            InputStream stream =
+                    context.getResources().openRawResource(
+                            context.getResources().getIdentifier(
+                                    caPathFromUser.split("/")[1], "raw",
+                                    context.getPackageName()));
+
+            result.caFileIfDebug =
+                    CertificateFactory.getInstance("X.509")
+                            .generateCertificate(stream);
+        }
+
+        return result;
+    }
+
 }
 
