@@ -1,14 +1,6 @@
 package com.datatheorem.android.trustkit.reporting;
 
 import com.datatheorem.android.trustkit.BuildConfig;
-import com.datatheorem.android.trustkit.PinValidationResult;
-<<<<<<< HEAD
-import com.datatheorem.android.trustkit.TrustKitConfiguration;
-import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
-=======
-import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
-//import com.datatheorem.android.trustkit.TrustKitConfiguration;
->>>>>>> 15c06588411071885759906b6fc515f09fdf974b
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.junit.After;
@@ -17,18 +9,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
