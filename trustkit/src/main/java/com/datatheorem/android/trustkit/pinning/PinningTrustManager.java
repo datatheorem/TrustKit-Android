@@ -6,96 +6,46 @@ import android.support.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-/**
- *
- */
-public class PinningTrustManager implements X509TrustManager {
 
-    private static final X509TrustManagerExtensions systemTrustManager;
-    static {
-        // Retrieve the default trust manager so we can perform regular SSL validation and wrap it
-        // in the Android-specific X509TrustManagerExtensions, which provides an API to compute the
-        // cleaned/verified server certificate chain that we eventually need for pinning validation
-        // Also the X509TrustManagerExtensions is able to call the RootTrustManager on Android N
-        systemTrustManager = new X509TrustManagerExtensions(getSystemTrustManager());
-    }
+
+class PinningTrustManager implements X509TrustManager {
+
+
+    // The trust manager we use to do the default SSL validation
+    private final X509TrustManagerExtensions baselineTrustManager;
 
     private final String serverHostname;
     private final PinnedDomainConfiguration serverConfig;
 
-    public PinningTrustManager(@NonNull String serverHostname) {
+
+    public PinningTrustManager(@NonNull String serverHostname,
+                               @NonNull PinnedDomainConfiguration serverConfig,
+                               @NonNull X509TrustManager baselineTrustManager) {
+        // Store server's information
         this.serverHostname = serverHostname;
-        TrustKitConfiguration config = TrustKit.getInstance().getConfiguration();
-        this.serverConfig = config.findConfiguration(serverHostname);
-    }
+        this.serverConfig = serverConfig;
 
-    // Retrieve the platform's default trust manager. Depending on the device's API level, the trust
-    // manager will consecutively do path validation (all API levels), hostname validation
-    // (API level 16 to ???), and pinning validation if a network policy was configured (API level
-    // 24+)
-    @NonNull
-    public static X509TrustManager getSystemTrustManager() {
-        X509TrustManager systemTrustManager = null;
-        TrustManagerFactory trustManagerFactory;
-        try {
-            trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Should never happen");
-        }
-
-        try {
-            trustManagerFactory.init((KeyStore)null);
-        } catch (KeyStoreException e) {
-            throw new IllegalStateException("Should never happen");
-        }
-
-        for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
-            if (trustManager instanceof X509TrustManager) {
-                systemTrustManager = (X509TrustManager) trustManager;
-            }
-        }
-
-        if (systemTrustManager == null) {
-            throw new IllegalStateException("Should never happen");
-        }
-        return systemTrustManager;
-    }
-
-    @Override
-    public void checkClientTrusted(X509Certificate[] chain, String authType)
-            throws CertificateException {
-        throw new CertificateException("Client certificates not supported!");
+        // We use the default trust manager so we can perform regular SSL validation and we wrap it
+        // in the Android-specific X509TrustManagerExtensions, which provides an API to compute the
+        // cleaned/verified server certificate chain that we eventually need for pinning validation.
+        // Also the X509TrustManagerExtensions provides a checkServerTrusted() where the hostname
+        // can be supplied, allowing it to call the (system) RootTrustManager on Android N
+        this.baselineTrustManager = new X509TrustManagerExtensions(baselineTrustManager);
     }
 
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException {
-
-        // If the domain is not pinned, do not do interfere and do the default validation
-        if (serverConfig == null) {
-            systemTrustManager.checkServerTrusted(chain, authType, serverHostname);
-            return;
-        }
-
-        // If the domain is pinned, let's do our validation
         boolean didChainValidationFail = false; // Includes path and hostname validation
         boolean didPinningValidationFail = false;
 
@@ -115,8 +65,9 @@ public class PinningTrustManager implements X509TrustManager {
         // the root certificate from the Android trust store and removes unrelated
         // extra certificates an attacker might add: https://koz.io/pinning-cve-2016-2402/
         try {
-            validatedServerChain =
-                    systemTrustManager.checkServerTrusted(chain, authType, serverHostname);
+
+            validatedServerChain = baselineTrustManager.checkServerTrusted(chain, authType,
+                    serverHostname);
 
         } catch (CertificateException e) {
             if ((Build.VERSION.SDK_INT >= 24)
@@ -136,7 +87,6 @@ public class PinningTrustManager implements X509TrustManager {
             didPinningValidationFail = !isPinInChain(validatedServerChain,
                     serverConfig.getPublicKeyHashes());
         }
-
 
         // Send a pinning failure report if needed
         if (didChainValidationFail || didPinningValidationFail) {
@@ -184,6 +134,12 @@ public class PinningTrustManager implements X509TrustManager {
             }
         }
         return wasPinFound;
+    }
+
+    @Override
+    public void checkClientTrusted(X509Certificate[] chain, String authType)
+            throws CertificateException {
+        throw new CertificateException("Client certificates not supported!");
     }
 
     @Override

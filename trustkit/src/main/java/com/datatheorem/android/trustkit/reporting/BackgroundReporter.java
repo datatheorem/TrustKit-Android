@@ -7,7 +7,7 @@ import android.util.Base64;
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
-import com.datatheorem.android.trustkit.pinning.PinningTrustManager;
+import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.io.BufferedOutputStream;
@@ -34,26 +34,8 @@ import javax.net.ssl.TrustManager;
  * to the specific URI.
  */
 public class BackgroundReporter {
-    private static final SSLSocketFactory systemSSLSocketFactory;
-    static {
-        SSLContext context = null;
-        try {
-            context = SSLContext.getInstance("TLS");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Should never happen");
-        }
-        if (context == null) {
-            throw new IllegalStateException("Should never happen");
-        }
 
-        try {
-            context.init(null, new TrustManager[] {PinningTrustManager.getSystemTrustManager()},
-                    null);
-        } catch (KeyManagementException e) {
-            throw new IllegalStateException("Should never happen");
-        }
-        systemSSLSocketFactory = context.getSocketFactory();
-    }
+
 
     // Main application environment information
     private final String appPackageName;
@@ -122,6 +104,7 @@ public class BackgroundReporter {
             return;
         }
 
+        final HashSet<URL> reportUriSet = (HashSet<URL>) serverConfig.getReportUris();
         new AsyncTask<HashSet<URL>, Void, Void>() {
             private int responseCode = -1;
 
@@ -144,7 +127,7 @@ public class BackgroundReporter {
 
                         // Use the default system factory to ensure we are not doing pinning validation
                         // TODO(ad): Test this
-                        connection.setSSLSocketFactory(systemSSLSocketFactory);
+                        connection.setSSLSocketFactory(getSystemSSLSocketFactory());
 
                         connection.connect();
 
@@ -178,6 +161,27 @@ public class BackgroundReporter {
                 }
             }
 
-        }.execute((HashSet<URL>) serverConfig.getReportURIs());
+        }.execute((HashSet<URL>) serverConfig.getReportUris());
     }
+
+    private static SSLSocketFactory getSystemSSLSocketFactory() {
+        SSLContext context;
+        try {
+            context = SSLContext.getInstance("TLS");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Should never happen");
+        }
+        if (context == null) {
+            throw new IllegalStateException("Should never happen");
+        }
+
+        try {
+            // Get a trust manager for an empty hostname so we get a non-pinning trust manager
+            context.init(null, new TrustManager[] {TrustManagerBuilder.getTrustManager("")}, null);
+        } catch (KeyManagementException e) {
+            throw new IllegalStateException("Should never happen");
+        }
+        return context.getSocketFactory();
+    }
+
 }

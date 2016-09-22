@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import javax.net.ssl.TrustManager;
 
-
+// TODO(ad): Rename this to TrustKitSSLSocketFactory
 public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
 
     // TODO(ad): Figure this out
@@ -19,8 +19,8 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
     @Override
     public Socket createSocket(String host, int port, InetAddress localAddr, int localPort)
             throws IOException {
-        // For the use of our trust manager
-        setTrustManagers(new TrustManager[]{new PinningTrustManager(host)});
+        // Force the use of our trust manager
+        setTrustManagers(new TrustManager[]{TrustManagerBuilder.getTrustManager(host)});
 
         // Try to create the socket, which will trigger the SSL handshake
         return super.createSocket(host, port, localAddr, localPort);
@@ -28,8 +28,8 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
 
     @Override
     public Socket createSocket(Socket k, String host, int port, boolean close) throws IOException {
-        // For the use of our trust manager
-        setTrustManagers(new TrustManager[]{new PinningTrustManager(host)});
+        // Force the use of our trust manager
+        setTrustManagers(new TrustManager[]{TrustManagerBuilder.getTrustManager(host)});
 
         // Try to create the socket, which will trigger the SSL handshake
         return super.createSocket(k, host, port, close);
@@ -37,8 +37,8 @@ public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
 
     @Override
     public Socket createSocket(String host, int port) throws IOException {
-        // For the use of our trust manager
-        setTrustManagers(new TrustManager[]{new PinningTrustManager(host)});
+        // Force the use of our trust manager
+        setTrustManagers(new TrustManager[]{TrustManagerBuilder.getTrustManager(host)});
 
         // Try to create the socket, which will trigger the SSL handshake
         return super.createSocket(host, port);

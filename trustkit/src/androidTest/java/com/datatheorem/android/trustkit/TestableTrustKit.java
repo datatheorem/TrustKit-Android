@@ -22,7 +22,7 @@ public class TestableTrustKit extends TrustKit {
         TrustKit.getInstance().backgroundReporter = reporter;
     }
 
-    public static void resetConfiguration() {
+    public static void reset() {
         trustKitInstance = null;
     }
 }
