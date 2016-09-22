@@ -141,6 +141,11 @@ public final class TrustKitConfiguration{
                     trustKitConfiguration.pinnedDomainConfigurations
                             .add(pinnedDomainConfigBuilder.build());
 
+                    trustKitConfiguration.setOverridePins(debugOverridesTag.overridePins);
+                    if (debugOverridesTag.caFileIfDebug != null) {
+                        trustKitConfiguration.setCaFilePathIfDebug(debugOverridesTag.caFileIfDebug);
+                    }
+
                 }
             }
             eventType = parser.next();

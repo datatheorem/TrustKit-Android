@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
 import javax.net.ssl.X509TrustManager;
@@ -21,7 +22,7 @@ public class TrustManagerBuilder {
     // The trust manager we will use to perform the default SSL validation
     protected static X509TrustManager baselineTrustManager = null;
 
-    public static void initializeBaselineTrustManager(@Nullable String debugCaFilePath)
+    public static void initializeBaselineTrustManager(@Nullable Certificate debugCaFile)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             KeyManagementException, IOException {
 
@@ -30,9 +31,9 @@ public class TrustManagerBuilder {
         }
 
         baselineTrustManager = SystemTrustManager.getDefault();
-        if ((debugCaFilePath != null) && (Build.VERSION.SDK_INT < 24)) {
+        if ((debugCaFile != null) && (Build.VERSION.SDK_INT < 24)) {
             // Debug overrides is enabled and we are on a pre-N device; we need to do it manually
-            baselineTrustManager = new DebugOverridesTrustManager(debugCaFilePath);
+            baselineTrustManager = new DebugOverridesTrustManager(debugCaFile);
         }
     }
 
