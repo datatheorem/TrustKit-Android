@@ -9,7 +9,7 @@ import android.security.NetworkSecurityPolicy;
 import android.support.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
-import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
+import com.datatheorem.android.trustkit.pinning.TrustKitTrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
@@ -113,7 +113,7 @@ public class TrustKit {
         // String debugOverridesCaPath = trustKitConfiguration.getDebugOverridesCaPath()
         List<Certificate> debugOverridesCaCerts = trustKitConfiguration.getDebugCaCertificates();
         try {
-            TrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCaCerts);
+            TrustKitTrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCaCerts);
         } catch (CertificateException | NoSuchAlgorithmException | KeyManagementException
                 | KeyStoreException | IOException e) {
             throw new ConfigurationException("Could not parse <debug-overrides> certificates");

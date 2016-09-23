@@ -7,7 +7,7 @@ import android.util.Base64;
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
-import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
+import com.datatheorem.android.trustkit.pinning.TrustKitTrustManagerBuilder;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.io.BufferedOutputStream;
@@ -176,7 +176,7 @@ public class BackgroundReporter {
 
         try {
             // Get a trust manager for an empty hostname so we get a non-pinning trust manager
-            context.init(null, new TrustManager[] {TrustManagerBuilder.getTrustManager("")}, null);
+            context.init(null, new TrustManager[] {TrustKitTrustManagerBuilder.getTrustManager("")}, null);
         } catch (KeyManagementException e) {
             throw new IllegalStateException("Should never happen");
         }

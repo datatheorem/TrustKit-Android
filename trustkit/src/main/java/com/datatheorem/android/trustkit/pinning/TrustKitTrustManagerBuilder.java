@@ -18,7 +18,7 @@ import java.util.List;
 import javax.net.ssl.X509TrustManager;
 
 
-public class TrustManagerBuilder {
+public class TrustKitTrustManagerBuilder {
 
     // The trust manager we will use to perform the default SSL validation
     protected static X509TrustManager baselineTrustManager = null;
