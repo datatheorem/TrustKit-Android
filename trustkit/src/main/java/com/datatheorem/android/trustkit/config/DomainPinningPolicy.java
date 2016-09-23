@@ -12,8 +12,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static java.net.IDN.toASCII;
-
 
 public final class DomainPinningPolicy {
 
