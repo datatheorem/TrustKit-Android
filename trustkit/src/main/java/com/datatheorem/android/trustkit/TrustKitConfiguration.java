@@ -22,40 +22,35 @@ import java.util.HashSet;
 import java.util.List;
 
 
-
 public final class TrustKitConfiguration{
 
-    private HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations;
-    private boolean shouldOverridePins = false;
-    private Certificate caIfDebug = null;
-
-    private void setShouldOverridePins(boolean overridePins) {
-        this.shouldOverridePins = overridePins;
-    }
+    final private HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations;
+    final private boolean shouldOverridePins;
+    final private Certificate caIfDebug;
 
     public boolean shouldOverridePins() {
         // TODO(ad): Let's put the logic here to always return false if we are not in debug mode
         return shouldOverridePins;
     }
 
-    private void setCaFilePathIfDebug(Certificate caIfDebug) {
-        this.caIfDebug = caIfDebug;
-    }
-
     public Certificate getCaFilePathIfDebug() {
         return caIfDebug;
     }
 
-    public HashSet<PinnedDomainConfiguration> getPinnedDomainConfigurations() {
-        return pinnedDomainConfigurations;
+    private TrustKitConfiguration(HashSet<PinnedDomainConfiguration> domainConfigSet) {
+        this(domainConfigSet, false, null);
     }
 
-    public TrustKitConfiguration() {
-        this.pinnedDomainConfigurations = new HashSet<>();
-    }
+    private TrustKitConfiguration(HashSet<PinnedDomainConfiguration> domainConfigSet,
+                                  boolean shouldOverridePins, Certificate caCert) {
 
-    public TrustKitConfiguration(HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations) {
-        this.pinnedDomainConfigurations = pinnedDomainConfigurations;
+        if (domainConfigSet.size() < 0) {
+            throw new ConfigurationException("Policy contains 0 domains to pin");
+        }
+
+        this.pinnedDomainConfigurations = domainConfigSet;
+        this.shouldOverridePins = shouldOverridePins;
+        this.caIfDebug = caCert;
     }
 
     /**
@@ -88,17 +83,19 @@ public final class TrustKitConfiguration{
     static TrustKitConfiguration fromXmlPolicy(Context context, XmlPullParser parser)
             throws XmlPullParserException, IOException, ParseException, CertificateException {
 
-        TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
         PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder =
                 new PinnedDomainConfiguration.Builder();
 
+        // The list of pinned domains retrieved from the policy file
+        HashSet<PinnedDomainConfiguration> domainConfigSet = new HashSet<>();
 
-        // The result of parsing a full domain-config tag
+        // Global tag
+        DebugOverridesTag debugOverridesTag = null;
+
+        // The result of parsing a domain-config tag
         TrustkitConfigTag trustkitTag = null;
         PinSetTag pinSetTag = null;
         DomainTag domainTag = null;
-        DebugOverridesTag debugOverridesTag = null;
-
 
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -108,7 +105,6 @@ public final class TrustKitConfiguration{
                     trustkitTag = null;
                     pinSetTag = null;
                     domainTag = null;
-                    debugOverridesTag = null;
                 } else if ("domain".equals(parser.getName())) {
                     domainTag = readDomain(parser);
                 } else if ("pin-set".equals(parser.getName())) {
@@ -118,10 +114,6 @@ public final class TrustKitConfiguration{
                 } else if ("debug-overrides".equals(parser.getName())) {
                     // The Debug-overrides option is global and not tied to a specific domain
                     debugOverridesTag = readDebugOverrides(parser, context);
-                    trustKitConfiguration.setShouldOverridePins(debugOverridesTag.overridePins);
-                    if (debugOverridesTag.caFileIfDebug != null) {
-                        trustKitConfiguration.setCaFilePathIfDebug(debugOverridesTag.caFileIfDebug);
-                    }
                 }
 
             } else if (eventType == XmlPullParser.END_TAG) {
@@ -141,19 +133,22 @@ public final class TrustKitConfiguration{
                     if (pinSetTag.expirationDate != null) {
                         pinnedDomainConfigBuilder.expirationDate(pinSetTag.expirationDate);
                     }
-
-                    trustKitConfiguration.pinnedDomainConfigurations
-                            .add(pinnedDomainConfigBuilder.build());
+                    domainConfigSet.add(pinnedDomainConfigBuilder.build());
                 }
             }
             eventType = parser.next();
         }
 
-        if (trustKitConfiguration.pinnedDomainConfigurations.size() < 0) {
-            throw new ConfigurationException("something wrong with your configuration");
-        }
+        // Finally, store the result of the parsed policy in our configuration object
+        TrustKitConfiguration config;
+        if (debugOverridesTag != null) {
+            config = new TrustKitConfiguration(domainConfigSet,
+                    debugOverridesTag.overridePins, debugOverridesTag.caFileIfDebug);
 
-        return trustKitConfiguration;
+        } else {
+            config = new TrustKitConfiguration(domainConfigSet);
+        }
+        return config;
     }
 
     private static class PinSetTag {
