@@ -83,7 +83,7 @@ public class ReportsRateLimiterTest {
 
     @Test
     public void test() {
-        PinFailureReport report = new PinFailureReport("com.test", "1.2.3", "vendorId",
+        PinningFailureReport report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
                 BuildConfig.VERSION_NAME, "www.host.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
                 pinList, PinValidationResult.FAILED);
@@ -101,7 +101,7 @@ public class ReportsRateLimiterTest {
 
 
         // Ensure the same report with a different validation result will be sent
-        report = new PinFailureReport("com.test", "1.2.3", "vendorId",
+        report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
                 BuildConfig.VERSION_NAME, "www.host.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
                 pinList, PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
@@ -109,7 +109,7 @@ public class ReportsRateLimiterTest {
         assertTrue(ReportsRateLimiter.shouldRateLimit(report));
 
         // Ensure the same report with a different hostname will be sent
-        report = new PinFailureReport("com.test", "1.2.3", "vendorId",
+        report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
                 BuildConfig.VERSION_NAME, "www.otherhost.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
                 pinList, PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
@@ -118,7 +118,7 @@ public class ReportsRateLimiterTest {
 
 
         // Ensure the same report with a different certificate chain will be sent
-        report = new PinFailureReport("com.test", "1.2.3", "vendorId",
+        report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
                 BuildConfig.VERSION_NAME, "www.otherhost.com", 443, "host.com", true, true,
                 pemCertificateList2, pemCertificateList2, new Date(),
                 pinList, PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);

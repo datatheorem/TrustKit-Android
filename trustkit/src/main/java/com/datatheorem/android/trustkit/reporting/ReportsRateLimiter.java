@@ -13,7 +13,7 @@ class ReportsRateLimiter {
     private static Set<List<Object>> reportsCache = new HashSet<>();
     protected static Date lastReportsCacheResetDate = new Date();
 
-    public synchronized static boolean shouldRateLimit(final PinFailureReport report) {
+    public synchronized static boolean shouldRateLimit(final PinningFailureReport report) {
         // Reset the cache if it was created more than 24 hours ago
         Date currentDate = new Date();
         long secondsSinceLastReset =

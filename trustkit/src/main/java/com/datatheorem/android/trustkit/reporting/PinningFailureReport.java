@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * A pinning validation failure report.
  */
-class PinFailureReport implements Serializable {
+class PinningFailureReport implements Serializable {
     // Fields specific to TrustKit reports
 //    private static final String APP_PLATFORM = "ANDROID";
     private String appBundleId;
@@ -38,13 +38,13 @@ class PinFailureReport implements Serializable {
     private Set<PublicKeyPin> knownPins;
 
 
-    PinFailureReport(String appBundleId, String appVersion, String appVendorId,
-                            String trustKitVersion, String hostname, int port,
-                            String notedHostname, boolean includeSubdomains,
-                            boolean enforcePinning, List<String> servedCertificateChain,
-                            List<String> validatedCertificateChain, Date dateTime,
-                            Set<PublicKeyPin> knownPins,
-                            PinValidationResult validationResult) {
+    PinningFailureReport(String appBundleId, String appVersion, String appVendorId,
+                         String trustKitVersion, String hostname, int port,
+                         String notedHostname, boolean includeSubdomains,
+                         boolean enforcePinning, List<String> servedCertificateChain,
+                         List<String> validatedCertificateChain, Date dateTime,
+                         Set<PublicKeyPin> knownPins,
+                         PinValidationResult validationResult) {
         this.appBundleId = appBundleId;
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;
