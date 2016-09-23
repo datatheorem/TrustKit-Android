@@ -1,25 +1,15 @@
 package com.datatheorem.android.trustkit;
 
 import android.content.Context;
-import android.os.Debug;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
-import com.datatheorem.android.trustkit.utils.TrustKitLog;
-import com.google.common.collect.Collections2;
 
-import junit.framework.Assert;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.UUID;

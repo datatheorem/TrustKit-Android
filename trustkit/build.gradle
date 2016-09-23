@@ -8,10 +8,6 @@ repositories {
 dependencies {
     compile "com.android.support:support-annotations:$rootProject.libVersions.android.appCompat"
     compile "com.android.support:support-v4:$rootProject.libVersions.android.appCompat"
-    // TODO investigate if you can extract the needed files efficiently or find a way to handle
-    // Domain name verification with a lighter lib (without regex)
-    compile "com.google.guava:guava:$rootProject.libVersions.guava"
-
 
     androidTestCompile "junit:junit:$rootProject.libVersions.junit"
     androidTestCompile "com.android.support.test:runner:$rootProject.libVersions.android.testRunner"

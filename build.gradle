@@ -49,8 +49,7 @@ ext{
         android : [
             appCompat : '24.+',
             testRunner: '0.5'
-        ],
-        guava : '19.0'
+        ]
     ]
 
 }

@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
-import com.google.common.net.InternetDomainName;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,13 +44,16 @@ public final class DomainPinningPolicy {
             throws MalformedURLException {
         // Run some sanity checks on the configuration
         // Check if the hostname seems valid
+        DomainValidator domainValidator = DomainValidator.getInstance();
+        if (!domainValidator.isValid(hostname)) {
+            throw new ConfigurationException("Tried to pin an invalid domain: " + hostname);
+        }
         // TODO(ad): Test how this works with UTF 8 domain names
-        InternetDomainName parsedHostname = InternetDomainName.from(hostname);
 
         // TrustKit should not work if the configuration asks to pin connections for subdomains
         // for *.com and other TLDs
-        if (parsedHostname.isPublicSuffix()) {
-            throw new ConfigurationException("Tried to pin a public suffix: " + hostname);
+        if (domainValidator.isValidTld(hostname)) {
+            throw new ConfigurationException("Tried to pin a TLD: " + hostname);
         }
 
         // Check if the configuration has at least two pins (including a backup pin)
