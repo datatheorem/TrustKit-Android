@@ -55,7 +55,7 @@ public class TrustKitConfigurationTest {
 
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(
                 RuntimeEnvironment.application, parseXmlString(xml));
-        DomainPinningPolicy domainConfig = config.findConfiguration("www.datatheorem.com");
+        DomainPinningPolicy domainConfig = config.getConfigForHostname("www.datatheorem.com");
 
         assertEquals(domainConfig.getHostname(), "www.datatheorem.com");
         assertTrue(domainConfig.shouldIncludeSubdomains());

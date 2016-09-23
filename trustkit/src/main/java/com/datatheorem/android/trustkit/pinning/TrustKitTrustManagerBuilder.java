@@ -43,7 +43,7 @@ public class TrustKitTrustManagerBuilder {
             throw new IllegalStateException("TrustKit has not been initialized");
         }
         DomainPinningPolicy serverConfig =
-                TrustKit.getInstance().getConfiguration().findConfiguration(serverHostname);
+                TrustKit.getInstance().getConfiguration().getConfigForHostname(serverHostname);
 
         if (serverConfig == null) {
             // Domain is NOT pinned - only do baseline validation

@@ -67,7 +67,7 @@ public final class TrustKitConfiguration {
      * @return DomainPinningPolicy
      */
     @Nullable
-    public DomainPinningPolicy findConfiguration(@NonNull String serverHostname) {
+    public DomainPinningPolicy getConfigForHostname(@NonNull String serverHostname) {
         for (DomainPinningPolicy pinnedDomainConfiguration : this.pinnedDomainConfigurations){
             // TODO(ad): Handle shouldIncludeSubdomains here
 
