@@ -3,7 +3,7 @@ package com.datatheorem.android.trustkit.config;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
+import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 import com.google.common.net.InternetDomainName;
 
 import java.net.MalformedURLException;
@@ -30,7 +30,7 @@ public final class DomainPinningPolicy {
 
     @NonNull private final String hostname;
     private final boolean shouldIncludeSubdomains;
-    @NonNull private final Set<SubjectPublicKeyInfoPin> publicKeyHashes;
+    @NonNull private final Set<PublicKeyPin> publicKeyHashes;
     @Nullable private final Date expirationDate;
     private final boolean shouldEnforcePinning;
     @NonNull private final Set<URL> reportUris;
@@ -68,7 +68,7 @@ public final class DomainPinningPolicy {
         // Parse the supplied pins
         publicKeyHashes = new HashSet<>();
         for (String pinStr : publicKeyHashStrList)  {
-            publicKeyHashes.add(new SubjectPublicKeyInfoPin(pinStr));
+            publicKeyHashes.add(new PublicKeyPin(pinStr));
         }
 
         // Parse the supplied report URLs
@@ -96,7 +96,7 @@ public final class DomainPinningPolicy {
     }
 
     @NonNull
-    public Set<SubjectPublicKeyInfoPin> getPublicKeyHashes() {
+    public Set<PublicKeyPin> getPublicKeyHashes() {
         return publicKeyHashes;
     }
 

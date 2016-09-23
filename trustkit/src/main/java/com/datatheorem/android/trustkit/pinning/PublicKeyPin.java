@@ -11,11 +11,11 @@ import java.security.cert.Certificate;
  * A pin is the base64-encoded SHA-256 hash of the certificate's Subject Public Key Info, as
  * described in the HPKP RFC https://tools.ietf.org/html/rfc7469s .
  */
-public final class SubjectPublicKeyInfoPin {
+public final class PublicKeyPin {
 
     private String pin;
 
-    public SubjectPublicKeyInfoPin(Certificate certificate) {
+    public PublicKeyPin(Certificate certificate) {
         // Generate the certificate's spki pin
         MessageDigest digest;
         try {
@@ -30,7 +30,7 @@ public final class SubjectPublicKeyInfoPin {
         pin = Base64.encodeToString(spkiHash, Base64.DEFAULT).trim();
     }
 
-    public SubjectPublicKeyInfoPin(String spkiPin) {
+    public PublicKeyPin(String spkiPin) {
         // Validate the format of the pin
         byte[] spkiSha256Hash = Base64.decode(spkiPin, Base64.DEFAULT);
         if (spkiSha256Hash.length != 32) {
@@ -41,7 +41,7 @@ public final class SubjectPublicKeyInfoPin {
 
     @Override
     public boolean equals(Object arg0) {
-        return (arg0 instanceof SubjectPublicKeyInfoPin) && arg0.toString().equals(this.toString());
+        return (arg0 instanceof PublicKeyPin) && arg0.toString().equals(this.toString());
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.datatheorem.android.trustkit.reporting;
 import android.text.format.DateFormat;
 
 import com.datatheorem.android.trustkit.PinValidationResult;
-import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
+import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,7 +11,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +35,7 @@ class PinFailureReport implements Serializable {
     private List<String> servedCertificateChainAsPem;
     private List<String> validatedCertificateChainAsPem;
     private Date dateTime;
-    private Set<SubjectPublicKeyInfoPin> knownPins;
+    private Set<PublicKeyPin> knownPins;
 
 
     PinFailureReport(String appBundleId, String appVersion, String appVendorId,
@@ -44,7 +43,7 @@ class PinFailureReport implements Serializable {
                             String notedHostname, boolean includeSubdomains,
                             boolean enforcePinning, List<String> servedCertificateChain,
                             List<String> validatedCertificateChain, Date dateTime,
-                            Set<SubjectPublicKeyInfoPin> knownPins,
+                            Set<PublicKeyPin> knownPins,
                             PinValidationResult validationResult) {
         this.appBundleId = appBundleId;
         this.appVersion = appVersion;
@@ -92,7 +91,7 @@ class PinFailureReport implements Serializable {
             jsonReport.put("served-certificate-chain", ServedCertificateChainAsJson);
 
             JSONArray jsonArrayKnownPins = new JSONArray();
-            for (SubjectPublicKeyInfoPin knownPin : knownPins) {
+            for (PublicKeyPin knownPin : knownPins) {
                 jsonArrayKnownPins.put(knownPin.toString());
             }
             jsonReport.put("known-pins", jsonArrayKnownPins);

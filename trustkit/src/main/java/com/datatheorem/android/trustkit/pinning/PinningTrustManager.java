@@ -107,14 +107,14 @@ class PinningTrustManager implements X509TrustManager {
             StringBuilder errorBuilder = new StringBuilder()
                     .append("Pin verification failed")
                     .append("\n  Configured pins: ");
-            for (SubjectPublicKeyInfoPin pin : serverConfig.getPublicKeyHashes()) {
+            for (PublicKeyPin pin : serverConfig.getPublicKeyHashes()) {
                 errorBuilder.append(pin);
                 errorBuilder.append(" ");
             }
             errorBuilder.append("\n  Peer certificate chain: ");
             for (Certificate certificate : validatedServerChain) {
                 errorBuilder.append("\n    ")
-                        .append(new SubjectPublicKeyInfoPin(certificate))
+                        .append(new PublicKeyPin(certificate))
                         .append(" - ")
                         .append(((X509Certificate) certificate).getIssuerDN());
             }
@@ -123,10 +123,10 @@ class PinningTrustManager implements X509TrustManager {
     }
 
     private static boolean isPinInChain(List<X509Certificate> verifiedServerChain,
-                                        Set<SubjectPublicKeyInfoPin> configuredPins) {
+                                        Set<PublicKeyPin> configuredPins) {
         boolean wasPinFound = false;
         for (Certificate certificate : verifiedServerChain) {
-            SubjectPublicKeyInfoPin certificatePin = new SubjectPublicKeyInfoPin(certificate);
+            PublicKeyPin certificatePin = new PublicKeyPin(certificate);
             if (configuredPins.contains(certificatePin)) {
                 // Pinning validation succeeded
                 wasPinFound = true;

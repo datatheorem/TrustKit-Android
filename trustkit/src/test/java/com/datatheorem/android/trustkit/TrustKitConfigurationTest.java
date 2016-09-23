@@ -1,7 +1,7 @@
 package com.datatheorem.android.trustkit;
 
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
-import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
+import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,9 +65,9 @@ public class TrustKitConfigurationTest {
         expectedUri.add(new java.net.URL("https://overmind.datatheorem.com/trustkit/report"));
         assertEquals(domainConfig.getReportUris(), expectedUri);
 
-        HashSet<SubjectPublicKeyInfoPin> expectedPins = new HashSet<>();
-        expectedPins.add(new SubjectPublicKeyInfoPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
-        expectedPins.add(new SubjectPublicKeyInfoPin("grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME="));
+        HashSet<PublicKeyPin> expectedPins = new HashSet<>();
+        expectedPins.add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
+        expectedPins.add(new PublicKeyPin("grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME="));
         assertEquals(domainConfig.getPublicKeyHashes(), expectedPins);
     }
 }

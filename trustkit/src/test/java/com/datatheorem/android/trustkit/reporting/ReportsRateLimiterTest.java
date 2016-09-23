@@ -3,7 +3,7 @@ package com.datatheorem.android.trustkit.reporting;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
-import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
+import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +22,9 @@ import static junit.framework.Assert.assertTrue;
 @RunWith(RobolectricGradleTestRunner.class)
 public class ReportsRateLimiterTest {
 
-    private HashSet<SubjectPublicKeyInfoPin> pinList = new HashSet<SubjectPublicKeyInfoPin>() {{
-        add(new SubjectPublicKeyInfoPin("rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE="));
-        add(new SubjectPublicKeyInfoPin("0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8="));
+    private HashSet<PublicKeyPin> pinList = new HashSet<PublicKeyPin>() {{
+        add(new PublicKeyPin("rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE="));
+        add(new PublicKeyPin("0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8="));
     }};
 
     private ArrayList<String> pemCertificateList1 = new ArrayList<String>() {{

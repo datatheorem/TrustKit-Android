@@ -46,14 +46,14 @@ public class SubjectPublicKeyInfoPinTest {
         InputStream is = new ByteArrayInputStream(Base64.decode(pemCertificate, Base64.DEFAULT));
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         Certificate cert = cf.generateCertificate(is);
-        SubjectPublicKeyInfoPin pin = new SubjectPublicKeyInfoPin(cert);
+        PublicKeyPin pin = new PublicKeyPin(cert);
         assertEquals("Ckvh+UFO2eHunqaB2w0jsrwrJJQcSoES+p9FUhVoszQ=", pin.toString());
     }
 
     @Test
     public void testFromString() {
-        SubjectPublicKeyInfoPin pin =
-                new SubjectPublicKeyInfoPin("rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE=");
+        PublicKeyPin pin =
+                new PublicKeyPin("rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE=");
         assertEquals(pin.toString(),"rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE=");
     }
 
@@ -61,7 +61,7 @@ public class SubjectPublicKeyInfoPinTest {
     public void testFromBadStringNotBase64() {
         boolean didReturnError = false;
         try {
-            new SubjectPublicKeyInfoPin("rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIh!5dn4oCeE=");
+            new PublicKeyPin("rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIh!5dn4oCeE=");
         } catch (IllegalArgumentException e) {
             if (e.getMessage().startsWith("bad base-64")) {
                 didReturnError = true;
@@ -77,7 +77,7 @@ public class SubjectPublicKeyInfoPinTest {
     public void testFromBadStringBadLength() {
         boolean didReturnError = false;
         try {
-            new SubjectPublicKeyInfoPin("ZW5jb2U=");
+            new PublicKeyPin("ZW5jb2U=");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
             if (e.getMessage().startsWith("Invalid pin")) {
