@@ -21,7 +21,7 @@ import static junit.framework.Assert.assertTrue;
 
 @Config(constants = BuildConfig.class)
 @RunWith(RobolectricGradleTestRunner.class)
-public class SubjectPublicKeyInfoPinTest {
+public class PublicKeyPinTest {
 
     @Test
     public void testFromCertificate() throws CertificateException {
