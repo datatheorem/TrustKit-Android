@@ -16,10 +16,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -38,11 +36,11 @@ public final class TrustKitConfiguration{
         return caIfDebug;
     }
 
-    private TrustKitConfiguration(HashSet<PinnedDomainConfiguration> domainConfigSet) {
+    private TrustKitConfiguration(@NonNull HashSet<PinnedDomainConfiguration> domainConfigSet) {
         this(domainConfigSet, false, null);
     }
 
-    private TrustKitConfiguration(HashSet<PinnedDomainConfiguration> domainConfigSet,
+    private TrustKitConfiguration(@NonNull HashSet<PinnedDomainConfiguration> domainConfigSet,
                                   boolean shouldOverridePins, Certificate caCert) {
 
         if (domainConfigSet.size() < 1) {
