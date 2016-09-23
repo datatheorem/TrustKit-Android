@@ -104,7 +104,6 @@ public class BackgroundReporter {
             return;
         }
 
-        final HashSet<URL> reportUriSet = (HashSet<URL>) serverConfig.getReportUris();
         new AsyncTask<HashSet<URL>, Void, Void>() {
             private int responseCode = -1;
 

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public final class TrustKitConfiguration{
@@ -139,14 +140,14 @@ public final class TrustKitConfiguration{
 
     private static class PinSetTag {
         Date expirationDate;
-        List<String> pins;
+        Set<String> pins;
     }
 
     private static PinSetTag readPinSet(XmlPullParser parser) throws IOException,
             XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "pin-set");
         PinSetTag tag = new PinSetTag();
-        tag.pins = new ArrayList<>();
+        tag.pins = new HashSet<>();
 
         // Look for the expiration attribute
         // TODO(ad): The next line throws an exception when running the tests
@@ -181,7 +182,7 @@ public final class TrustKitConfiguration{
     private static class TrustkitConfigTag {
         boolean enforcePinning = false;
         boolean disableDefaultReportUri = false;
-        List<String> reportUris;
+        Set<String> reportUris;
     }
 
     private static TrustkitConfigTag readTrustkitConfig(XmlPullParser parser) throws IOException,
@@ -189,7 +190,7 @@ public final class TrustKitConfiguration{
         parser.require(XmlPullParser.START_TAG, null, "trustkit-config");
 
         TrustkitConfigTag result = new TrustkitConfigTag();
-        ArrayList<String> reportUris = new ArrayList<>();
+        Set<String> reportUris = new HashSet<>();
 
         // Look for the enforcePinning attribute - default value is false
         result.enforcePinning =

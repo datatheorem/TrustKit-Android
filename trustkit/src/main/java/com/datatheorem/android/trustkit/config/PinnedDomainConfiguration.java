@@ -38,10 +38,10 @@ public final class PinnedDomainConfiguration {
 
     public PinnedDomainConfiguration(@NonNull String hostname,
                                      boolean shouldIncludeSubdomains,
-                                     @NonNull List<String> publicKeyHashStrList,
+                                     @NonNull Set<String> publicKeyHashStrList,
                                      boolean shouldEnforcePinning,
                                      @Nullable Date expirationDate,
-                                     @Nullable List<String> reportUriStrList,
+                                     @Nullable Set<String> reportUriStrList,
                                      boolean shouldDisableDefaultReportUri)
             throws MalformedURLException {
         // Run some sanity checks on the configuration

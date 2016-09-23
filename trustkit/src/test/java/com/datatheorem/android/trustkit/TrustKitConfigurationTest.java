@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -15,6 +16,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.security.cert.CertificateException;
 import java.text.ParseException;
 import java.util.HashSet;
 
@@ -25,45 +27,6 @@ import static junit.framework.Assert.assertTrue;
 @RunWith(RobolectricGradleTestRunner.class)
 public class TrustKitConfigurationTest {
 
-
-    PinnedDomainConfiguration mockPinnedDomainConfiguration;
-    String domainName;
-    TrustKitConfiguration trustKitConfiguration;
-
-    @Before
-    public void setUp() {
-        /*
-        trustKitConfiguration = new TrustKitConfiguration();
-        String pin = "pin-sha256=\"rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE=\"";
-        String pin2 = "pin-sha256=\"0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=\"";
-        Set<String> pins = new HashSet<>();
-        pins.add(pin);
-        pins.add(pin2);
-        mockPinnedDomainConfiguration = new PinnedDomainConfiguration.Builder()
-                .shouldEnforcePinning(false)
-                .shouldDisableDefaultReportUri(true)
-                .shouldIncludeSubdomains(false)
-                .publicKeyHashes(pins)
-                .pinnedDomainName("www.test.com")
-                .build();
-
-        domainName = mockPinnedDomainConfiguration.getHostname();
-        trustKitConfiguration.add(mockPinnedDomainConfiguration);
-        */
-
-    }
-
-    @Test
-    public void getByPinnedHostnameTest_HappyCase() {
-        //Assert.assertNotNull(trustKitConfiguration.findConfiguration(domainName));
-        //Assert.assertEquals(mockPinnedDomainConfiguration, trustKitConfiguration.findConfiguration(domainName));
-    }
-
-    @Test
-    public void getByPinnedHostnameTest_SadCase() {
-        //Assert.assertNull(trustKitConfiguration.findConfiguration("www.toto.com"));
-    }
-
     private XmlPullParser parseXmlString(String xmlString) throws XmlPullParserException {
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -73,7 +36,8 @@ public class TrustKitConfigurationTest {
     }
 
     @Test
-    public void testXml() throws XmlPullParserException, IOException, ParseException {
+    public void testXml() throws XmlPullParserException, IOException, ParseException,
+            CertificateException {
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
@@ -90,7 +54,8 @@ public class TrustKitConfigurationTest {
                 "    </domain-config>\n" +
                 "</network-security-config>";
 
-        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(parseXmlString(xml));
+        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(
+                RuntimeEnvironment.application, parseXmlString(xml));
         PinnedDomainConfiguration domainConfig = config.findConfiguration("www.datatheorem.com");
 
         assertEquals(domainConfig.getHostname(), "www.datatheorem.com");
