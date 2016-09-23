@@ -19,9 +19,9 @@ import java.util.Set;
 public class TrustKitConfigurationTest {
 
 
-    PinnedDomainConfiguration mockPinnedDomainConfiguration;
-    String domainName;
-    TrustKitConfiguration trustKitConfiguration;
+    private PinnedDomainConfiguration mockPinnedDomainConfiguration;
+    private String domainName;
+    private TrustKitConfiguration trustKitConfiguration;
 
     @Before
     public void setUp() {
@@ -39,7 +39,7 @@ public class TrustKitConfigurationTest {
                 .pinnedDomainName("www.test.com")
                 .build();
 
-        domainName = mockPinnedDomainConfiguration.getNotedHostname();
+        domainName = mockPinnedDomainConfiguration.getHostname();
         trustKitConfiguration.getPinnedDomainConfigurations().add(mockPinnedDomainConfiguration);
 
     }

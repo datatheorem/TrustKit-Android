@@ -1,11 +1,8 @@
 package com.datatheorem.android.trustkit;
 
-import com.datatheorem.android.trustkit.BuildConfig;
-import com.datatheorem.android.trustkit.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
 import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +17,6 @@ import java.io.StringReader;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.HashSet;
-import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -51,7 +47,7 @@ public class TrustKitConfigurationTest {
                 .pinnedDomainName("www.test.com")
                 .build();
 
-        domainName = mockPinnedDomainConfiguration.getNotedHostname();
+        domainName = mockPinnedDomainConfiguration.getHostname();
         trustKitConfiguration.add(mockPinnedDomainConfiguration);
         */
 
@@ -97,7 +93,7 @@ public class TrustKitConfigurationTest {
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(parseXmlString(xml));
         PinnedDomainConfiguration domainConfig = config.findConfiguration("www.datatheorem.com");
 
-        assertEquals(domainConfig.getNotedHostname(), "www.datatheorem.com");
+        assertEquals(domainConfig.getHostname(), "www.datatheorem.com");
         assertTrue(domainConfig.shouldIncludeSubdomains());
         assertTrue(domainConfig.shouldEnforcePinning());
 

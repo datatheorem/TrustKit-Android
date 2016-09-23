@@ -1,14 +1,13 @@
 package com.datatheorem.android.trustkit.config;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
 import com.google.common.net.InternetDomainName;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -18,6 +17,7 @@ import java.util.Set;
 
 public final class PinnedDomainConfiguration {
 
+    // The default URL to submit pin failure report to
     private static final URL DEFAULT_REPORTING_URL;
     static {
         java.net.URL defaultUrl;
@@ -29,41 +29,74 @@ public final class PinnedDomainConfiguration {
         DEFAULT_REPORTING_URL = defaultUrl;
     }
 
-    private final Set<SubjectPublicKeyInfoPin> publicKeyHashes;
-    private final boolean shouldEnforcePinning;
-    private final Set<URL> reportUris;
+    @NonNull private final String hostname;
     private final boolean shouldIncludeSubdomains;
-    private final String notedHostname;
-    private final Date expirationDate;
+    @NonNull private final Set<SubjectPublicKeyInfoPin> publicKeyHashes;
+    @Nullable private final Date expirationDate;
+    private final boolean shouldEnforcePinning;
+    @NonNull private final Set<URL> reportUris;
 
-    private PinnedDomainConfiguration(Builder builder) throws MalformedURLException {
-        notedHostname = builder.pinnedDomainName;
-        shouldEnforcePinning = builder.shouldEnforcePinning;
-        shouldIncludeSubdomains = builder.shouldIncludeSubdomains;
-        expirationDate = builder.expirationDate;
+    public PinnedDomainConfiguration(@NonNull String hostname,
+                                     boolean shouldIncludeSubdomains,
+                                     @NonNull List<String> publicKeyHashStrList,
+                                     boolean shouldEnforcePinning,
+                                     @Nullable Date expirationDate,
+                                     @Nullable List<String> reportUriStrList,
+                                     boolean shouldDisableDefaultReportUri)
+            throws MalformedURLException {
+        // Run some sanity checks on the configuration
+        // Check if the hostname seems valid
+        // TODO(ad): Test how this works with UTF 8 domain names
+        InternetDomainName parsedHostname = InternetDomainName.from(hostname);
+
+        // TrustKit should not work if the configuration asks to pin connections for subdomains
+        // for *.com and other TLDs
+        if (parsedHostname.isPublicSuffix()) {
+            throw new ConfigurationException("Tried to pin a public suffix: " + hostname);
+        }
+
+        // Check if the configuration has at least two pins (including a backup pin)
+        // TrustKit should not work if the configuration contains only one pin
+        // more info (https://tools.ietf.org/html/rfc7469#page-21)
+        if (publicKeyHashStrList.size() < 2) {
+            // TODO(ad): Once we've written the documentation, encore that this error is still valid
+            throw new ConfigurationException("TrustKit was initialized with less than two pins"+
+                    ", (ie. no backup pins for domain " + hostname + ". This might " +
+                    "brick your App; please review the Getting Started guide in " +
+                    "./docs/getting-started.md");
+        }
 
         // Parse the supplied pins
         publicKeyHashes = new HashSet<>();
-        for (String pinStr : builder.publicKeyHashes)  {
+        for (String pinStr : publicKeyHashStrList)  {
             publicKeyHashes.add(new SubjectPublicKeyInfoPin(pinStr));
         }
 
-        // Parse the supplied URLs
+        // Parse the supplied report URLs
         reportUris = new HashSet<>();
-        for (String UriStr : builder.reportURIs) {
-            reportUris.add(new URL(UriStr));
+        if (reportUriStrList != null) {
+            for (String UriStr : reportUriStrList) {
+                reportUris.add(new URL(UriStr));
+            }
         }
 
         // Add the default report URL
-        if (!builder.shouldDisableDefaultReportUri) {
+        if (!shouldDisableDefaultReportUri) {
             reportUris.add(DEFAULT_REPORTING_URL);
         }
+
+        this.hostname = hostname;
+        this.shouldEnforcePinning = shouldEnforcePinning;
+        this.shouldIncludeSubdomains = shouldIncludeSubdomains;
+        this.expirationDate = expirationDate;
     }
 
-    public String getNotedHostname() {
-        return notedHostname;
+    @NonNull
+    public String getHostname() {
+        return hostname;
     }
 
+    @NonNull
     public Set<SubjectPublicKeyInfoPin> getPublicKeyHashes() {
         return publicKeyHashes;
     }
@@ -72,6 +105,7 @@ public final class PinnedDomainConfiguration {
         return shouldEnforcePinning;
     }
 
+    @NonNull
     public Set<URL> getReportUris() {
         return reportUris;
     }
@@ -80,11 +114,16 @@ public final class PinnedDomainConfiguration {
         return shouldIncludeSubdomains;
     }
 
+    @Nullable
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
     @Override
     public String toString() {
         return new StringBuilder()
                 .append("PinnedDomainConfiguration{")
-                .append("notedHostname = ").append(notedHostname).append("\n")
+                .append("hostname = ").append(hostname).append("\n")
                 .append("knownPins = ").append(Arrays.toString(publicKeyHashes.toArray()))
                 .append("\n")
                 .append("shouldEnforcePinning = ").append(shouldEnforcePinning).append("\n")
@@ -92,97 +131,5 @@ public final class PinnedDomainConfiguration {
                 .append("shouldIncludeSubdomains = ").append(shouldIncludeSubdomains).append("\n")
                 .append("}")
                 .toString();
-    }
-
-    public Date getExpirationDate() {
-        return expirationDate;
-    }
-
-    public static final class Builder {
-        private String pinnedDomainName;
-        private List<String> publicKeyHashes;
-        private boolean shouldEnforcePinning;
-        private List<String> reportURIs;
-        private boolean shouldDisableDefaultReportUri;
-        private boolean shouldIncludeSubdomains;
-        private Date expirationDate;
-
-        public Builder() {
-        }
-
-        public Builder pinnedDomainName(@NonNull String val) {
-            pinnedDomainName = val;
-            return this;
-        }
-
-        public Builder publicKeyHashes(@NonNull List<String> val) {
-            publicKeyHashes = val;
-            return this;
-        }
-
-        public Builder shouldEnforcePinning(boolean val) {
-            shouldEnforcePinning = val;
-            return this;
-        }
-
-        public Builder reportUris(@NonNull List<String> val) {
-            reportURIs = val;
-            return this;
-        }
-
-        public Builder shouldDisableDefaultReportUri(boolean val) {
-            shouldDisableDefaultReportUri = val;
-            return this;
-        }
-
-        public Builder shouldIncludeSubdomains(boolean val) {
-            shouldIncludeSubdomains = val;
-            return this;
-        }
-
-        public Builder expirationDate(Date date) throws ParseException {
-            expirationDate = date;
-            return this;
-        }
-
-        /*
-            All sanity checks run during the build() method preventing any bad configuration to be
-            added to the main configuration.
-         */
-        public PinnedDomainConfiguration build() throws MalformedURLException {
-            // Check if a pinned domain is present
-            if (pinnedDomainName == null || pinnedDomainName.equals("")) {
-                throw new ConfigurationException("TrustKit was initialized with no pinned domain.");
-            }
-
-            // Check if the pinned domain is well formatted
-            try {
-                pinnedDomainName.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new ConfigurationException("TrustKit was initialized with an invalid domain");
-            }
-
-            // Check if the pinned domain is valid:
-            // TrustKit should not work if the configuration asks to pin connections for subdomains
-            // for *.com and other TLDs
-            if (InternetDomainName.from(pinnedDomainName).isPublicSuffix()
-                    && !InternetDomainName.isValid(pinnedDomainName)
-                    && shouldIncludeSubdomains){
-                throw new ConfigurationException("TrustKit was initialized with shouldIncludeSubdomains "+
-                        "for a domain suffix " + InternetDomainName.from(pinnedDomainName));
-            }
-
-            // Check if the configuration has at least two pins
-            // TrustKit should not work if the configuration contains only one pin
-            // more info (https://tools.ietf.org/html/rfc7469#page-21)
-            if (publicKeyHashes.size() < 2) {
-                throw new ConfigurationException("TrustKit was initialized with less than two pins"+
-                        ", (ie. no backup pins for domain " + pinnedDomainName + ". This might " +
-                        "brick your App; please review the Getting Started guide in " +
-                        "./docs/getting-started.md");
-            }
-
-            return new PinnedDomainConfiguration(this);
-        }
     }
 }

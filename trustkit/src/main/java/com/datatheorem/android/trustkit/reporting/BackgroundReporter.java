@@ -92,7 +92,7 @@ public class BackgroundReporter {
         // Generate the corresponding pin failure report
         final PinFailureReport report = new PinFailureReport(appPackageName, appVersion,
                 appVendorId, BuildConfig.VERSION_NAME, serverHostname, serverPort,
-                serverConfig.getNotedHostname(), serverConfig.shouldIncludeSubdomains(),
+                serverConfig.getHostname(), serverConfig.shouldIncludeSubdomains(),
                 serverConfig.shouldEnforcePinning(), servedCertificateChainAsPem,
                 validatedCertificateChainAsPem, new Date(System.currentTimeMillis()),
                 serverConfig.getPublicKeyHashes(), validationResult);

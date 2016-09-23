@@ -44,10 +44,9 @@ public final class TrustKitConfiguration{
     private TrustKitConfiguration(HashSet<PinnedDomainConfiguration> domainConfigSet,
                                   boolean shouldOverridePins, Certificate caCert) {
 
-        if (domainConfigSet.size() < 0) {
+        if (domainConfigSet.size() < 1) {
             throw new ConfigurationException("Policy contains 0 domains to pin");
         }
-
         this.pinnedDomainConfigurations = domainConfigSet;
         this.shouldOverridePins = shouldOverridePins;
         this.caIfDebug = caCert;
@@ -64,7 +63,7 @@ public final class TrustKitConfiguration{
             // TODO(ad): Handle shouldIncludeSubdomains here
 
             // Check if the configuration for this domain exists and is still valid
-            if (serverHostname.equals(pinnedDomainConfiguration.getNotedHostname())) {
+            if (serverHostname.equals(pinnedDomainConfiguration.getHostname())) {
                 if (pinnedDomainConfiguration.getExpirationDate() == null) {
                     return pinnedDomainConfiguration;
                 } else if (pinnedDomainConfiguration.getExpirationDate() != null
@@ -79,13 +78,8 @@ public final class TrustKitConfiguration{
         return null;
     }
 
-
     static TrustKitConfiguration fromXmlPolicy(Context context, XmlPullParser parser)
             throws XmlPullParserException, IOException, ParseException, CertificateException {
-
-        PinnedDomainConfiguration.Builder pinnedDomainConfigBuilder =
-                new PinnedDomainConfiguration.Builder();
-
         // The list of pinned domains retrieved from the policy file
         HashSet<PinnedDomainConfiguration> domainConfigSet = new HashSet<>();
 
@@ -101,7 +95,7 @@ public final class TrustKitConfiguration{
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
                 if ("domain-config".equals(parser.getName())) {
-                    // New domain configuration - reset all the settings from the previous domain
+                    // New domain configuration tag - reset all settings from the previous domain
                     trustkitTag = null;
                     pinSetTag = null;
                     domainTag = null;
@@ -118,22 +112,14 @@ public final class TrustKitConfiguration{
 
             } else if (eventType == XmlPullParser.END_TAG) {
                 if ("domain-config".equals(parser.getName())) {
-                    // End of a domain configuration - store the results
-                    pinnedDomainConfigBuilder
-                            .pinnedDomainName(domainTag.hostname)
-                            .publicKeyHashes(pinSetTag.pins)
-                            .shouldIncludeSubdomains(domainTag.includeSubdomains)
-                            .shouldEnforcePinning(trustkitTag.enforcePinning)
-                            .shouldDisableDefaultReportUri(trustkitTag.disableDefaultReportUri);
+                    // End of a domain configuration tag - store this domain's settings
+                    PinnedDomainConfiguration domainConfig;
+                    domainConfig = new PinnedDomainConfiguration(domainTag.hostname,
+                            domainTag.includeSubdomains, pinSetTag.pins, trustkitTag.enforcePinning,
+                            pinSetTag.expirationDate, trustkitTag.reportUris,
+                            trustkitTag.disableDefaultReportUri);
 
-                    if (trustkitTag.reportUris != null) {
-                        pinnedDomainConfigBuilder.reportUris(trustkitTag.reportUris);
-                    }
-
-                    if (pinSetTag.expirationDate != null) {
-                        pinnedDomainConfigBuilder.expirationDate(pinSetTag.expirationDate);
-                    }
-                    domainConfigSet.add(pinnedDomainConfigBuilder.build());
+                    domainConfigSet.add(domainConfig);
                 }
             }
             eventType = parser.next();
@@ -241,7 +227,6 @@ public final class TrustKitConfiguration{
         DomainTag result = new DomainTag();
 
         // Look for the includeSubdomains attribute - default value is false
-
         result.includeSubdomains =
                 Boolean.parseBoolean(parser.getAttributeValue(null, "includeSubdomains"));
 
@@ -282,9 +267,6 @@ public final class TrustKitConfiguration{
             result.caFileIfDebug =
                     CertificateFactory.getInstance("X.509").generateCertificate(stream);
         }
-
         return result;
     }
-
 }
-
