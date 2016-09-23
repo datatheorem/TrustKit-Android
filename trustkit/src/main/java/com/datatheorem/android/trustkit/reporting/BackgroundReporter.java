@@ -6,7 +6,7 @@ import android.util.Base64;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinValidationResult;
-import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
@@ -74,7 +74,7 @@ public class BackgroundReporter {
                                     Integer serverPort,
                                     List<X509Certificate> servedCertificateChain,
                                     List<X509Certificate> validatedCertificateChain,
-                                    PinnedDomainConfiguration serverConfig,
+                                    DomainPinningPolicy serverConfig,
                                     PinValidationResult validationResult) {
 
         TrustKitLog.i("Generating pin failure report for " + serverHostname);

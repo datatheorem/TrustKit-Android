@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
-import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -25,7 +25,7 @@ import java.util.Set;
 
 public final class TrustKitConfiguration {
 
-    final private HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations;
+    final private HashSet<DomainPinningPolicy> pinnedDomainConfigurations;
 
     // For simplicity, this works slightly differently than Android N as we use shouldOverridePins
     // as a global setting instead of a per-<certificates> setting like Android N does
@@ -46,11 +46,11 @@ public final class TrustKitConfiguration {
         return DebugCaCertificates;
     }
 
-    private TrustKitConfiguration(@NonNull HashSet<PinnedDomainConfiguration> domainConfigSet) {
+    private TrustKitConfiguration(@NonNull HashSet<DomainPinningPolicy> domainConfigSet) {
         this(domainConfigSet, false, null);
     }
 
-    private TrustKitConfiguration(@NonNull HashSet<PinnedDomainConfiguration> domainConfigSet,
+    private TrustKitConfiguration(@NonNull HashSet<DomainPinningPolicy> domainConfigSet,
                                   boolean shouldOverridePins, List<Certificate> DebugCaCerts) {
 
         if (domainConfigSet.size() < 1) {
@@ -64,11 +64,11 @@ public final class TrustKitConfiguration {
     /**
      * Return a configuration or null if the specified domain is not pinned.
      * @param serverHostname
-     * @return PinnedDomainConfiguration
+     * @return DomainPinningPolicy
      */
     @Nullable
-    public PinnedDomainConfiguration findConfiguration(@NonNull String serverHostname) {
-        for (PinnedDomainConfiguration pinnedDomainConfiguration : this.pinnedDomainConfigurations){
+    public DomainPinningPolicy findConfiguration(@NonNull String serverHostname) {
+        for (DomainPinningPolicy pinnedDomainConfiguration : this.pinnedDomainConfigurations){
             // TODO(ad): Handle shouldIncludeSubdomains here
 
             // Check if the configuration for this domain exists and is still valid
@@ -90,7 +90,7 @@ public final class TrustKitConfiguration {
     static TrustKitConfiguration fromXmlPolicy(Context context, XmlPullParser parser)
             throws XmlPullParserException, IOException, ParseException, CertificateException {
         // The list of pinned domains retrieved from the policy file
-        HashSet<PinnedDomainConfiguration> domainConfigSet = new HashSet<>();
+        HashSet<DomainPinningPolicy> domainConfigSet = new HashSet<>();
 
         // Global tag
         DebugOverridesTag debugOverridesTag = null;
@@ -122,8 +122,8 @@ public final class TrustKitConfiguration {
             } else if (eventType == XmlPullParser.END_TAG) {
                 if ("domain-config".equals(parser.getName())) {
                     // End of a domain configuration tag - store this domain's settings
-                    PinnedDomainConfiguration domainConfig;
-                    domainConfig = new PinnedDomainConfiguration(domainTag.hostname,
+                    DomainPinningPolicy domainConfig;
+                    domainConfig = new DomainPinningPolicy(domainTag.hostname,
                             domainTag.includeSubdomains, pinSetTag.pins, trustkitTag.enforcePinning,
                             pinSetTag.expirationDate, trustkitTag.reportUris,
                             trustkitTag.disableDefaultReportUri);

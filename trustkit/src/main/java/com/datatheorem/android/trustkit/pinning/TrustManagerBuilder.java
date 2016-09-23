@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -42,7 +42,7 @@ public class TrustManagerBuilder {
         if (baselineTrustManager == null) {
             throw new IllegalStateException("TrustKit has not been initialized");
         }
-        PinnedDomainConfiguration serverConfig =
+        DomainPinningPolicy serverConfig =
                 TrustKit.getInstance().getConfiguration().findConfiguration(serverHostname);
 
         if (serverConfig == null) {

@@ -1,9 +1,8 @@
 package com.datatheorem.android.trustkit;
 
-import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.pinning.SubjectPublicKeyInfoPin;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -56,7 +55,7 @@ public class TrustKitConfigurationTest {
 
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(
                 RuntimeEnvironment.application, parseXmlString(xml));
-        PinnedDomainConfiguration domainConfig = config.findConfiguration("www.datatheorem.com");
+        DomainPinningPolicy domainConfig = config.findConfiguration("www.datatheorem.com");
 
         assertEquals(domainConfig.getHostname(), "www.datatheorem.com");
         assertTrue(domainConfig.shouldIncludeSubdomains());

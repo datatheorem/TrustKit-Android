@@ -42,8 +42,8 @@ public class BackgroundReporterTest {
         server.start();
         /*
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
-        PinnedDomainConfiguration testPinnedDomainConfiguration =
-                new PinnedDomainConfiguration.Builder()
+        DomainPinningPolicy testPinnedDomainConfiguration =
+                new DomainPinningPolicy.Builder()
                 .shouldEnforcePinning(false)
                 .shouldDisableDefaultReportUri(true)
                 .shouldIncludeSubdomains(false)
@@ -90,8 +90,8 @@ public class BackgroundReporterTest {
         pins.add(pin2);
 
         /*
-        PinnedDomainConfiguration mockPinnedDomainConfiguration =
-                new PinnedDomainConfiguration.Builder()
+        DomainPinningPolicy mockPinnedDomainConfiguration =
+                new DomainPinningPolicy.Builder()
                 .pinnedDomainName("www.test.com")
                 .shouldIncludeSubdomains(true)
                 .shouldEnforcePinning(true)

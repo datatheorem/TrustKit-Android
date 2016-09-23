@@ -11,11 +11,10 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
-public final class PinnedDomainConfiguration {
+public final class DomainPinningPolicy {
 
     // The default URL to submit pin failure report to
     private static final URL DEFAULT_REPORTING_URL;
@@ -36,13 +35,13 @@ public final class PinnedDomainConfiguration {
     private final boolean shouldEnforcePinning;
     @NonNull private final Set<URL> reportUris;
 
-    public PinnedDomainConfiguration(@NonNull String hostname,
-                                     boolean shouldIncludeSubdomains,
-                                     @NonNull Set<String> publicKeyHashStrList,
-                                     boolean shouldEnforcePinning,
-                                     @Nullable Date expirationDate,
-                                     @Nullable Set<String> reportUriStrList,
-                                     boolean shouldDisableDefaultReportUri)
+    public DomainPinningPolicy(@NonNull String hostname,
+                               boolean shouldIncludeSubdomains,
+                               @NonNull Set<String> publicKeyHashStrList,
+                               boolean shouldEnforcePinning,
+                               @Nullable Date expirationDate,
+                               @Nullable Set<String> reportUriStrList,
+                               boolean shouldDisableDefaultReportUri)
             throws MalformedURLException {
         // Run some sanity checks on the configuration
         // Check if the hostname seems valid
@@ -122,7 +121,7 @@ public final class PinnedDomainConfiguration {
     @Override
     public String toString() {
         return new StringBuilder()
-                .append("PinnedDomainConfiguration{")
+                .append("DomainPinningPolicy{")
                 .append("hostname = ").append(hostname).append("\n")
                 .append("knownPins = ").append(Arrays.toString(publicKeyHashes.toArray()))
                 .append("\n")

@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -25,11 +25,11 @@ class PinningTrustManager implements X509TrustManager {
     private final X509TrustManagerExtensions baselineTrustManager;
 
     private final String serverHostname;
-    private final PinnedDomainConfiguration serverConfig;
+    private final DomainPinningPolicy serverConfig;
 
 
     public PinningTrustManager(@NonNull String serverHostname,
-                               @NonNull PinnedDomainConfiguration serverConfig,
+                               @NonNull DomainPinningPolicy serverConfig,
                                @NonNull X509TrustManager baselineTrustManager) {
         // Store server's information
         this.serverHostname = serverHostname;

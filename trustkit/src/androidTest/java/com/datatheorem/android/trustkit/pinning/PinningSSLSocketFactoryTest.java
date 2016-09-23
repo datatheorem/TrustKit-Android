@@ -5,7 +5,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.PinValidationResult;
-import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import org.junit.After;
@@ -262,7 +262,7 @@ public class PinningSSLSocketFactoryTest {
                 anyInt(),
                 (List<X509Certificate>) any(),
                 (List<X509Certificate>) any(),
-                any(PinnedDomainConfiguration.class),
+                any(DomainPinningPolicy.class),
                 any(PinValidationResult.class)
         );
     }

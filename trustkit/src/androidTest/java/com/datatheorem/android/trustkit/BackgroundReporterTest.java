@@ -3,7 +3,7 @@ package com.datatheorem.android.trustkit;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.datatheorem.android.trustkit.config.PinnedDomainConfiguration;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
@@ -36,8 +36,8 @@ public class BackgroundReporterTest {
 
 
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
-        PinnedDomainConfiguration testPinnedDomainConfiguration =
-                new PinnedDomainConfiguration.Builder()
+        DomainPinningPolicy testPinnedDomainConfiguration =
+                new DomainPinningPolicy.Builder()
                 .shouldEnforcePinning(false)
                 .shouldDisableDefaultReportUri(true)
                 .shouldIncludeSubdomains(false)
@@ -74,8 +74,8 @@ public class BackgroundReporterTest {
         pins.add(pin);
         pins.add(pin2);
 
-        PinnedDomainConfiguration mockPinnedDomainConfiguration =
-                new PinnedDomainConfiguration.Builder()
+        DomainPinningPolicy mockPinnedDomainConfiguration =
+                new DomainPinningPolicy.Builder()
                 .pinnedDomainName("www.test.com")
                 .shouldIncludeSubdomains(true)
                 .shouldEnforcePinning(true)
