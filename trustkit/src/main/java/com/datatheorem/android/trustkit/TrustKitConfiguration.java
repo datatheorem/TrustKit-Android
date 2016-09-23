@@ -18,21 +18,19 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
 public final class TrustKitConfiguration {
 
-    final private HashSet<DomainPinningPolicy> pinnedDomainConfigurations;
+    @NonNull final private HashSet<DomainPinningPolicy> domainPolicies;
 
     // For simplicity, this works slightly differently than Android N as we use shouldOverridePins
     // as a global setting instead of a per-<certificates> setting like Android N does
     final private boolean shouldOverridePins;
-    final private List<Certificate> debugCaCertificates;
+    @Nullable final private Set<Certificate> debugCaCertificates;
 
     public boolean shouldOverridePins() {
         // TODO(ad): Let's put the logic here to always return false if we are not in debug mode
@@ -40,7 +38,7 @@ public final class TrustKitConfiguration {
     }
 
     @Nullable
-    public List<Certificate> getDebugCaCertificates() {
+    public Set<Certificate> getDebugCaCertificates() {
         if (!shouldOverridePins) {
             throw new IllegalStateException("Tried to retrieve debug CA certificates when pinning" +
                     "should not be overridden");
@@ -53,12 +51,13 @@ public final class TrustKitConfiguration {
     }
 
     private TrustKitConfiguration(@NonNull HashSet<DomainPinningPolicy> domainConfigSet,
-                                  boolean shouldOverridePins, List<Certificate> DebugCaCerts) {
+                                  boolean shouldOverridePins,
+                                  @Nullable Set<Certificate> DebugCaCerts) {
 
         if (domainConfigSet.size() < 1) {
             throw new ConfigurationException("Policy contains 0 domains to pin");
         }
-        this.pinnedDomainConfigurations = domainConfigSet;
+        this.domainPolicies = domainConfigSet;
         this.shouldOverridePins = shouldOverridePins;
         this.debugCaCertificates = DebugCaCerts;
     }
@@ -70,7 +69,7 @@ public final class TrustKitConfiguration {
      */
     @Nullable
     public DomainPinningPolicy getConfigForHostname(@NonNull String serverHostname) {
-        for (DomainPinningPolicy pinnedDomainConfiguration : this.pinnedDomainConfigurations){
+        for (DomainPinningPolicy pinnedDomainConfiguration : this.domainPolicies){
             // TODO(ad): Handle shouldIncludeSubdomains here
 
             // Check if the configuration for this domain exists and is still valid
@@ -89,7 +88,9 @@ public final class TrustKitConfiguration {
         return null;
     }
 
-    static TrustKitConfiguration fromXmlPolicy(Context context, XmlPullParser parser)
+    @NonNull
+    static TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
+                                               @NonNull XmlPullParser parser)
             throws XmlPullParserException, IOException, ParseException, CertificateException {
         // The list of pinned domains retrieved from the policy file
         HashSet<DomainPinningPolicy> domainConfigSet = new HashSet<>();
@@ -118,7 +119,7 @@ public final class TrustKitConfiguration {
                     trustkitTag = readTrustkitConfig(parser);
                 } else if ("debug-overrides".equals(parser.getName())) {
                     // The Debug-overrides option is global and not tied to a specific domain
-                    debugOverridesTag = readDebugOverrides(parser, context);
+                    debugOverridesTag = readDebugOverrides(context, parser);
                 }
 
             } else if (eventType == XmlPullParser.END_TAG) {
@@ -152,7 +153,8 @@ public final class TrustKitConfiguration {
         Set<String> pins;
     }
 
-    private static PinSetTag readPinSet(XmlPullParser parser) throws IOException,
+    @NonNull
+    private static PinSetTag readPinSet(@NonNull XmlPullParser parser) throws IOException,
             XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "pin-set");
         PinSetTag tag = new PinSetTag();
@@ -194,8 +196,9 @@ public final class TrustKitConfiguration {
         Set<String> reportUris;
     }
 
-    private static TrustkitConfigTag readTrustkitConfig(XmlPullParser parser) throws IOException,
-            XmlPullParserException {
+    @NonNull
+    private static TrustkitConfigTag readTrustkitConfig(@NonNull XmlPullParser parser)
+            throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "trustkit-config");
 
         TrustkitConfigTag result = new TrustkitConfigTag();
@@ -231,7 +234,8 @@ public final class TrustKitConfiguration {
         String hostname;
     }
 
-    private static DomainTag readDomain(XmlPullParser parser) throws IOException,
+    @NonNull
+    private static DomainTag readDomain(@NonNull XmlPullParser parser) throws IOException,
             XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "domain");
         DomainTag result = new DomainTag();
@@ -246,38 +250,45 @@ public final class TrustKitConfiguration {
     }
 
     private static class DebugOverridesTag {
-        Boolean overridePins = null;
+        boolean overridePins = false;
         // TODO(ad): The supplied file may contain multiple certificates and also there may be
         // multiple <certificates> tags
-        List<Certificate> debugCaCertificates = null;
+        Set<Certificate> debugCaCertificates = null;
     }
 
-    private static DebugOverridesTag readDebugOverrides(XmlPullParser parser, Context context)
+    @NonNull
+    private static DebugOverridesTag readDebugOverrides(@NonNull Context context,
+                                                        @NonNull XmlPullParser parser)
             throws CertificateException, IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "debug-overrides");
         DebugOverridesTag result = new DebugOverridesTag();
+        Boolean lastOverridePinsEncountered = null;
 
         int eventType = parser.next();
         while ((eventType != XmlPullParser.END_TAG) && "trust-anchors".equals(parser.getName())) {
-            // Look for the next certificates tag
             parser.nextTag();
-            if ((eventType == XmlPullParser.START_TAG) && "certificates".equals(parser.getName().trim())) {
-                if (result.overridePins != null
-                        && result.overridePins
-                        != Boolean.parseBoolean(parser.getAttributeValue(null, "overridePins"))) {
-                    result.overridePins = false;
-                    TrustKitLog.w("Different values for overridePins");
+            // Look for the next certificates tag
+            if ((eventType == XmlPullParser.START_TAG)
+                    && "certificates".equals(parser.getName().trim())) {
+
+                // For simplicity, we only support one global overridePins setting, where Android N
+                // allows setting overridePins for each debug certificate bundles
+                boolean currentOverridePins =
+                        Boolean.parseBoolean(parser.getAttributeValue(null, "overridePins"));
+                if ((lastOverridePinsEncountered != null)
+                        && (lastOverridePinsEncountered != currentOverridePins)) {
+                    lastOverridePinsEncountered = false;
+                    TrustKitLog.w("Different values for overridePins are set in the policy but " +
+                            "TrustKit only supports one value; using overridePins=false for all " +
+                            "connections");
+                } else {
+                    lastOverridePinsEncountered = currentOverridePins;
                 }
 
-                result.overridePins =
-                        Boolean.parseBoolean(parser.getAttributeValue(null, "overridePins").trim());
-
-
+                // Parse the supplied certificate file
                 String caPathFromUser = parser.getAttributeValue(null, "src").trim();
 
-                //The framework expects the certificate to be in the res/raw/ folder of
-                //the application. It could be possible to put it in other folders but
-                //I haven't seen any other examples in the android source code for now.
+                // The framework expects the certificate to be in the res/raw/ folder of the App
                 if (!TextUtils.isEmpty(caPathFromUser) && !caPathFromUser.equals("user")
                         && !caPathFromUser.equals("system") && caPathFromUser.startsWith("@raw")) {
 
@@ -287,12 +298,12 @@ public final class TrustKitConfiguration {
                                             caPathFromUser.split("/")[1], "raw",
                                             context.getPackageName()));
 
-                    result.debugCaCertificates = new ArrayList<>();
+                    result.debugCaCertificates = new HashSet<>();
                     result.debugCaCertificates.add(CertificateFactory.getInstance("X.509")
                             .generateCertificate(stream));
 
                 } else {
-                    TrustKitLog.i("No certificate found by TrustKit." +
+                    TrustKitLog.i("No <debug-overrides> certificates found by TrustKit." +
                             " Please check your @raw folder " +
                             "(TrustKit doesn't support system and user installed certificates).");
                 }
@@ -300,6 +311,9 @@ public final class TrustKitConfiguration {
             parser.next();
         }
 
+        if (lastOverridePinsEncountered != null) {
+            result.overridePins = lastOverridePinsEncountered;
+        }
         return result;
     }
 }

@@ -76,6 +76,6 @@ public class TrustKitConfigurationInstTest {
         Certificate expectedCert =
                 CertificateFactory.getInstance("X.509").generateCertificate(certStream);
         assertTrue(config.shouldOverridePins());
-        assertEquals(expectedCert, config.getDebugCaCertificates().get(0));
+        assertTrue(config.getDebugCaCertificates().contains(expectedCert));
     }
 }

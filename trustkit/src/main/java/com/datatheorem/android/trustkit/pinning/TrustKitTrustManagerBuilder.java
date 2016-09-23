@@ -13,7 +13,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.util.List;
+import java.util.Set;
 
 import javax.net.ssl.X509TrustManager;
 
@@ -23,7 +23,7 @@ public class TrustKitTrustManagerBuilder {
     // The trust manager we will use to perform the default SSL validation
     protected static X509TrustManager baselineTrustManager = null;
 
-    public static void initializeBaselineTrustManager(@Nullable List<Certificate> debugCaCerts)
+    public static void initializeBaselineTrustManager(@Nullable Set<Certificate> debugCaCerts)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             KeyManagementException, IOException {
 
