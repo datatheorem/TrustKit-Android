@@ -2,7 +2,7 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.text.format.DateFormat;
 
-import com.datatheorem.android.trustkit.PinValidationResult;
+import com.datatheorem.android.trustkit.PinningValidationResult;
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
 import org.json.JSONArray;
@@ -24,7 +24,7 @@ class PinningFailureReport implements Serializable {
     private String appVersion;
     private String appVendorId;
     private String trustKitVersion;
-    private PinValidationResult validationResult;
+    private PinningValidationResult validationResult;
 
     // Fields from the HPKP spec
     private String serverHostname;
@@ -44,7 +44,7 @@ class PinningFailureReport implements Serializable {
                          boolean enforcePinning, List<String> servedCertificateChain,
                          List<String> validatedCertificateChain, Date dateTime,
                          Set<PublicKeyPin> knownPins,
-                         PinValidationResult validationResult) {
+                         PinningValidationResult validationResult) {
         this.appBundleId = appBundleId;
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;
@@ -120,7 +120,7 @@ class PinningFailureReport implements Serializable {
         return validatedCertificateChainAsPem;
     }
 
-    public PinValidationResult getValidationResult() {
+    public PinningValidationResult getValidationResult() {
         return validationResult;
     }
 

@@ -2,7 +2,7 @@ package com.datatheorem.android.trustkit.reporting;
 
 
 import com.datatheorem.android.trustkit.BuildConfig;
-import com.datatheorem.android.trustkit.PinValidationResult;
+import com.datatheorem.android.trustkit.PinningValidationResult;
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
 import org.junit.Test;
@@ -86,7 +86,7 @@ public class ReportRateLimiterTest {
         PinningFailureReport report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
                 BuildConfig.VERSION_NAME, "www.host.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
-                pinList, PinValidationResult.FAILED);
+                pinList, PinningValidationResult.FAILED);
 
         // Ensure the same report will not be sent twice in a row
         assertFalse(ReportRateLimiter.shouldRateLimit(report));
@@ -104,7 +104,7 @@ public class ReportRateLimiterTest {
         report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
                 BuildConfig.VERSION_NAME, "www.host.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
-                pinList, PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
+                pinList, PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
         assertFalse(ReportRateLimiter.shouldRateLimit(report));
         assertTrue(ReportRateLimiter.shouldRateLimit(report));
 
@@ -112,7 +112,7 @@ public class ReportRateLimiterTest {
         report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
                 BuildConfig.VERSION_NAME, "www.otherhost.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
-                pinList, PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
+                pinList, PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
         assertFalse(ReportRateLimiter.shouldRateLimit(report));
         assertTrue(ReportRateLimiter.shouldRateLimit(report));
 
@@ -121,7 +121,7 @@ public class ReportRateLimiterTest {
         report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
                 BuildConfig.VERSION_NAME, "www.otherhost.com", 443, "host.com", true, true,
                 pemCertificateList2, pemCertificateList2, new Date(),
-                pinList, PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
+                pinList, PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
         assertFalse(ReportRateLimiter.shouldRateLimit(report));
         assertTrue(ReportRateLimiter.shouldRateLimit(report));
     }

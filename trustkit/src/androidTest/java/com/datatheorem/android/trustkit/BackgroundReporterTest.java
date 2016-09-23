@@ -85,7 +85,7 @@ public class BackgroundReporterTest {
         certChain.add(getMockCertificate());
 
         backgroundReporter.pinValidationFailed("www.test.com", 443, certChain, certChain,
-                mockPinnedDomainConfiguration, PinValidationResult.FAILED);
+                mockPinnedDomainConfiguration, PinningValidationResult.FAILED);
 
         //Check if the request is well formed
 //        Assert.assertEquals("/report", request.getPath());
@@ -111,7 +111,7 @@ public class BackgroundReporterTest {
 //
 //        backgroundReporter.pinValidationFailed("www.test.com", 442, new String[]{certificate},
 //                "www.test.com", new URL[] {baseUrl.url()}, true, false, true,
-//                new String[]{pin}, PinValidationResult.FAILED);;
+//                new String[]{pin}, PinningValidationResult.FAILED);;
 //
 //
 //        //Check if the report is not sent through the system because the same report was sent

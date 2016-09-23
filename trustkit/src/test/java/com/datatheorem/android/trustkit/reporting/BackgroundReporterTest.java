@@ -102,7 +102,7 @@ public class BackgroundReporterTest {
         ArrayList<X509Certificate> certChain =
                 (ArrayList<X509Certificate>) Arrays.asList(getMockCertificate());
         backgroundReporter.pinValidationFailed("www.test.com", 443, certChain, certChain,
-                mockPinnedDomainConfiguration, PinValidationResult.FAILED);
+                mockPinnedDomainConfiguration, PinningValidationResult.FAILED);
 
         RecordedRequest request = server.takeRequest();
         //Check if the request is well formed
@@ -130,7 +130,7 @@ public class BackgroundReporterTest {
 //
 //        backgroundReporter.pinValidationFailed("www.test.com", 442, new String[]{certificate},
 //                "www.test.com", new URL[] {baseUrl.url()}, true, false, true,
-//                new String[]{pin}, PinValidationResult.FAILED);;
+//                new String[]{pin}, PinningValidationResult.FAILED);;
 //
 //
 //        //Check if the report is not sent through the system because the same report was sent

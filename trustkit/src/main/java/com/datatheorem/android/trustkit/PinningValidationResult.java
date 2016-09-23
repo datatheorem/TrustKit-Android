@@ -1,7 +1,7 @@
 package com.datatheorem.android.trustkit;
 
 // TODO(ad): Document this
-public enum  PinValidationResult {
+public enum PinningValidationResult {
     SUCCESS,
     FAILED,
     FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED,

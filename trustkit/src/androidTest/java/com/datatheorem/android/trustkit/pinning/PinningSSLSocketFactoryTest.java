@@ -3,8 +3,8 @@ package com.datatheorem.android.trustkit.pinning;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.datatheorem.android.trustkit.PinningValidationResult;
 import com.datatheorem.android.trustkit.TestableTrustKit;
-import com.datatheorem.android.trustkit.PinValidationResult;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
@@ -77,7 +77,7 @@ public class PinningSSLSocketFactoryTest {
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(TestableTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
-                eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
+                eq(PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
         );
     }
 
@@ -106,7 +106,7 @@ public class PinningSSLSocketFactoryTest {
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(TestableTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
-                eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
+                eq(PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
         );
     }
 
@@ -125,7 +125,7 @@ public class PinningSSLSocketFactoryTest {
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(TestableTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
-                eq(PinValidationResult.FAILED)
+                eq(PinningValidationResult.FAILED)
         );
     }
 
@@ -153,7 +153,7 @@ public class PinningSSLSocketFactoryTest {
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(TestableTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
-                eq(PinValidationResult.FAILED)
+                eq(PinningValidationResult.FAILED)
         );
     }
 
@@ -183,7 +183,7 @@ public class PinningSSLSocketFactoryTest {
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(TestableTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
-                eq(PinValidationResult.FAILED)
+                eq(PinningValidationResult.FAILED)
         );
     }
 
@@ -213,7 +213,7 @@ public class PinningSSLSocketFactoryTest {
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(TestableTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
-                eq(PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
+                eq(PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED)
         );
     }
     //endregion
@@ -243,7 +243,7 @@ public class PinningSSLSocketFactoryTest {
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(TestableTrustKit.getInstance().getConfiguration().findConfiguration(serverHostname)),
-                eq(PinValidationResult.FAILED)
+                eq(PinningValidationResult.FAILED)
         );
     }
 
@@ -263,7 +263,7 @@ public class PinningSSLSocketFactoryTest {
                 (List<X509Certificate>) any(),
                 (List<X509Certificate>) any(),
                 any(DomainPinningPolicy.class),
-                any(PinValidationResult.class)
+                any(PinningValidationResult.class)
         );
     }
     //endregion
