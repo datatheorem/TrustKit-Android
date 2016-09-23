@@ -57,8 +57,8 @@ public class PinningSSLSocketFactoryTest {
         // Initialize TrustKit
         String serverHostname = "expired.badssl.com";
 
-        // Create an PinningSSLSocketFactory and ensure connection fails
-        SSLSocketFactory test = new PinningSSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -86,8 +86,8 @@ public class PinningSSLSocketFactoryTest {
         // Initialize TrustKit
         String serverHostname = "wrong.host.badssl.com";
 
-        // Create an PinningSSLSocketFactory and ensure connection fails
-        SSLSocketFactory test = new PinningSSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -114,8 +114,8 @@ public class PinningSSLSocketFactoryTest {
     public void testPinnedDomainSuccess() throws IOException {
         String serverHostname = "www.datatheorem.com";
 
-        // Create an PinningSSLSocketFactory and ensure connection succeeds
-        SSLSocketFactory test = new PinningSSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -133,8 +133,8 @@ public class PinningSSLSocketFactoryTest {
     public void testPinnedDomainInvalidPin() throws IOException {
         String serverHostname = "www.yahoo.com";
 
-        // Create an PinningSSLSocketFactory and ensure connection succeeds
-        SSLSocketFactory test = new PinningSSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -161,8 +161,8 @@ public class PinningSSLSocketFactoryTest {
     public void testPinnedDomainInvalidPinAndPinningNotEnforced() throws IOException {
         String serverHostname = "www.github.com";
 
-        // Create an PinningSSLSocketFactory and ensure connection succeeds
-        SSLSocketFactory test = new PinningSSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -191,8 +191,8 @@ public class PinningSSLSocketFactoryTest {
     public void testPinnedDomainUntrustedChainAndPinningNotEnforced() throws IOException {
         String serverHostname = "untrusted-root.badssl.com";
 
-        // Create an PinningSSLSocketFactory and ensure connection succeeds
-        SSLSocketFactory test = new PinningSSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -223,8 +223,8 @@ public class PinningSSLSocketFactoryTest {
     public void testNonPinnedDomainUntrustedRootChain() throws IOException {
         String serverHostname = "www.cacert.org";
 
-        // Create an PinningSSLSocketFactory and ensure connection fails
-        SSLSocketFactory test = new PinningSSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -252,8 +252,8 @@ public class PinningSSLSocketFactoryTest {
         // Initialize TrustKit
         String serverHostname = "www.google.com";
 
-        // Create an PinningSSLSocketFactory and ensure connection succeeds
-        SSLSocketFactory test = new PinningSSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called

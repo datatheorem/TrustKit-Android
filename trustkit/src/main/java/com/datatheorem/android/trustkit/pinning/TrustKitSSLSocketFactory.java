@@ -8,11 +8,11 @@ import java.net.InetAddress;
 import java.net.Socket;
 import javax.net.ssl.TrustManager;
 
-// TODO(ad): Rename this to TrustKitSSLSocketFactory
-public class PinningSSLSocketFactory extends SSLCertificateSocketFactory {
+
+class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
 
     // TODO(ad): Figure this out
-    public PinningSSLSocketFactory() {
+    TrustKitSSLSocketFactory() {
         super(0);
     }
 
