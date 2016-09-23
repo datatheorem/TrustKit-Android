@@ -1,8 +1,6 @@
 package com.datatheorem.android.trustkit.demoapp;
 
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -10,16 +8,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.datatheorem.android.trustkit.TrustKit;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 
 public class DemoMainActivity extends AppCompatActivity {
 
@@ -33,7 +21,7 @@ public class DemoMainActivity extends AppCompatActivity {
         TextView textView = (TextView) findViewById(R.id.textview);
 
         TrustKit.initWithNetworkPolicy(this);
-        textView.setText(TrustKit.getInstance().getConfiguration().getCaFilePathIfDebug().toString());
+        textView.setText(TrustKit.getInstance().getConfiguration().getDebugCaCertificates().toString());
     }
 
     @Override

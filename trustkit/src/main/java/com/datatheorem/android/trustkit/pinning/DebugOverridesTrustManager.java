@@ -14,6 +14,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -34,24 +35,26 @@ class DebugOverridesTrustManager implements X509TrustManager {
     // A trust manager configured with custom/debug CA certificates
     private final X509TrustManager customCaTrustManager;
 
-    public DebugOverridesTrustManager(@NonNull Certificate debugCaFile)
+    public DebugOverridesTrustManager(@NonNull List<Certificate> debugCaCerts)
             throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException,
             KeyManagementException {
-        customCaTrustManager = getCustomCaTrustManager(debugCaFile);
+        customCaTrustManager = getCustomCaTrustManager(debugCaCerts);
         systemTrustManager = SystemTrustManager.getDefault();
     }
 
-    private static X509TrustManager getCustomCaTrustManager(Certificate debugCaFile) throws
+    private static X509TrustManager getCustomCaTrustManager(List<Certificate> debugCaCerts) throws
             CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {
         X509TrustManager debugTrustManager = null;
 
-        System.out.println("ca=" + ((X509Certificate) debugCaFile).getSubjectDN());
 
         // Create a KeyStore containing our trusted CAs
         String keyStoreType = KeyStore.getDefaultType();
         KeyStore keyStore = KeyStore.getInstance(keyStoreType);
         keyStore.load(null, null);
-        keyStore.setCertificateEntry("ca", debugCaFile);
+        for (Certificate caCert : debugCaCerts) {
+            System.out.println("ca=" + ((X509Certificate) caCert).getSubjectDN());
+            keyStore.setCertificateEntry("ca", caCert);
+        }
 
         // Create a TrustManager that trusts the CAs in our KeyStore
         String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();

@@ -13,6 +13,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.List;
 
 import javax.net.ssl.X509TrustManager;
 
@@ -22,18 +23,18 @@ public class TrustManagerBuilder {
     // The trust manager we will use to perform the default SSL validation
     protected static X509TrustManager baselineTrustManager = null;
 
-    public static void initializeBaselineTrustManager(@Nullable Certificate debugCaFile)
+    public static void initializeBaselineTrustManager(@Nullable List<Certificate> debugCaCerts)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             KeyManagementException, IOException {
 
         if (baselineTrustManager != null) {
             throw new IllegalStateException("TrustKit has already been initialized");
         }
-
         baselineTrustManager = SystemTrustManager.getDefault();
-        if ((debugCaFile != null) && (Build.VERSION.SDK_INT < 24)) {
+
+        if ((debugCaCerts != null) && (debugCaCerts.size() > 0) && (Build.VERSION.SDK_INT < 24)) {
             // Debug overrides is enabled and we are on a pre-N device; we need to do it manually
-            baselineTrustManager = new DebugOverridesTrustManager(debugCaFile);
+            baselineTrustManager = new DebugOverridesTrustManager(debugCaCerts);
         }
     }
 

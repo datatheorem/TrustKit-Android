@@ -16,24 +16,34 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
-public final class TrustKitConfiguration{
+public final class TrustKitConfiguration {
 
     final private HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations;
+
+    // For simplicity, this works slightly differently than Android N as we use shouldOverridePins
+    // as a global setting instead of a per-<certificates> setting like Android N does
     final private boolean shouldOverridePins;
-    final private Certificate caIfDebug;
+    final private List<Certificate> DebugCaCertificates;
 
     public boolean shouldOverridePins() {
         // TODO(ad): Let's put the logic here to always return false if we are not in debug mode
         return shouldOverridePins;
     }
 
-    public Certificate getCaFilePathIfDebug() {
-        return caIfDebug;
+    @Nullable
+    public List<Certificate> getDebugCaCertificates() {
+        if (!shouldOverridePins) {
+            throw new IllegalStateException("Tried to retrieve debug CA certificates when pinning" +
+                    "should not be overridden");
+        }
+        return DebugCaCertificates;
     }
 
     private TrustKitConfiguration(@NonNull HashSet<PinnedDomainConfiguration> domainConfigSet) {
@@ -41,14 +51,14 @@ public final class TrustKitConfiguration{
     }
 
     private TrustKitConfiguration(@NonNull HashSet<PinnedDomainConfiguration> domainConfigSet,
-                                  boolean shouldOverridePins, Certificate caCert) {
+                                  boolean shouldOverridePins, List<Certificate> DebugCaCerts) {
 
         if (domainConfigSet.size() < 1) {
             throw new ConfigurationException("Policy contains 0 domains to pin");
         }
         this.pinnedDomainConfigurations = domainConfigSet;
         this.shouldOverridePins = shouldOverridePins;
-        this.caIfDebug = caCert;
+        this.DebugCaCertificates = DebugCaCerts;
     }
 
     /**
@@ -127,9 +137,8 @@ public final class TrustKitConfiguration{
         // Finally, store the result of the parsed policy in our configuration object
         TrustKitConfiguration config;
         if (debugOverridesTag != null) {
-            config = new TrustKitConfiguration(domainConfigSet,
-                    debugOverridesTag.overridePins, debugOverridesTag.caFileIfDebug);
-
+            config = new TrustKitConfiguration(domainConfigSet, debugOverridesTag.overridePins,
+                    debugOverridesTag.debugCaCertificates);
         } else {
             config = new TrustKitConfiguration(domainConfigSet);
         }
@@ -236,8 +245,9 @@ public final class TrustKitConfiguration{
 
     private static class DebugOverridesTag {
         boolean overridePins = false;
-        // TODO(ad): The supplied file may contain multiple certificates
-        Certificate caFileIfDebug = null;
+        // TODO(ad): The supplied file may contain multiple certificates and also there may be
+        // multiple <certificates> tags
+        List<Certificate> debugCaCertificates = null;
     }
 
     private static DebugOverridesTag readDebugOverrides(XmlPullParser parser, Context context)
@@ -245,6 +255,8 @@ public final class TrustKitConfiguration{
         parser.require(XmlPullParser.START_TAG, null, "debug-overrides");
         DebugOverridesTag result = new DebugOverridesTag();
 
+        // TODO(ad): Parse all the certificate tags; if overridePins is set multiple times with a
+        // different value, log a warning and use overridePins=false
         result.overridePins = Boolean.parseBoolean(parser.getAttributeValue(null, "overridePins"));
 
         String caPathFromUser = parser.getAttributeValue(null, "src");
@@ -263,8 +275,8 @@ public final class TrustKitConfiguration{
                                     caPathFromUser.split("/")[1], "raw",
                                     context.getPackageName()));
 
-            result.caFileIfDebug =
-                    CertificateFactory.getInstance("X.509").generateCertificate(stream);
+            result.debugCaCertificates = new ArrayList<>();
+            result.debugCaCertificates.add(CertificateFactory.getInstance("X.509").generateCertificate(stream));
         }
         return result;
     }

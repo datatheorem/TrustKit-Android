@@ -24,9 +24,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.UUID;
-
-import javax.net.ssl.TrustManager;
 
 
 public class TrustKit {
@@ -112,9 +111,9 @@ public class TrustKit {
         // Try to process the debug-overrides setting and parse the custom CA certificates
         // TODO(ad): Put the debug overrides config here; make sure to check for the debug flag
         // String debugOverridesCaPath = trustKitConfiguration.getDebugOverridesCaPath()
-        Certificate debugOverridesCa = trustKitConfiguration.getCaFilePathIfDebug();
+        List<Certificate> debugOverridesCaCerts = trustKitConfiguration.getDebugCaCertificates();
         try {
-            TrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCa);
+            TrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCaCerts);
         } catch (CertificateException | NoSuchAlgorithmException | KeyManagementException
                 | KeyStoreException | IOException e) {
             throw new ConfigurationException("Could not parse <debug-overrides> certificates");
