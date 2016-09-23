@@ -103,7 +103,7 @@ public class TrustKit {
                     context.getResources().getXml(policyResourceId)
             );
         } catch (ParseException | XmlPullParserException | IOException e) {
-            throw new ConfigurationException("Could not parse network security policy file");
+            throw new ConfigurationException("Could not parse the network security policy file");
         } catch (CertificateException e) {
             throw new ConfigurationException("Could not find the debug certificate in the network " +
                     "security police file");

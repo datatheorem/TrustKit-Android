@@ -26,15 +26,16 @@ import java.util.List;
 public final class TrustKitConfiguration{
 
     private HashSet<PinnedDomainConfiguration> pinnedDomainConfigurations;
-    private boolean shouldOverridePinningIfDebug = false;
+    private boolean shouldOverridePins = false;
     private Certificate caIfDebug = null;
 
-    public void setOverridePins(boolean overridePins) {
-        this.shouldOverridePinningIfDebug = overridePins;
+    private void setShouldOverridePins(boolean overridePins) {
+        this.shouldOverridePins = overridePins;
     }
 
-    public boolean shouldOverridePinningIfDebug() {
-        return shouldOverridePinningIfDebug;
+    public boolean shouldOverridePins() {
+        // TODO(ad): Let's put the logic here to always return false if we are not in debug mode
+        return shouldOverridePins;
     }
 
     private void setCaFilePathIfDebug(Certificate caIfDebug) {
@@ -84,7 +85,7 @@ public final class TrustKitConfiguration{
     }
 
 
-    public static TrustKitConfiguration fromXmlPolicy(Context context, XmlPullParser parser)
+    static TrustKitConfiguration fromXmlPolicy(Context context, XmlPullParser parser)
             throws XmlPullParserException, IOException, ParseException, CertificateException {
 
         TrustKitConfiguration trustKitConfiguration = new TrustKitConfiguration();
@@ -115,7 +116,12 @@ public final class TrustKitConfiguration{
                 } else if ("trustkit-config".equals(parser.getName())) {
                     trustkitTag = readTrustkitConfig(parser);
                 } else if ("debug-overrides".equals(parser.getName())) {
+                    // The Debug-overrides option is global and not tied to a specific domain
                     debugOverridesTag = readDebugOverrides(parser, context);
+                    trustKitConfiguration.setShouldOverridePins(debugOverridesTag.overridePins);
+                    if (debugOverridesTag.caFileIfDebug != null) {
+                        trustKitConfiguration.setCaFilePathIfDebug(debugOverridesTag.caFileIfDebug);
+                    }
                 }
 
             } else if (eventType == XmlPullParser.END_TAG) {
@@ -136,16 +142,8 @@ public final class TrustKitConfiguration{
                         pinnedDomainConfigBuilder.expirationDate(pinSetTag.expirationDate);
                     }
 
-
-                    // TODO(ad): Add debug overrides
                     trustKitConfiguration.pinnedDomainConfigurations
                             .add(pinnedDomainConfigBuilder.build());
-
-                    trustKitConfiguration.setOverridePins(debugOverridesTag.overridePins);
-                    if (debugOverridesTag.caFileIfDebug != null) {
-                        trustKitConfiguration.setCaFilePathIfDebug(debugOverridesTag.caFileIfDebug);
-                    }
-
                 }
             }
             eventType = parser.next();
@@ -259,6 +257,7 @@ public final class TrustKitConfiguration{
 
     private static class DebugOverridesTag {
         boolean overridePins = false;
+        // TODO(ad): The supplied file may contain multiple certificates
         Certificate caFileIfDebug = null;
     }
 
@@ -270,6 +269,8 @@ public final class TrustKitConfiguration{
         result.overridePins = Boolean.parseBoolean(parser.getAttributeValue(null, "overridePins"));
 
         String caPathFromUser = parser.getAttributeValue(null, "src");
+        // TODO(ad): Log a warning when the src is not @raw to let developers know that TrustKit
+        // will not process the user and system options
         //The framework expects the certificate to be in the res/raw/ folder of
         //the application. It could be possible to put it in other folders but
         //I haven't seen any other examples in the android source code for now.
@@ -284,8 +285,7 @@ public final class TrustKitConfiguration{
                                     context.getPackageName()));
 
             result.caFileIfDebug =
-                    CertificateFactory.getInstance("X.509")
-                            .generateCertificate(stream);
+                    CertificateFactory.getInstance("X.509").generateCertificate(stream);
         }
 
         return result;
