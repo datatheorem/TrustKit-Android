@@ -1,13 +1,11 @@
 package com.datatheorem.android.trustkit.pinning;
 
 
-import com.datatheorem.android.trustkit.BuildConfig;
-
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Base64;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -19,8 +17,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 
-@Config(constants = BuildConfig.class)
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class PublicKeyPinTest {
 
     @Test

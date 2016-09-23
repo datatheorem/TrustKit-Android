@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.net.IDN.toASCII;
+
 
 public final class DomainPinningPolicy {
 
@@ -44,16 +46,9 @@ public final class DomainPinningPolicy {
             throws MalformedURLException {
         // Run some sanity checks on the configuration
         // Check if the hostname seems valid
-        DomainValidator domainValidator = DomainValidator.getInstance();
+        DomainValidator domainValidator = DomainValidator.getInstance(false);
         if (!domainValidator.isValid(hostname)) {
             throw new ConfigurationException("Tried to pin an invalid domain: " + hostname);
-        }
-        // TODO(ad): Test how this works with UTF 8 domain names
-
-        // TrustKit should not work if the configuration asks to pin connections for subdomains
-        // for *.com and other TLDs
-        if (domainValidator.isValidTld(hostname)) {
-            throw new ConfigurationException("Tried to pin a TLD: " + hostname);
         }
 
         // Check if the configuration has at least two pins (including a backup pin)
@@ -61,8 +56,8 @@ public final class DomainPinningPolicy {
         // more info (https://tools.ietf.org/html/rfc7469#page-21)
         if (publicKeyHashStrList.size() < 2) {
             // TODO(ad): Once we've written the documentation, encore that this error is still valid
-            throw new ConfigurationException("TrustKit was initialized with less than two pins"+
-                    ", (ie. no backup pins for domain " + hostname + ". This might " +
+            throw new ConfigurationException("Less than two pins were supplied "+
+                    "for domain " + hostname + ". This might " +
                     "brick your App; please review the Getting Started guide in " +
                     "./docs/getting-started.md");
         }

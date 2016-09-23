@@ -7,7 +7,9 @@ import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.Date;
@@ -19,7 +21,7 @@ import static junit.framework.Assert.assertTrue;
 
 
 @Config(constants = BuildConfig.class)
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class ReportRateLimiterTest {
 
     private HashSet<PublicKeyPin> pinList = new HashSet<PublicKeyPin>() {{

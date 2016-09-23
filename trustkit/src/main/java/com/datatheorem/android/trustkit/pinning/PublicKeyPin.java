@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.pinning;
 
+import android.support.annotation.NonNull;
 import android.util.Base64;
 
 import java.security.MessageDigest;
@@ -13,9 +14,9 @@ import java.security.cert.Certificate;
  */
 public final class PublicKeyPin {
 
-    private String pin;
+    @NonNull private final String pin;
 
-    public PublicKeyPin(Certificate certificate) {
+    public PublicKeyPin(@NonNull Certificate certificate) {
         // Generate the certificate's spki pin
         MessageDigest digest;
         try {
@@ -30,7 +31,7 @@ public final class PublicKeyPin {
         pin = Base64.encodeToString(spkiHash, Base64.DEFAULT).trim();
     }
 
-    public PublicKeyPin(String spkiPin) {
+    public PublicKeyPin(@NonNull String spkiPin) {
         // Validate the format of the pin
         byte[] spkiSha256Hash = Base64.decode(spkiPin, Base64.DEFAULT);
         if (spkiSha256Hash.length != 32) {
