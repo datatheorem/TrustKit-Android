@@ -98,7 +98,7 @@ public class BackgroundReporter {
                 serverConfig.getPublicKeyHashes(), validationResult);
 
         // If a similar report hasn't been sent recently, send it now
-        if (shouldRateLimitsReports && ReportsRateLimiter.shouldRateLimit(report)) {
+        if (shouldRateLimitsReports && ReportRateLimiter.shouldRateLimit(report)) {
             TrustKitLog.i("Pin failure report for " + serverHostname
                     + " was not sent due to rate-limiting");
             return;

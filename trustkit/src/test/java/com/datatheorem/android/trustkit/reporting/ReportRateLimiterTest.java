@@ -20,7 +20,7 @@ import static junit.framework.Assert.assertTrue;
 
 @Config(constants = BuildConfig.class)
 @RunWith(RobolectricGradleTestRunner.class)
-public class ReportsRateLimiterTest {
+public class ReportRateLimiterTest {
 
     private HashSet<PublicKeyPin> pinList = new HashSet<PublicKeyPin>() {{
         add(new PublicKeyPin("rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE="));
@@ -89,15 +89,15 @@ public class ReportsRateLimiterTest {
                 pinList, PinValidationResult.FAILED);
 
         // Ensure the same report will not be sent twice in a row
-        assertFalse(ReportsRateLimiter.shouldRateLimit(report));
-        assertTrue(ReportsRateLimiter.shouldRateLimit(report));
+        assertFalse(ReportRateLimiter.shouldRateLimit(report));
+        assertTrue(ReportRateLimiter.shouldRateLimit(report));
 
         // Set the last time the cache was reset to more than 24 hours ago and ensure the report
         // is sent again
         long oneDayAgo = System.currentTimeMillis()-25*60*60*1000;
-        TestableReportsRateLimiter.setLastReportsCacheResetDate(new Date(oneDayAgo));
-        assertFalse(ReportsRateLimiter.shouldRateLimit(report));
-        assertTrue(ReportsRateLimiter.shouldRateLimit(report));
+        TestableReportRateLimiter.setLastReportsCacheResetDate(new Date(oneDayAgo));
+        assertFalse(ReportRateLimiter.shouldRateLimit(report));
+        assertTrue(ReportRateLimiter.shouldRateLimit(report));
 
 
         // Ensure the same report with a different validation result will be sent
@@ -105,16 +105,16 @@ public class ReportsRateLimiterTest {
                 BuildConfig.VERSION_NAME, "www.host.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
                 pinList, PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
-        assertFalse(ReportsRateLimiter.shouldRateLimit(report));
-        assertTrue(ReportsRateLimiter.shouldRateLimit(report));
+        assertFalse(ReportRateLimiter.shouldRateLimit(report));
+        assertTrue(ReportRateLimiter.shouldRateLimit(report));
 
         // Ensure the same report with a different hostname will be sent
         report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
                 BuildConfig.VERSION_NAME, "www.otherhost.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
                 pinList, PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
-        assertFalse(ReportsRateLimiter.shouldRateLimit(report));
-        assertTrue(ReportsRateLimiter.shouldRateLimit(report));
+        assertFalse(ReportRateLimiter.shouldRateLimit(report));
+        assertTrue(ReportRateLimiter.shouldRateLimit(report));
 
 
         // Ensure the same report with a different certificate chain will be sent
@@ -122,7 +122,7 @@ public class ReportsRateLimiterTest {
                 BuildConfig.VERSION_NAME, "www.otherhost.com", 443, "host.com", true, true,
                 pemCertificateList2, pemCertificateList2, new Date(),
                 pinList, PinValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
-        assertFalse(ReportsRateLimiter.shouldRateLimit(report));
-        assertTrue(ReportsRateLimiter.shouldRateLimit(report));
+        assertFalse(ReportRateLimiter.shouldRateLimit(report));
+        assertTrue(ReportRateLimiter.shouldRateLimit(report));
     }
 }
