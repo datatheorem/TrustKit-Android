@@ -6,6 +6,7 @@ import android.util.Base64;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinningValidationResult;
+import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.pinning.TrustKitTrustManagerBuilder;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -104,18 +105,11 @@ public class BackgroundReporter {
             return;
         }
 
-        new AsyncTask<HashSet<URL>, Void, Void>() {
-            private int responseCode = -1;
-
-            int getResponseCode() {
-                return responseCode;
-            }
-
+        new AsyncTask<HashSet<URL>, Void, Integer>() {
             @SafeVarargs
             @Override
-            protected final Void doInBackground(HashSet<URL>... params) {
+            protected final Integer doInBackground(HashSet<URL>... params) {
                 for (final URL reportUri : params[0]) {
-
                     HttpsURLConnection connection = null;
                     try {
                         connection = (HttpsURLConnection) reportUri.openConnection();
@@ -136,28 +130,36 @@ public class BackgroundReporter {
                         stream.flush();
                         stream.close();
 
-                        responseCode = connection.getResponseCode();
                     } catch (IOException e) {
-                        TrustKitLog.e("Background upload - task completed with error:"
+                        TrustKitLog.i("Background upload - task completed with error:"
                                 + e.getMessage());
                     } finally {
                         if (connection != null) {
+
                             connection.disconnect();
+                            try {
+                                TrustKitLog.i(String.valueOf(connection.getResponseCode()));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                TrustKitLog.i(e.getMessage());
+                            }
                         }
+
+                        TrustKitLog.i("conn null before deco");
+
+                    }
+
+                    if (connection != null) {
+                        try {
+                            TrustKitLog.i(String.valueOf(connection.getResponseCode()));
+                        } catch (IOException e) {
+                            TrustKitLog.i("post final " + e.getMessage());
+                        }
+                    } else {
+                        TrustKitLog.i("Meh");
                     }
                 }
                 return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                if (this.getResponseCode() >= 200 && this.getResponseCode() < 300) {
-                    TrustKitLog.i("Background upload - task completed successfully: pinning " +
-                            "failure report sent");
-                } else {
-                    TrustKitLog.e("Background upload - task completed with error: connection" +
-                            " error");
-                }
             }
 
         }.execute((HashSet<URL>) serverConfig.getReportUris());
@@ -176,7 +178,8 @@ public class BackgroundReporter {
 
         try {
             // Get a trust manager for an empty hostname so we get a non-pinning trust manager
-            context.init(null, new TrustManager[] {TrustKitTrustManagerBuilder.getTrustManager("")}, null);
+            context.init(null, new TrustManager[] {TrustKitTrustManagerBuilder.getTrustManager("")},
+                    null);
         } catch (KeyManagementException e) {
             throw new IllegalStateException("Should never happen");
         }

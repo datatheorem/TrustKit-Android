@@ -4,6 +4,7 @@ import android.text.format.DateFormat;
 
 import com.datatheorem.android.trustkit.PinningValidationResult;
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
+import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,6 +63,7 @@ class PinningFailureReport implements Serializable {
     }
 
     public JSONObject toJson() {
+        TrustKitLog.i("Dans le json");
         JSONObject jsonReport = new JSONObject();
         try {
             jsonReport.put("app-bundle-id", appBundleId);

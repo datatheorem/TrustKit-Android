@@ -48,6 +48,11 @@ public class TrustKit {
         } catch (PackageManager.NameNotFoundException e) {
             appVersion = "N/A";
         }
+
+        if (appVersion == null) {
+            appVersion = "N/A";
+        }
+
         String appVendorId = getOrCreateVendorIdentifier(context);
         this.backgroundReporter = new BackgroundReporter(true, appPackageName, appVersion,
                 appVendorId);
@@ -108,9 +113,10 @@ public class TrustKit {
                     "security police file");
         }
 
+
+
         // Try to process the debug-overrides setting and parse the custom CA certificates
         // TODO(ad): Put the debug overrides config here; make sure to check for the debug flag
-        // String debugOverridesCaPath = trustKitConfiguration.getDebugOverridesCaPath()
         List<Certificate> debugOverridesCaCerts = trustKitConfiguration.getDebugCaCertificates();
         try {
             TrustKitTrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCaCerts);

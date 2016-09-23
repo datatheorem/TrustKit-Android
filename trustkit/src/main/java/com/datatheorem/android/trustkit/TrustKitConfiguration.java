@@ -3,9 +3,11 @@ package com.datatheorem.android.trustkit;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -30,7 +32,7 @@ public final class TrustKitConfiguration {
     // For simplicity, this works slightly differently than Android N as we use shouldOverridePins
     // as a global setting instead of a per-<certificates> setting like Android N does
     final private boolean shouldOverridePins;
-    final private List<Certificate> DebugCaCertificates;
+    final private List<Certificate> debugCaCertificates;
 
     public boolean shouldOverridePins() {
         // TODO(ad): Let's put the logic here to always return false if we are not in debug mode
@@ -43,7 +45,7 @@ public final class TrustKitConfiguration {
             throw new IllegalStateException("Tried to retrieve debug CA certificates when pinning" +
                     "should not be overridden");
         }
-        return DebugCaCertificates;
+        return debugCaCertificates;
     }
 
     private TrustKitConfiguration(@NonNull HashSet<DomainPinningPolicy> domainConfigSet) {
@@ -58,7 +60,7 @@ public final class TrustKitConfiguration {
         }
         this.pinnedDomainConfigurations = domainConfigSet;
         this.shouldOverridePins = shouldOverridePins;
-        this.DebugCaCertificates = DebugCaCerts;
+        this.debugCaCertificates = DebugCaCerts;
     }
 
     /**
@@ -244,7 +246,7 @@ public final class TrustKitConfiguration {
     }
 
     private static class DebugOverridesTag {
-        boolean overridePins = false;
+        Boolean overridePins = null;
         // TODO(ad): The supplied file may contain multiple certificates and also there may be
         // multiple <certificates> tags
         List<Certificate> debugCaCertificates = null;
@@ -255,29 +257,49 @@ public final class TrustKitConfiguration {
         parser.require(XmlPullParser.START_TAG, null, "debug-overrides");
         DebugOverridesTag result = new DebugOverridesTag();
 
-        // TODO(ad): Parse all the certificate tags; if overridePins is set multiple times with a
-        // different value, log a warning and use overridePins=false
-        result.overridePins = Boolean.parseBoolean(parser.getAttributeValue(null, "overridePins"));
+        int eventType = parser.next();
+        while ((eventType != XmlPullParser.END_TAG) && "trust-anchors".equals(parser.getName())) {
+            // Look for the next certificates tag
+            parser.nextTag();
+            if ((eventType == XmlPullParser.START_TAG) && "certificates".equals(parser.getName().trim())) {
+                if (result.overridePins != null
+                        && result.overridePins
+                        != Boolean.parseBoolean(parser.getAttributeValue(null, "overridePins"))) {
+                    result.overridePins = false;
+                    TrustKitLog.w("Different values for overridePins");
+                }
 
-        String caPathFromUser = parser.getAttributeValue(null, "src");
-        // TODO(ad): Log a warning when the src is not @raw to let developers know that TrustKit
-        // will not process the user and system options
-        //The framework expects the certificate to be in the res/raw/ folder of
-        //the application. It could be possible to put it in other folders but
-        //I haven't seen any other examples in the android source code for now.
-        //So I've decided to
-        if (!caPathFromUser.equals("user") && !caPathFromUser.equals("system")
-                && !caPathFromUser.equals("") && caPathFromUser.startsWith("@raw")) {
+                result.overridePins =
+                        Boolean.parseBoolean(parser.getAttributeValue(null, "overridePins").trim());
 
-            InputStream stream =
-                    context.getResources().openRawResource(
-                            context.getResources().getIdentifier(
-                                    caPathFromUser.split("/")[1], "raw",
-                                    context.getPackageName()));
 
-            result.debugCaCertificates = new ArrayList<>();
-            result.debugCaCertificates.add(CertificateFactory.getInstance("X.509").generateCertificate(stream));
+                String caPathFromUser = parser.getAttributeValue(null, "src").trim();
+
+                //The framework expects the certificate to be in the res/raw/ folder of
+                //the application. It could be possible to put it in other folders but
+                //I haven't seen any other examples in the android source code for now.
+                if (!TextUtils.isEmpty(caPathFromUser) && !caPathFromUser.equals("user")
+                        && !caPathFromUser.equals("system") && caPathFromUser.startsWith("@raw")) {
+
+                    InputStream stream =
+                            context.getResources().openRawResource(
+                                    context.getResources().getIdentifier(
+                                            caPathFromUser.split("/")[1], "raw",
+                                            context.getPackageName()));
+
+                    result.debugCaCertificates = new ArrayList<>();
+                    result.debugCaCertificates.add(CertificateFactory.getInstance("X.509")
+                            .generateCertificate(stream));
+
+                } else {
+                    TrustKitLog.i("No certificate found by TrustKit." +
+                            " Please check your @raw folder " +
+                            "(TrustKit doesn't support system and user installed certificates).");
+                }
+            }
+            parser.next();
         }
+
         return result;
     }
 }

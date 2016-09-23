@@ -16,8 +16,7 @@ public class TestableTrustKit extends TrustKit {
     }
 
     // This lets us inject/mock the background reporter in the tests
-    public static void initWithNetworkPolicy(@NonNull Context context, BackgroundReporter reporter)
-    {
+    public static void initWithNetworkPolicy(@NonNull Context context, BackgroundReporter reporter){
         initWithNetworkPolicy(context);
         TrustKit.getInstance().backgroundReporter = reporter;
     }

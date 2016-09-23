@@ -66,4 +66,9 @@
         <trustkit-config enforcePinning="true">
         </trustkit-config>
     </domain-config>
+    <debug-overrides>
+        <trust-anchors>
+            <certificates overridePins="true" src="@raw/good"/>
+        </trust-anchors>
+    </debug-overrides>
 </network-security-config>
