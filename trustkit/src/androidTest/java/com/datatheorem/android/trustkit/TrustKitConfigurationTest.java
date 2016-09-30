@@ -45,7 +45,7 @@ public class TrustKitConfigurationTest {
     }
 
     @Test
-    public void testXml() throws XmlPullParserException, IOException, ParseException,
+    public void testDefaultValues() throws XmlPullParserException, IOException, ParseException,
             CertificateException {
         Context context = InstrumentationRegistry.getContext();
         String xml = "" +
@@ -61,24 +61,9 @@ public class TrustKitConfigurationTest {
                 "            <report-uri>https://some.reportdomain.com/</report-uri>\n" +
                 "        </trustkit-config>\n" +
                 "    </domain-config>\n" +
-                "    <debug-overrides>\n" +
-                "        <trust-anchors>\n" +
-                "            <certificates overridePins=\"true\" src=\"@raw/cert\"/>\n" +
-                "        </trust-anchors>\n" +
-                "    </debug-overrides>\n" +
                 "</network-security-config>";
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
                 parseXmlString(xml));
-
-        // Validate the debug overrides configuration
-        int certResId =
-                context.getResources().getIdentifier("cert", "raw", context.getPackageName());
-        InputStream certStream = context.getResources().openRawResource(certResId);
-        Certificate expectedCert =
-                CertificateFactory.getInstance("X.509").generateCertificate(certStream);
-        assertTrue(config.shouldOverridePins());
-        // TODO(ad): Handle multiple certificates
-        assertTrue(config.getDebugCaCertificates().contains(expectedCert));
 
         // Validate the domain's configuration
         DomainPinningPolicy domainConfig = config.getConfigForHostname("www.datatheorem.com");
@@ -95,9 +80,10 @@ public class TrustKitConfigurationTest {
         }};
         assertEquals(expectedUri, domainConfig.getReportUris());
 
-        HashSet<PublicKeyPin> expectedPins = new HashSet<>();
-        expectedPins.add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
-        expectedPins.add(new PublicKeyPin("grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME="));
+        HashSet<PublicKeyPin> expectedPins = new HashSet<PublicKeyPin>() {{
+            add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
+            add(new PublicKeyPin("grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME="));
+        }};
         assertEquals(expectedPins, domainConfig.getPublicKeyHashes());
     }
 
@@ -132,4 +118,90 @@ public class TrustKitConfigurationTest {
         domainConfig = config.getConfigForHostname("subdomain.datatheorem.fr");
         assertNull(domainConfig);
     }
+
+    @Test
+    public void testEnforcePinning() throws XmlPullParserException, IOException,
+            ParseException, CertificateException {
+        Context context = InstrumentationRegistry.getContext();
+        String xml = "" +
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<network-security-config>\n" +
+                "    <domain-config>\n" +
+                "        <domain>www.datatheorem.com</domain>\n" +
+                "        <pin-set>\n" +
+                "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
+                "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
+                "        </pin-set>\n" +
+                "        <trustkit-config enforcePinning=\"true\">\n" +
+                "        </trustkit-config>\n" +
+                "    </domain-config>\n" +
+                "</network-security-config>";
+        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
+                parseXmlString(xml));
+
+        DomainPinningPolicy domainConfig = config.getConfigForHostname("www.datatheorem.com");
+        assertTrue(domainConfig.shouldEnforcePinning());
+
+    }
+
+    @Test
+    public void testDisableDefaultReportUri() throws XmlPullParserException, IOException,
+            ParseException, CertificateException {
+        Context context = InstrumentationRegistry.getContext();
+        String xml = "" +
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<network-security-config>\n" +
+                "    <domain-config>\n" +
+                "        <domain>www.datatheorem.com</domain>\n" +
+                "        <pin-set>\n" +
+                "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
+                "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
+                "        </pin-set>\n" +
+                "        <trustkit-config disableDefaultReportUri=\"true\">\n" +
+                "        </trustkit-config>\n" +
+                "    </domain-config>\n" +
+                "</network-security-config>";
+        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
+                parseXmlString(xml));
+
+        // Ensure the list of report URIs is empty
+        DomainPinningPolicy domainConfig = config.getConfigForHostname("www.datatheorem.com");
+        assertEquals(new HashSet<>(), domainConfig.getReportUris());
+    }
+
+    @Test
+    public void testDebugOverrides() throws XmlPullParserException, IOException,
+            ParseException, CertificateException {
+        Context context = InstrumentationRegistry.getContext();
+        String xml = "" +
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<network-security-config>\n" +
+                "    <domain-config>\n" +
+                "        <domain>www.datatheorem.com</domain>\n" +
+                "        <pin-set>\n" +
+                "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
+                "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
+                "        </pin-set>\n" +
+                "    <debug-overrides>\n" +
+                "        <trust-anchors>\n" +
+                "            <certificates overridePins=\"true\" src=\"@raw/cert\"/>\n" +
+                "        </trust-anchors>\n" +
+                "    </debug-overrides>\n" +
+                "    </domain-config>\n" +
+                "</network-security-config>";
+        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
+                parseXmlString(xml));
+
+        // Validate the debug overrides configuration
+        int certResId =
+                context.getResources().getIdentifier("cert", "raw", context.getPackageName());
+        InputStream certStream = context.getResources().openRawResource(certResId);
+        Certificate expectedCert =
+                CertificateFactory.getInstance("X.509").generateCertificate(certStream);
+        assertTrue(config.shouldOverridePins());
+        // TODO(ad): Handle multiple certificates
+        assertTrue(config.getDebugCaCertificates().contains(expectedCert));
+    }
+
+
 }
