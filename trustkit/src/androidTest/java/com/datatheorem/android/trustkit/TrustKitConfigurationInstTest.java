@@ -24,6 +24,8 @@ import java.text.ParseException;
 import java.util.HashSet;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
@@ -49,15 +51,13 @@ public class TrustKitConfigurationInstTest {
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
                 "    <domain-config>\n" +
-                "        <!-- A comment -->\n" +
-                "        <domain includeSubdomains=\"true\">www.datatheorem.com</domain>\n" +
+                "        <domain>www.datatheorem.com</domain>\n" +
                 "        <pin-set>\n" +
-                "            <!-- Valid pins -->\n" +
                 "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
                 "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
                 "        </pin-set>\n" +
-                "        <trustkit-config enforcePinning=\"true\">\n" +
-                "            <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>\n" +
+                "        <trustkit-config>\n" +
+                "            <report-uri>https://some.reportdomain.com/</report-uri>\n" +
                 "        </trustkit-config>\n" +
                 "    </domain-config>\n" +
                 "    <debug-overrides>\n" +
@@ -68,14 +68,56 @@ public class TrustKitConfigurationInstTest {
                 "</network-security-config>";
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
                 parseXmlString(xml));
-        //The test for the certificate need to be in the androidTest instead of the test folder
-        //because of the res/raw/ folder.
+
+        // Validate the debug overrides configuration
         int certResId =
                 context.getResources().getIdentifier("cert", "raw", context.getPackageName());
         InputStream certStream = context.getResources().openRawResource(certResId);
         Certificate expectedCert =
                 CertificateFactory.getInstance("X.509").generateCertificate(certStream);
         assertTrue(config.shouldOverridePins());
+        // TODO(ad): Handle multiple certificates
         assertTrue(config.getDebugCaCertificates().contains(expectedCert));
+
+        // Validate the domain's configuration
+        DomainPinningPolicy domainConfig = config.getConfigForHostname("www.datatheorem.com");
+
+        assertEquals("www.datatheorem.com", domainConfig.getHostname());
+        // Validate default values
+        assertFalse(domainConfig.shouldIncludeSubdomains());
+        assertFalse(domainConfig.shouldEnforcePinning());
+
+        HashSet<URL> expectedUri = new HashSet<URL>() {{
+            add(new java.net.URL("https://some.reportdomain.com/"));
+            // The default report URI should be there too
+            add(new java.net.URL("https://overmind.datatheorem.com/trustkit/report"));
+        }};
+        assertEquals(expectedUri, domainConfig.getReportUris());
+
+        HashSet<PublicKeyPin> expectedPins = new HashSet<>();
+        expectedPins.add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
+        expectedPins.add(new PublicKeyPin("grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME="));
+        assertEquals(expectedPins, domainConfig.getPublicKeyHashes());
+    }
+
+    @Test
+    public void testIncludeSubdomainsAndNoTrustkitTag() throws XmlPullParserException, IOException,
+            ParseException, CertificateException {
+        Context context = InstrumentationRegistry.getContext();
+        String xml = "" +
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<network-security-config>\n" +
+                "    <domain-config>\n" +
+                "        <domain includeSubdomains=\"true\">datatheorem.com</domain>\n" +
+                "        <pin-set>\n" +
+                "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
+                "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
+                "        </pin-set>\n" +
+                "    </domain-config>\n" +
+                "</network-security-config>";
+        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
+                parseXmlString(xml));
+
+        assertNotNull(config.getConfigForHostname("subdomain.datatheorem.com"));
     }
 }

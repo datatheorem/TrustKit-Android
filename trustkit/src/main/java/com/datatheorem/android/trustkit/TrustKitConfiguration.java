@@ -96,21 +96,21 @@ public final class TrustKitConfiguration {
         HashSet<DomainPinningPolicy> domainConfigSet = new HashSet<>();
 
         // Global tag
-        DebugOverridesTag debugOverridesTag = null;
+        DebugOverridesTag debugOverridesTag = new DebugOverridesTag();
 
         // The result of parsing a domain-config tag
-        TrustkitConfigTag trustkitTag = null;
-        PinSetTag pinSetTag = null;
-        DomainTag domainTag = null;
+        TrustkitConfigTag trustkitTag = new TrustkitConfigTag();
+        PinSetTag pinSetTag = new PinSetTag();
+        DomainTag domainTag = new DomainTag();
 
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
                 if ("domain-config".equals(parser.getName())) {
                     // New domain configuration tag - reset all settings from the previous domain
-                    trustkitTag = null;
-                    pinSetTag = null;
-                    domainTag = null;
+                    trustkitTag = new TrustkitConfigTag();
+                    pinSetTag = new PinSetTag();
+                    domainTag = new DomainTag();
                 } else if ("domain".equals(parser.getName())) {
                     domainTag = readDomain(parser);
                 } else if ("pin-set".equals(parser.getName())) {
@@ -208,15 +208,13 @@ public final class TrustKitConfiguration {
         result.enforcePinning =
                 Boolean.parseBoolean(parser.getAttributeValue(null, "enforcePinning"));
 
-
         // Look for the disableDefaultReportUri attribute
         result.disableDefaultReportUri
                 = Boolean.parseBoolean(parser.getAttributeValue(null, "disableDefaultReportUri"));
 
-
         // Parse until the corresponding close trustkit-config tag
         int eventType = parser.next();
-        while ((eventType != XmlPullParser.END_TAG) && "trustkit-config".equals(parser.getName())) {
+        while ((eventType != XmlPullParser.END_TAG) && !"trustkit-config".equals(parser.getName())) {
             // Look for the next report-uri tag
             if ((eventType == XmlPullParser.START_TAG) && "report-uri".equals(parser.getName())) {
                 // Found one - parse the report-uri value
