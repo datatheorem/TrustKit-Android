@@ -30,7 +30,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
-public class TrustKitConfigurationInstTest {
+public class TrustKitConfigurationTest {
 
     private XmlPullParser parseXmlString(String xmlString) throws XmlPullParserException {
 
