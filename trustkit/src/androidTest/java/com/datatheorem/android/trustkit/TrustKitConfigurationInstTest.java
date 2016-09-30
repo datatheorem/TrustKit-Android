@@ -26,6 +26,7 @@ import java.util.HashSet;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
@@ -118,6 +119,17 @@ public class TrustKitConfigurationInstTest {
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
                 parseXmlString(xml));
 
-        assertNotNull(config.getConfigForHostname("subdomain.datatheorem.com"));
+        // Ensure a valid subdomain gets the policy
+        DomainPinningPolicy domainConfig = config.getConfigForHostname("subdomain.datatheorem.com");
+        assertNotNull(domainConfig);
+        assertEquals("datatheorem.com", domainConfig.getHostname());
+
+        // Ensure a domain that is a subdomain of a subdomain gets the policy
+        domainConfig = config.getConfigForHostname("sub.subdomain.datatheorem.com");
+        assertNotNull(domainConfig);
+
+        // Ensure a domain that is not a subdomain does not get the policy
+        domainConfig = config.getConfigForHostname("subdomain.datatheorem.fr");
+        assertNull(domainConfig);
     }
 }

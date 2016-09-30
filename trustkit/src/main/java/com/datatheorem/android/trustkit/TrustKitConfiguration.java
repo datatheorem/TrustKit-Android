@@ -69,29 +69,48 @@ public final class TrustKitConfiguration {
      */
     @Nullable
     public DomainPinningPolicy getConfigForHostname(@NonNull String serverHostname) {
-        for (DomainPinningPolicy pinnedDomainConfiguration : this.domainPolicies){
-            // TODO(ad): Handle shouldIncludeSubdomains here
+        DomainPinningPolicy bestMatchPolicy = null;
+        for (DomainPinningPolicy domainPolicy : this.domainPolicies) {
+            if (domainPolicy.getHostname().equals(serverHostname)) {
+                // Found an exact match for this domain
+                bestMatchPolicy = domainPolicy;
+                break;
+            }
 
-            // Check if the configuration for this domain exists and is still valid
-            if (serverHostname.equals(pinnedDomainConfiguration.getHostname())) {
-                if (pinnedDomainConfiguration.getExpirationDate() == null) {
-                    return pinnedDomainConfiguration;
-                } else if (pinnedDomainConfiguration.getExpirationDate() != null
-                        && pinnedDomainConfiguration.getExpirationDate().compareTo(new Date()) > 0){
-                    return pinnedDomainConfiguration;
-                } else {
-                    // TODO(ad): Log the fact that the configuration expired
-                    return  null;
+            // Look for the best match for pinning policies that include subdomains
+            if (domainPolicy.shouldIncludeSubdomains()
+                    && isSubdomain(domainPolicy.getHostname(), serverHostname)) {
+                if (bestMatchPolicy == null) {
+                    bestMatchPolicy = domainPolicy;
+                } else if (domainPolicy.getHostname().length() > bestMatchPolicy.getHostname().length()) {
+                    bestMatchPolicy = domainPolicy;
                 }
             }
         }
-        return null;
+
+        // Ensure that the pinning policy has not expired
+        if ((bestMatchPolicy != null) && (bestMatchPolicy.getExpirationDate() != null)) {
+            if (bestMatchPolicy.getExpirationDate().compareTo(new Date()) < 0) {
+                TrustKitLog.w("Pinning policy for " + serverHostname + " has expired.");
+                return null;
+            }
+        }
+        return bestMatchPolicy;
+    }
+
+    private static boolean isSubdomain(@NonNull String domain, @NonNull String subdomain) {
+        // This returns true for all subdomains, including subdomains of subdomains, similar to how
+        // Android N handles includeSubdomains
+        return subdomain.endsWith(domain)
+                && subdomain.charAt(subdomain.length() - domain.length() - 1) == '.';
     }
 
     @NonNull
     static TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
                                                @NonNull XmlPullParser parser)
             throws XmlPullParserException, IOException, ParseException, CertificateException {
+        // TODO(ad): Handle nested domain config tags
+        // https://developer.android.com/training/articles/security-config.html#ConfigInheritance
         // The list of pinned domains retrieved from the policy file
         HashSet<DomainPinningPolicy> domainConfigSet = new HashSet<>();
 
