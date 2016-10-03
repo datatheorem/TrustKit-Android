@@ -141,7 +141,6 @@ public class TrustKitConfigurationTest {
 
         DomainPinningPolicy domainConfig = config.getConfigForHostname("www.datatheorem.com");
         assertTrue(domainConfig.shouldEnforcePinning());
-
     }
 
     @Test
@@ -203,5 +202,39 @@ public class TrustKitConfigurationTest {
         assertTrue(config.getDebugCaCertificates().contains(expectedCert));
     }
 
+    @Test
+    public void testNestedDomainConfig() throws XmlPullParserException, IOException,
+            ParseException, CertificateException {
+        Context context = InstrumentationRegistry.getContext();
+        String xml = "" +
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<network-security-config>\n" +
+                "    <domain-config>\n" +
+                "        <domain includeSubdomains=\"true\">datatheorem.com</domain>\n" +
+                "        <pin-set>\n" +
+                "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
+                "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
+                "        </pin-set>\n" +
+                "        <trustkit-config disableDefaultReportUri=\"true\">\n" +
+                "        </trustkit-config>\n" +
+                // A more specific domain-config is nested here
+                "        <domain-config>\n" +
+                "            <domain>nested.datatheorem.com</domain>\n" +
+                "            <pin-set>\n" +
+                "                <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
+                "                <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
+                "            </pin-set>\n" +
+                "            <trustkit-config>\n" +
+                "                <report-uri>https://some.reportdomain.com/</report-uri>\n" +
+                "            </trustkit-config>\n" +
+                "        </domain-config>\n" +
+                "    </domain-config>\n" +
+                "</network-security-config>";
+        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
+                parseXmlString(xml));
 
+        // Ensure the list of report URIs is empty
+        DomainPinningPolicy domainConfig = config.getConfigForHostname("www.datatheorem.com");
+        assertEquals(new HashSet<>(), domainConfig.getReportUris());
+    }
 }
