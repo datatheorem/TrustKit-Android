@@ -18,8 +18,10 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -56,6 +58,15 @@ public final class TrustKitConfiguration {
 
         if (domainConfigSet.size() < 1) {
             throw new ConfigurationException("Policy contains 0 domains to pin");
+        }
+
+        Set<String> hostnameSet = new HashSet<>();
+        for (DomainPinningPolicy domainConfig : domainConfigSet) {
+            if (hostnameSet.contains(domainConfig.getHostname())) {
+                throw new ConfigurationException("Policy contains the same domain defined twice: "
+                        + domainConfig.getHostname());
+            }
+            hostnameSet.add(domainConfig.getHostname());
         }
         this.domainPolicies = domainConfigSet;
         this.shouldOverridePins = shouldOverridePins;
@@ -112,45 +123,18 @@ public final class TrustKitConfiguration {
         // TODO(ad): Handle nested domain config tags
         // https://developer.android.com/training/articles/security-config.html#ConfigInheritance
         // The list of pinned domains retrieved from the policy file
-        HashSet<DomainPinningPolicy> domainConfigSet = new HashSet<>();
+        List<DomainPinningPolicy.Builder> builderList = new ArrayList<>();
 
-        // Global tag
-        DebugOverridesTag debugOverridesTag = new DebugOverridesTag();
-
-        // The result of parsing a domain-config tag
-        TrustkitConfigTag trustkitTag = new TrustkitConfigTag();
-        PinSetTag pinSetTag = new PinSetTag();
-        DomainTag domainTag = new DomainTag();
+        DebugOverridesTag debugOverridesTag = null;
 
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
                 if ("domain-config".equals(parser.getName())) {
-                    // New domain configuration tag - reset all settings from the previous domain
-                    trustkitTag = new TrustkitConfigTag();
-                    pinSetTag = new PinSetTag();
-                    domainTag = new DomainTag();
-                } else if ("domain".equals(parser.getName())) {
-                    domainTag = readDomain(parser);
-                } else if ("pin-set".equals(parser.getName())) {
-                    pinSetTag = readPinSet(parser);
-                } else if ("trustkit-config".equals(parser.getName())) {
-                    trustkitTag = readTrustkitConfig(parser);
+                    builderList.addAll(parseConfigEntry(parser, null));
                 } else if ("debug-overrides".equals(parser.getName())) {
                     // The Debug-overrides option is global and not tied to a specific domain
                     debugOverridesTag = readDebugOverrides(context, parser);
-                }
-
-            } else if (eventType == XmlPullParser.END_TAG) {
-                if ("domain-config".equals(parser.getName())) {
-                    // End of a domain configuration tag - store this domain's settings
-                    DomainPinningPolicy domainConfig;
-                    domainConfig = new DomainPinningPolicy(domainTag.hostname,
-                            domainTag.includeSubdomains, pinSetTag.pins, trustkitTag.enforcePinning,
-                            pinSetTag.expirationDate, trustkitTag.reportUris,
-                            trustkitTag.disableDefaultReportUri);
-
-                    domainConfigSet.add(domainConfig);
                 }
             }
             eventType = parser.next();
@@ -158,6 +142,11 @@ public final class TrustKitConfiguration {
 
         // Finally, store the result of the parsed policy in our configuration object
         TrustKitConfiguration config;
+        HashSet<DomainPinningPolicy> domainConfigSet = new HashSet<>();
+        for (DomainPinningPolicy.Builder builder : builderList) {
+            domainConfigSet.add(builder.build());
+        }
+
         if (debugOverridesTag != null) {
             config = new TrustKitConfiguration(domainConfigSet, debugOverridesTag.overridePins,
                     debugOverridesTag.debugCaCertificates);
@@ -165,6 +154,44 @@ public final class TrustKitConfiguration {
             config = new TrustKitConfiguration(domainConfigSet);
         }
         return config;
+    }
+
+    // Heavily inspired from
+    // https://github.com/android/platform_frameworks_base/blob/master/core/java/android/security/net/config/XmlConfigSource.java
+    static private List<DomainPinningPolicy.Builder> parseConfigEntry(
+            XmlPullParser parser, DomainPinningPolicy.Builder parentBuilder)
+            throws XmlPullParserException, IOException {
+
+        DomainPinningPolicy.Builder builder = new DomainPinningPolicy.Builder();
+        builder.setParent(parentBuilder);
+
+        List<DomainPinningPolicy.Builder> builderList = new ArrayList<>();
+        builderList.add(builder);
+
+        int eventType = parser.next();
+        while ((eventType != XmlPullParser.END_TAG) && !"domain-config".equals(parser.getName())) {
+            if (eventType == XmlPullParser.START_TAG) {
+                if ("domain-config".equals(parser.getName())) {
+                    // Nested domain configuration tag
+                    builderList.addAll(parseConfigEntry(parser, builder));
+                } else if ("domain".equals(parser.getName())) {
+                    DomainTag domainTag = readDomain(parser);
+                    builder.setHostname(domainTag.hostname);
+                    builder.setShouldIncludeSubdomains(domainTag.includeSubdomains);
+                } else if ("pin-set".equals(parser.getName())) {
+                    PinSetTag pinSetTag = readPinSet(parser);
+                    builder.setPublicKeyHashes(pinSetTag.pins);
+                    builder.setExpirationDate(pinSetTag.expirationDate);
+                } else if ("trustkit-config".equals(parser.getName())) {
+                    TrustkitConfigTag trustkitTag = readTrustkitConfig(parser);
+                    builder.setReportUris(trustkitTag.reportUris);
+                    builder.setShouldEnforcePinning(trustkitTag.enforcePinning);
+                    builder.setShouldDisableDefaultReportUri(trustkitTag.disableDefaultReportUri);
+                }
+            }
+            eventType = parser.next();
+        }
+        return builderList;
     }
 
     private static class PinSetTag {
@@ -248,7 +275,7 @@ public final class TrustKitConfiguration {
 
     private static class DomainTag {
         boolean includeSubdomains = false;
-        String hostname;
+        String hostname = null;
     }
 
     @NonNull

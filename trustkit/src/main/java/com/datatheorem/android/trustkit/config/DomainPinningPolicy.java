@@ -126,4 +126,63 @@ public final class DomainPinningPolicy {
                 .append("}")
                 .toString();
     }
+
+
+    public static final class Builder {
+        private String hostname;
+        private boolean shouldIncludeSubdomains;
+        private Set<String> publicKeyHashes;
+        private Date expirationDate;
+        private boolean shouldEnforcePinning;
+        private Set<String> reportUris;
+        private boolean shouldDisableDefaultReportUri;
+        private Builder parentBuilder;
+
+        public DomainPinningPolicy build() throws MalformedURLException {
+            // TODO(ad): Handle values from the parent builder
+            return new DomainPinningPolicy(hostname, shouldIncludeSubdomains, publicKeyHashes,
+                    shouldEnforcePinning, expirationDate, reportUris, shouldDisableDefaultReportUri);
+        }
+
+        public Builder setParent(Builder parent) {
+            // Sanity check to avoid adding loops.
+            Builder current = parent;
+            while (current != null) {
+                if (current == this) {
+                    throw new IllegalArgumentException("Loops are not allowed in Builder parents");
+                }
+                current = current.parentBuilder;
+            }
+            parentBuilder = parent;
+            return this;
+        }
+
+        public void setHostname(String hostname) {
+            this.hostname = hostname;
+        }
+
+        public void setShouldIncludeSubdomains(boolean shouldIncludeSubdomains) {
+            this.shouldIncludeSubdomains = shouldIncludeSubdomains;
+        }
+
+        public void setPublicKeyHashes(Set<String> publicKeyHashes) {
+            this.publicKeyHashes = publicKeyHashes;
+        }
+
+        public void setExpirationDate(Date expirationDate) {
+            this.expirationDate = expirationDate;
+        }
+
+        public void setShouldEnforcePinning(boolean shouldEnforcePinning) {
+            this.shouldEnforcePinning = shouldEnforcePinning;
+        }
+
+        public void setReportUris(Set<String> reportUris) {
+            this.reportUris = reportUris;
+        }
+
+        public void setShouldDisableDefaultReportUri(boolean shouldDisableDefaultReportUri) {
+            this.shouldDisableDefaultReportUri = shouldDisableDefaultReportUri;
+        }
+    }
 }
