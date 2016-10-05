@@ -40,6 +40,19 @@ public class TrustKit {
                        @NonNull TrustKitConfiguration trustKitConfiguration) {
         this.trustKitConfiguration = trustKitConfiguration;
 
+        // Try to process the debug-overrides setting and parse the custom CA certificates
+        // TODO(ad): Put the debug overrides config here; make sure to check for the debug flag
+        Set<Certificate> debugOverridesCaCerts = null;
+        if (trustKitConfiguration.shouldOverridePins()) {
+            debugOverridesCaCerts = trustKitConfiguration.getDebugCaCertificates();
+        }
+        try {
+            TrustKitTrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCaCerts);
+        } catch (CertificateException | NoSuchAlgorithmException | KeyManagementException
+                | KeyStoreException | IOException e) {
+            throw new ConfigurationException("Could not parse <debug-overrides> certificates");
+        }
+
         // Create the background reporter for sending pin failure reports
         String appPackageName = context.getPackageName();
         String appVersion;
@@ -112,18 +125,6 @@ public class TrustKit {
         } catch (CertificateException e) {
             throw new ConfigurationException("Could not find the debug certificate in the network " +
                     "security police file");
-        }
-
-
-
-        // Try to process the debug-overrides setting and parse the custom CA certificates
-        // TODO(ad): Put the debug overrides config here; make sure to check for the debug flag
-        Set<Certificate> debugOverridesCaCerts = trustKitConfiguration.getDebugCaCertificates();
-        try {
-            TrustKitTrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCaCerts);
-        } catch (CertificateException | NoSuchAlgorithmException | KeyManagementException
-                | KeyStoreException | IOException e) {
-            throw new ConfigurationException("Could not parse <debug-overrides> certificates");
         }
 
         trustKitInstance = new TrustKit(context, trustKitConfiguration);

@@ -202,56 +202,63 @@ public final class DomainPinningPolicy {
             return this;
         }
 
-        public void setHostname(String hostname) {
+        public Builder setHostname(String hostname) {
             this.hostname = hostname;
+            return this;
         }
 
         Boolean getShouldIncludeSubdomains() {
             return shouldIncludeSubdomains;
         }
 
-        public void setShouldIncludeSubdomains(Boolean shouldIncludeSubdomains) {
+        public Builder setShouldIncludeSubdomains(Boolean shouldIncludeSubdomains) {
             this.shouldIncludeSubdomains = shouldIncludeSubdomains;
+            return this;
         }
 
         Set<String> getPublicKeyHashes() {
             return publicKeyHashes;
         }
 
-        public void setPublicKeyHashes(Set<String> publicKeyHashes) {
+        public Builder setPublicKeyHashes(Set<String> publicKeyHashes) {
             this.publicKeyHashes = publicKeyHashes;
+            return this;
         }
 
         Date getExpirationDate() {
             return expirationDate;
         }
 
-        public void setExpirationDate(Date expirationDate) {
+        public Builder setExpirationDate(Date expirationDate) {
             this.expirationDate = expirationDate;
+            return this;
         }
 
         Boolean getShouldEnforcePinning() {
             return shouldEnforcePinning;
         }
 
-        public void setShouldEnforcePinning(Boolean shouldEnforcePinning) {
+        public Builder setShouldEnforcePinning(Boolean shouldEnforcePinning) {
             this.shouldEnforcePinning = shouldEnforcePinning;
+            return this;
         }
 
         Set<String> getReportUris() {
             return reportUris;
         }
 
-        public void setReportUris(Set<String> reportUris) {
+        public Builder setReportUris(Set<String> reportUris) {
             this.reportUris = reportUris;
+            return this;
         }
 
         Boolean getShouldDisableDefaultReportUri() {
             return shouldDisableDefaultReportUri;
         }
 
-        public void setShouldDisableDefaultReportUri(Boolean shouldDisableDefaultReportUri) {
+        public Builder setShouldDisableDefaultReportUri(Boolean shouldDisableDefaultReportUri) {
             this.shouldDisableDefaultReportUri = shouldDisableDefaultReportUri;
+            return this;
         }
     }
 }

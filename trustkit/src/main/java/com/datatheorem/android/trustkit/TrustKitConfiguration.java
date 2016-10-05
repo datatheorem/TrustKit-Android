@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.Set;
 
 
-public final class TrustKitConfiguration {
+// TODO(ad): Make this private
+public class TrustKitConfiguration {
 
-    @NonNull final private HashSet<DomainPinningPolicy> domainPolicies;
+    @NonNull final private Set<DomainPinningPolicy> domainPolicies;
 
     // For simplicity, this works slightly differently than Android N as we use shouldOverridePins
     // as a global setting instead of a per-<certificates> setting like Android N does
@@ -44,18 +45,18 @@ public final class TrustKitConfiguration {
     public Set<Certificate> getDebugCaCertificates() {
         if (!shouldOverridePins) {
             throw new IllegalStateException("Tried to retrieve debug CA certificates when pinning" +
-                    "should not be overridden");
+                    " should not be overridden");
         }
         return debugCaCertificates;
     }
 
-    private TrustKitConfiguration(@NonNull HashSet<DomainPinningPolicy> domainConfigSet) {
+    protected TrustKitConfiguration(@NonNull Set<DomainPinningPolicy> domainConfigSet) {
         this(domainConfigSet, false, null);
     }
 
-    private TrustKitConfiguration(@NonNull HashSet<DomainPinningPolicy> domainConfigSet,
+    protected TrustKitConfiguration(@NonNull Set<DomainPinningPolicy> domainConfigSet,
                                   boolean shouldOverridePins,
-                                  @Nullable Set<Certificate> DebugCaCerts) {
+                                  @Nullable Set<Certificate> debugCaCerts) {
 
         if (domainConfigSet.size() < 1) {
             throw new ConfigurationException("Policy contains 0 domains to pin");
@@ -71,7 +72,7 @@ public final class TrustKitConfiguration {
         }
         this.domainPolicies = domainConfigSet;
         this.shouldOverridePins = shouldOverridePins;
-        this.debugCaCertificates = DebugCaCerts;
+        this.debugCaCertificates = debugCaCerts;
     }
 
     /**
@@ -179,17 +180,17 @@ public final class TrustKitConfiguration {
                     builderList.addAll(readDomainConfig(parser, builder));
                 } else if ("domain".equals(parser.getName())) {
                     DomainTag domainTag = readDomain(parser);
-                    builder.setHostname(domainTag.hostname);
-                    builder.setShouldIncludeSubdomains(domainTag.includeSubdomains);
+                    builder.setHostname(domainTag.hostname)
+                            .setShouldIncludeSubdomains(domainTag.includeSubdomains);
                 } else if ("pin-set".equals(parser.getName())) {
                     PinSetTag pinSetTag = readPinSet(parser);
-                    builder.setPublicKeyHashes(pinSetTag.pins);
-                    builder.setExpirationDate(pinSetTag.expirationDate);
+                    builder.setPublicKeyHashes(pinSetTag.pins)
+                            .setExpirationDate(pinSetTag.expirationDate);
                 } else if ("trustkit-config".equals(parser.getName())) {
                     TrustkitConfigTag trustkitTag = readTrustkitConfig(parser);
-                    builder.setReportUris(trustkitTag.reportUris);
-                    builder.setShouldEnforcePinning(trustkitTag.enforcePinning);
-                    builder.setShouldDisableDefaultReportUri(trustkitTag.disableDefaultReportUri);
+                    builder.setReportUris(trustkitTag.reportUris)
+                            .setShouldEnforcePinning(trustkitTag.enforcePinning)
+                            .setShouldDisableDefaultReportUri(trustkitTag.disableDefaultReportUri);
                 }
             }
             eventType = parser.next();

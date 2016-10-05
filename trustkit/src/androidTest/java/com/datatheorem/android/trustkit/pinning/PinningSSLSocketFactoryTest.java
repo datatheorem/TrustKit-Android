@@ -18,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -32,7 +33,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-
+// TODO(ad): Teat debug overrides
 @RunWith(AndroidJUnit4.class)
 public class PinningSSLSocketFactoryTest {
 
@@ -42,7 +43,6 @@ public class PinningSSLSocketFactoryTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        TestableTrustKit.initWithNetworkPolicy(InstrumentationRegistry.getContext(), mockReporter);
     }
 
     @After
@@ -56,6 +56,18 @@ public class PinningSSLSocketFactoryTest {
     public void testPinnedDomainExpiredChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "expired.badssl.com";
+        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
+                .setHostname(serverHostname)
+                .setShouldEnforcePinning(true)
+                .setPublicKeyHashes(new HashSet<String>() {{
+                    // Wrong pins
+                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
+                }}).build();
+
+        TestableTrustKit.init(InstrumentationRegistry.getContext(),
+                new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
+                mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
@@ -85,6 +97,18 @@ public class PinningSSLSocketFactoryTest {
     public void testPinnedDomainWrongHostnameChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "wrong.host.badssl.com";
+        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
+                .setHostname(serverHostname)
+                .setShouldEnforcePinning(true)
+                .setPublicKeyHashes(new HashSet<String>() {{
+                    // Wrong pins
+                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
+                }}).build();
+
+        TestableTrustKit.init(InstrumentationRegistry.getContext(),
+                new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
+                mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
@@ -113,6 +137,18 @@ public class PinningSSLSocketFactoryTest {
     @Test
     public void testPinnedDomainSuccess() throws IOException {
         String serverHostname = "www.datatheorem.com";
+        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
+                .setHostname(serverHostname)
+                .setShouldEnforcePinning(true)
+                .setPublicKeyHashes(new HashSet<String>() {{
+                    // Valid pin
+                    add("grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=");
+                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
+                }}).build();
+
+        TestableTrustKit.init(InstrumentationRegistry.getContext(),
+                new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
+                mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
@@ -132,6 +168,18 @@ public class PinningSSLSocketFactoryTest {
     @Test
     public void testPinnedDomainInvalidPin() throws IOException {
         String serverHostname = "www.yahoo.com";
+        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
+                .setHostname(serverHostname)
+                .setShouldEnforcePinning(true)
+                .setPublicKeyHashes(new HashSet<String>() {{
+                    // Wrong pins
+                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
+                }}).build();
+
+        TestableTrustKit.init(InstrumentationRegistry.getContext(),
+                new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
+                mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
@@ -160,6 +208,18 @@ public class PinningSSLSocketFactoryTest {
     @Test
     public void testPinnedDomainInvalidPinAndPinningNotEnforced() throws IOException {
         String serverHostname = "www.github.com";
+        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
+                .setHostname(serverHostname)
+                .setShouldEnforcePinning(false)
+                .setPublicKeyHashes(new HashSet<String>() {{
+                    // Wrong pins
+                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
+                }}).build();
+
+        TestableTrustKit.init(InstrumentationRegistry.getContext(),
+                new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
+                mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
@@ -190,6 +250,18 @@ public class PinningSSLSocketFactoryTest {
     @Test
     public void testPinnedDomainUntrustedChainAndPinningNotEnforced() throws IOException {
         String serverHostname = "untrusted-root.badssl.com";
+        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
+                .setHostname(serverHostname)
+                .setShouldEnforcePinning(false)
+                .setPublicKeyHashes(new HashSet<String>() {{
+                    // Wrong pins
+                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
+                }}).build();
+
+        TestableTrustKit.init(InstrumentationRegistry.getContext(),
+                new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
+                mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
@@ -222,6 +294,18 @@ public class PinningSSLSocketFactoryTest {
     @Test
     public void testNonPinnedDomainUntrustedRootChain() throws IOException {
         String serverHostname = "www.cacert.org";
+        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
+                .setHostname("other.domain.com")
+                .setShouldEnforcePinning(true)
+                .setPublicKeyHashes(new HashSet<String>() {{
+                    // Wrong pins
+                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
+                }}).build();
+
+        TestableTrustKit.init(InstrumentationRegistry.getContext(),
+                new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
+                mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection fails
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
@@ -251,6 +335,18 @@ public class PinningSSLSocketFactoryTest {
     public void testNonPinnedDomainSuccess() throws IOException {
         // Initialize TrustKit
         String serverHostname = "www.google.com";
+        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
+                .setHostname("other.domain.com")
+                .setShouldEnforcePinning(true)
+                .setPublicKeyHashes(new HashSet<String>() {{
+                    // Wrong pins
+                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
+                }}).build();
+
+        TestableTrustKit.init(InstrumentationRegistry.getContext(),
+                new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
+                mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
