@@ -181,12 +181,12 @@ public class TrustKitConfigurationTest {
                 "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
                 "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
                 "        </pin-set>\n" +
+                "    </domain-config>\n" +
                 "    <debug-overrides>\n" +
                 "        <trust-anchors>\n" +
                 "            <certificates overridePins=\"true\" src=\"@raw/cert\"/>\n" +
                 "        </trust-anchors>\n" +
                 "    </debug-overrides>\n" +
-                "    </domain-config>\n" +
                 "</network-security-config>";
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
                 parseXmlString(xml));
@@ -227,6 +227,10 @@ public class TrustKitConfigurationTest {
                 "            <trustkit-config>\n" +
                 "                <report-uri>https://some.reportdomain.com/</report-uri>\n" +
                 "            </trustkit-config>\n" +
+                "        </domain-config>\n" +
+                // An empty domain-config is nested here
+                "        <domain-config>\n" +
+                "            <domain>other.datatheorem.com</domain>\n" +
                 "        </domain-config>\n" +
                 "    </domain-config>\n" +
                 "</network-security-config>";
