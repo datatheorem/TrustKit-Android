@@ -18,6 +18,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -210,15 +211,21 @@ public final class TrustKitConfiguration {
         pinSetTag.pins = new HashSet<>();
 
         // Look for the expiration attribute
-        // TODO(ad): The next line throws an exception when running the tests
-                    /*
-                    SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-DD", Locale.getDefault());
-                    String expirationDateAttr = parser.getAttributeValue(null, "expiration");
-                    if (expirationDateAttr != null) {
-                        pinSetTag.expirationDate =  df.parse(expirationDateAttr);
-
-                    }
-                    */
+        // Taken from https://github.com/android/platform_frameworks_base/blob/master/core/java/android/security/net/config/XmlConfigSource.java
+        String expirationDate = parser.getAttributeValue(null, "expiration");
+        if (expirationDate != null) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                sdf.setLenient(false);
+                Date date = sdf.parse(expirationDate);
+                if (date == null) {
+                    throw new ConfigurationException("Invalid expiration date in pin-set");
+                }
+                pinSetTag.expirationDate = date;
+            } catch (ParseException e) {
+                throw new ConfigurationException("Invalid expiration date in pin-set");
+            }
+        }
 
         // Parse until the corresponding close pin-set tag
         int eventType = parser.next();
