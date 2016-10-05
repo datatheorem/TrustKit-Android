@@ -121,9 +121,8 @@ public final class TrustKitConfiguration {
     static TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
                                                @NonNull XmlPullParser parser)
             throws XmlPullParserException, IOException, ParseException, CertificateException {
-        // TODO(ad): Handle nested domain config tags
+        // Handle nested domain config tags
         // https://developer.android.com/training/articles/security-config.html#ConfigInheritance
-        // The list of pinned domains retrieved from the policy file
         List<DomainPinningPolicy.Builder> builderList = new ArrayList<>();
 
         DebugOverridesTag debugOverridesTag = null;
@@ -132,7 +131,7 @@ public final class TrustKitConfiguration {
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
                 if ("domain-config".equals(parser.getName())) {
-                    builderList.addAll(parseConfigEntry(parser, null));
+                    builderList.addAll(readDomainConfig(parser, null));
                 } else if ("debug-overrides".equals(parser.getName())) {
                     // The Debug-overrides option is global and not tied to a specific domain
                     debugOverridesTag = readDebugOverrides(context, parser);
@@ -159,7 +158,7 @@ public final class TrustKitConfiguration {
 
     // Heavily inspired from
     // https://github.com/android/platform_frameworks_base/blob/master/core/java/android/security/net/config/XmlConfigSource.java
-    static private List<DomainPinningPolicy.Builder> parseConfigEntry(
+    static private List<DomainPinningPolicy.Builder> readDomainConfig(
             XmlPullParser parser, DomainPinningPolicy.Builder parentBuilder)
             throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "domain-config");
@@ -177,7 +176,7 @@ public final class TrustKitConfiguration {
             if (eventType == XmlPullParser.START_TAG) {
                 if ("domain-config".equals(parser.getName())) {
                     // Nested domain configuration tag
-                    builderList.addAll(parseConfigEntry(parser, builder));
+                    builderList.addAll(readDomainConfig(parser, builder));
                 } else if ("domain".equals(parser.getName())) {
                     DomainTag domainTag = readDomain(parser);
                     builder.setHostname(domainTag.hostname);
