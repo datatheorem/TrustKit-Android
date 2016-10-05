@@ -210,35 +210,73 @@ public class TrustKitConfigurationTest {
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
                 "    <domain-config>\n" +
+                // A more specific domain-config for a subdomain is nested here
+                "        <domain-config>\n" +
+                "            <domain>other.datatheorem.com</domain>\n" +
+                "            <pin-set>\n" +
+                "                <pin digest=\"SHA-256\">CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=</pin>\n" +
+                "                <pin digest=\"SHA-256\">DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD=</pin>\n" +
+                "            </pin-set>\n" +
+                "            <trustkit-config disableDefaultReportUri=\"false\">\n" +
+                "            </trustkit-config>\n" +
+                "        </domain-config>\n" +
                 "        <domain includeSubdomains=\"true\">datatheorem.com</domain>\n" +
                 "        <pin-set>\n" +
                 "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
-                "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
+                "            <pin digest=\"SHA-256\">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>\n" +
                 "        </pin-set>\n" +
                 "        <trustkit-config disableDefaultReportUri=\"true\">\n" +
                 "        </trustkit-config>\n" +
-                // A more specific domain-config is nested here
+                // A more specific domain-config for an unrelated domain is nested here
                 "        <domain-config>\n" +
-                "            <domain>nested.datatheorem.com</domain>\n" +
-                "            <pin-set>\n" +
-                "                <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
-                "                <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
-                "            </pin-set>\n" +
+                "            <domain>unrelated.domain.com</domain>\n" +
                 "            <trustkit-config>\n" +
                 "                <report-uri>https://some.reportdomain.com/</report-uri>\n" +
                 "            </trustkit-config>\n" +
-                "        </domain-config>\n" +
-                // An empty domain-config is nested here
-                "        <domain-config>\n" +
-                "            <domain>other.datatheorem.com</domain>\n" +
                 "        </domain-config>\n" +
                 "    </domain-config>\n" +
                 "</network-security-config>";
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
                 parseXmlString(xml));
 
-        // Ensure the list of report URIs is empty
-        DomainPinningPolicy domainConfig = config.getConfigForHostname("www.datatheorem.com");
+        // Validate the configuration of the parent domain-config
+        DomainPinningPolicy domainConfig = config.getConfigForHostname("datatheorem.com");
         assertEquals(new HashSet<>(), domainConfig.getReportUris());
+
+        HashSet<PublicKeyPin> expectedPins = new HashSet<PublicKeyPin>() {{
+            add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
+            add(new PublicKeyPin("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="));
+        }};
+        assertEquals(expectedPins, domainConfig.getPublicKeyHashes());
+
+        // Validate the configuration of the parent domain-config for a subdomain
+        domainConfig = config.getConfigForHostname("subdomain.datatheorem.com");
+        assertEquals(new HashSet<>(), domainConfig.getReportUris());
+        assertEquals(expectedPins, domainConfig.getPublicKeyHashes());
+
+        // Validate the configuration of a nested domain-config for a subdomain
+        domainConfig = config.getConfigForHostname("other.datatheorem.com");
+
+        HashSet<PublicKeyPin> expectedOtherPins = new HashSet<PublicKeyPin>() {{
+            add(new PublicKeyPin("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC="));
+            add(new PublicKeyPin("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD="));
+        }};
+        assertEquals(expectedOtherPins, domainConfig.getPublicKeyHashes());
+
+        HashSet<URL> expectedUri = new HashSet<URL>() {{
+            // The default report URI should be there
+            add(new java.net.URL("https://overmind.datatheorem.com/trustkit/report"));
+        }};
+        assertEquals(expectedUri, domainConfig.getReportUris());
+
+        // Validate the configuration of a nested domain-config for an unrelated domain
+        domainConfig = config.getConfigForHostname("unrelated.domain.com");
+        assertEquals(expectedPins, domainConfig.getPublicKeyHashes());
+
+        HashSet<URL> expectedUnrelatedUri = new HashSet<URL>() {{
+            // The default report URI should be there
+            add(new java.net.URL("https://some.reportdomain.com/"));
+        }};
+        assertEquals(expectedUnrelatedUri, domainConfig.getReportUris());
     }
 }

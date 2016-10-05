@@ -34,13 +34,13 @@ public final class DomainPinningPolicy {
     private final boolean shouldEnforcePinning;
     @NonNull private final Set<URL> reportUris;
 
-    public DomainPinningPolicy(@NonNull String hostname,
-                               boolean shouldIncludeSubdomains,
-                               @NonNull Set<String> publicKeyHashStrList,
-                               boolean shouldEnforcePinning,
-                               @Nullable Date expirationDate,
-                               @Nullable Set<String> reportUriStrList,
-                               boolean shouldDisableDefaultReportUri)
+    DomainPinningPolicy(@NonNull String hostname,
+                        Boolean shouldIncludeSubdomains,
+                        @NonNull Set<String> publicKeyHashStrList,
+                        Boolean shouldEnforcePinning,
+                        @Nullable Date expirationDate,
+                        @Nullable Set<String> reportUriStrList,
+                        Boolean shouldDisableDefaultReportUri)
             throws MalformedURLException {
         // Run some sanity checks on the configuration
         // Check if the hostname seems valid
@@ -48,6 +48,7 @@ public final class DomainPinningPolicy {
         if (!domainValidator.isValid(hostname)) {
             throw new ConfigurationException("Tried to pin an invalid domain: " + hostname);
         }
+        this.hostname = hostname;
 
         // Check if the configuration has at least two pins (including a backup pin)
         // TrustKit should not work if the configuration contains only one pin
@@ -75,13 +76,22 @@ public final class DomainPinningPolicy {
         }
 
         // Add the default report URL
-        if (!shouldDisableDefaultReportUri) {
+        if ((shouldDisableDefaultReportUri == null) || (!shouldDisableDefaultReportUri) ) {
             reportUris.add(DEFAULT_REPORTING_URL);
         }
 
-        this.hostname = hostname;
-        this.shouldEnforcePinning = shouldEnforcePinning;
-        this.shouldIncludeSubdomains = shouldIncludeSubdomains;
+        // Parse boolean settings and handle default values
+        if (shouldEnforcePinning == null) {
+            this.shouldEnforcePinning = false;
+        } else {
+            this.shouldEnforcePinning = shouldEnforcePinning;
+        }
+        if (shouldIncludeSubdomains == null) {
+            this.shouldIncludeSubdomains = false;
+        } else {
+            this.shouldIncludeSubdomains = shouldIncludeSubdomains;
+        }
+
         this.expirationDate = expirationDate;
     }
 
@@ -129,19 +139,54 @@ public final class DomainPinningPolicy {
 
 
     public static final class Builder {
+        // The domain must always be specified in domain-config
         private String hostname;
-        private boolean shouldIncludeSubdomains;
-        private Set<String> publicKeyHashes;
-        private Date expirationDate;
-        private boolean shouldEnforcePinning;
-        private Set<String> reportUris;
-        private boolean shouldDisableDefaultReportUri;
-        private Builder parentBuilder;
+
+        // The remaining settings can be inherited from a parent domain-config
+        private Boolean shouldIncludeSubdomains = null;
+        private Set<String> publicKeyHashes = null;
+        private Date expirationDate = null;
+        private Boolean shouldEnforcePinning = null;
+        private Set<String> reportUris = null;
+        private Boolean shouldDisableDefaultReportUri = null;
+
+        // The parent domain-config
+        private Builder parentBuilder = null;
 
         public DomainPinningPolicy build() throws MalformedURLException {
-            // TODO(ad): Handle values from the parent builder
+
+            if (parentBuilder != null) {
+                // Get missing values from the parent as some entries can be inherited
+                // build() should already have been called on it so it has its parent's values
+                // inherited already
+                if (shouldIncludeSubdomains == null) {
+                    shouldIncludeSubdomains = parentBuilder.getShouldIncludeSubdomains();
+                }
+
+                if (publicKeyHashes == null) {
+                    publicKeyHashes = parentBuilder.getPublicKeyHashes();
+                }
+
+                if (expirationDate == null) {
+                    expirationDate = parentBuilder.getExpirationDate();
+                }
+
+                if (shouldEnforcePinning == null) {
+                    shouldEnforcePinning = parentBuilder.getShouldEnforcePinning();
+                }
+
+                if (reportUris == null) {
+                    reportUris = parentBuilder.getReportUris();
+                }
+
+                if (shouldDisableDefaultReportUri == null) {
+                    shouldDisableDefaultReportUri = parentBuilder.getShouldDisableDefaultReportUri();
+                }
+            }
+
             return new DomainPinningPolicy(hostname, shouldIncludeSubdomains, publicKeyHashes,
-                    shouldEnforcePinning, expirationDate, reportUris, shouldDisableDefaultReportUri);
+                    shouldEnforcePinning, expirationDate, reportUris,
+                    shouldDisableDefaultReportUri);
         }
 
         public Builder setParent(Builder parent) {
@@ -161,27 +206,51 @@ public final class DomainPinningPolicy {
             this.hostname = hostname;
         }
 
-        public void setShouldIncludeSubdomains(boolean shouldIncludeSubdomains) {
+        Boolean getShouldIncludeSubdomains() {
+            return shouldIncludeSubdomains;
+        }
+
+        public void setShouldIncludeSubdomains(Boolean shouldIncludeSubdomains) {
             this.shouldIncludeSubdomains = shouldIncludeSubdomains;
+        }
+
+        Set<String> getPublicKeyHashes() {
+            return publicKeyHashes;
         }
 
         public void setPublicKeyHashes(Set<String> publicKeyHashes) {
             this.publicKeyHashes = publicKeyHashes;
         }
 
+        Date getExpirationDate() {
+            return expirationDate;
+        }
+
         public void setExpirationDate(Date expirationDate) {
             this.expirationDate = expirationDate;
         }
 
-        public void setShouldEnforcePinning(boolean shouldEnforcePinning) {
+        Boolean getShouldEnforcePinning() {
+            return shouldEnforcePinning;
+        }
+
+        public void setShouldEnforcePinning(Boolean shouldEnforcePinning) {
             this.shouldEnforcePinning = shouldEnforcePinning;
+        }
+
+        Set<String> getReportUris() {
+            return reportUris;
         }
 
         public void setReportUris(Set<String> reportUris) {
             this.reportUris = reportUris;
         }
 
-        public void setShouldDisableDefaultReportUri(boolean shouldDisableDefaultReportUri) {
+        Boolean getShouldDisableDefaultReportUri() {
+            return shouldDisableDefaultReportUri;
+        }
+
+        public void setShouldDisableDefaultReportUri(Boolean shouldDisableDefaultReportUri) {
             this.shouldDisableDefaultReportUri = shouldDisableDefaultReportUri;
         }
     }

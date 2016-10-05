@@ -161,15 +161,18 @@ public final class TrustKitConfiguration {
     static private List<DomainPinningPolicy.Builder> parseConfigEntry(
             XmlPullParser parser, DomainPinningPolicy.Builder parentBuilder)
             throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, null, "domain-config");
 
         DomainPinningPolicy.Builder builder = new DomainPinningPolicy.Builder();
         builder.setParent(parentBuilder);
 
         List<DomainPinningPolicy.Builder> builderList = new ArrayList<>();
+        // Put the current builder as the first one in the list, so the parent always gets built
+        // before its children; needed for figuring out the final config when there's inheritance
         builderList.add(builder);
 
         int eventType = parser.next();
-        while ((eventType != XmlPullParser.END_TAG) && !"domain-config".equals(parser.getName())) {
+        while (!((eventType == XmlPullParser.END_TAG) && "domain-config".equals(parser.getName()))) {
             if (eventType == XmlPullParser.START_TAG) {
                 if ("domain-config".equals(parser.getName())) {
                     // Nested domain configuration tag
@@ -195,16 +198,16 @@ public final class TrustKitConfiguration {
     }
 
     private static class PinSetTag {
-        Date expirationDate;
-        Set<String> pins;
+        Date expirationDate = null;
+        Set<String> pins = null;
     }
 
     @NonNull
     private static PinSetTag readPinSet(@NonNull XmlPullParser parser) throws IOException,
             XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "pin-set");
-        PinSetTag tag = new PinSetTag();
-        tag.pins = new HashSet<>();
+        PinSetTag pinSetTag = new PinSetTag();
+        pinSetTag.pins = new HashSet<>();
 
         // Look for the expiration attribute
         // TODO(ad): The next line throws an exception when running the tests
@@ -218,27 +221,27 @@ public final class TrustKitConfiguration {
                     */
 
         // Parse until the corresponding close pin-set tag
-        int eventType = parser.nextTag();
-        while ((eventType != XmlPullParser.END_TAG) && !"pin-set".equals(parser.getName())) {
+        int eventType = parser.next();
+        while (!((eventType == XmlPullParser.END_TAG) && "pin-set".equals(parser.getName()))) {
             // Look for the next pin tag
             if ((eventType == XmlPullParser.START_TAG) && "pin".equals(parser.getName())) {
                 // Found one
                 // Sanity check on the digest value
                 String digest = parser.getAttributeValue(null, "digest");
-                if (!digest.equals("SHA-256")) {
+                if ((digest == null) || !digest.equals("SHA-256")) {
                     throw new IllegalArgumentException("Unexpected digest value: " + digest);
                 }
                 // Parse the pin value
-                tag.pins.add(parser.nextText());
+                pinSetTag.pins.add(parser.nextText());
             }
-            parser.nextTag();
+            eventType = parser.next();
         }
-        return tag;
+        return pinSetTag;
     }
 
     private static class TrustkitConfigTag {
-        boolean enforcePinning = false;
-        boolean disableDefaultReportUri = false;
+        Boolean enforcePinning = null;
+        Boolean disableDefaultReportUri = null;
         Set<String> reportUris;
     }
 
@@ -250,23 +253,27 @@ public final class TrustKitConfiguration {
         TrustkitConfigTag result = new TrustkitConfigTag();
         Set<String> reportUris = new HashSet<>();
 
-        // Look for the enforcePinning attribute - default value is false
-        result.enforcePinning =
-                Boolean.parseBoolean(parser.getAttributeValue(null, "enforcePinning"));
+        // Look for the enforcePinning attribute
+        String enforcePinning = parser.getAttributeValue(null, "enforcePinning");
+        if (enforcePinning != null) {
+            result.enforcePinning = Boolean.parseBoolean(enforcePinning);
+        }
 
         // Look for the disableDefaultReportUri attribute
-        result.disableDefaultReportUri
-                = Boolean.parseBoolean(parser.getAttributeValue(null, "disableDefaultReportUri"));
+        String disableDefaultReportUri = parser.getAttributeValue(null, "disableDefaultReportUri");
+        if (disableDefaultReportUri != null) {
+            result.disableDefaultReportUri = Boolean.parseBoolean(disableDefaultReportUri);
+        }
 
         // Parse until the corresponding close trustkit-config tag
         int eventType = parser.next();
-        while ((eventType != XmlPullParser.END_TAG) && !"trustkit-config".equals(parser.getName())) {
+        while (!((eventType == XmlPullParser.END_TAG) && "trustkit-config".equals(parser.getName()))) {
             // Look for the next report-uri tag
             if ((eventType == XmlPullParser.START_TAG) && "report-uri".equals(parser.getName())) {
                 // Found one - parse the report-uri value
                 reportUris.add(parser.nextText());
             }
-            parser.next();
+            eventType = parser.next();
         }
 
         result.reportUris = reportUris;
@@ -274,7 +281,7 @@ public final class TrustKitConfiguration {
     }
 
     private static class DomainTag {
-        boolean includeSubdomains = false;
+        Boolean includeSubdomains = null;
         String hostname = null;
     }
 
@@ -284,9 +291,11 @@ public final class TrustKitConfiguration {
         parser.require(XmlPullParser.START_TAG, null, "domain");
         DomainTag result = new DomainTag();
 
-        // Look for the includeSubdomains attribute - default value is false
-        result.includeSubdomains =
-                Boolean.parseBoolean(parser.getAttributeValue(null, "includeSubdomains"));
+        // Look for the includeSubdomains attribute
+        String includeSubdomains = parser.getAttributeValue(null, "includeSubdomains");
+        if (includeSubdomains != null) {
+            result.includeSubdomains = Boolean.parseBoolean(includeSubdomains);
+        }
 
         // Parse the domain text
         result.hostname = parser.nextText();
@@ -309,8 +318,7 @@ public final class TrustKitConfiguration {
         Boolean lastOverridePinsEncountered = null;
 
         int eventType = parser.next();
-        while ((eventType != XmlPullParser.END_TAG) && "trust-anchors".equals(parser.getName())) {
-            parser.nextTag();
+        while (!((eventType == XmlPullParser.END_TAG) && "trust-anchors".equals(parser.getName()))) {
             // Look for the next certificates tag
             if ((eventType == XmlPullParser.START_TAG)
                     && "certificates".equals(parser.getName().trim())) {
@@ -352,7 +360,7 @@ public final class TrustKitConfiguration {
                             "(TrustKit doesn't support system and user installed certificates).");
                 }
             }
-            parser.next();
+            eventType = parser.next();
         }
 
         if (lastOverridePinsEncountered != null) {
