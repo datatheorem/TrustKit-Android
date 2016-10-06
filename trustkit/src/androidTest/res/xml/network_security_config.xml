@@ -1,3 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- This XML file is needed for running the unit tests on Android N+ -->
+    <domain-config>
+        <!-- testPinnedDomainSuccess() -->
+        <domain>www.datatheorem.com</domain>
+        <pin-set>
+            <!-- Valid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="true">
+        </trustkit-config>
+    </domain-config>
+    <domain-config>
+        <!-- testPinnedDomainInvalidPin() -->
+        <domain>www.yahoo.com</domain>
+        <pin-set>
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="true">
+        </trustkit-config>
+    </domain-config>
+    <domain-config>
+        <!-- testPinnedDomainInvalidPinAndPinningNotEnforced() -->
+        <domain>www.github.com</domain>
+        <pin-set>
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="true">
+        </trustkit-config>
+    </domain-config>
+    <domain-config>
+        <!-- testPinnedDomainExpiredChain() -->
+        <domain>expired.badssl.com</domain>
+        <pin-set>
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="true">
+        </trustkit-config>
+    </domain-config>
+    <domain-config>
+        <!-- testPinnedDomainUntrustedChainAndPinningNotEnforced() -->
+        <domain>untrusted-root.badssl.com</domain>
+        <pin-set>
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="false">
+        </trustkit-config>
+    </domain-config>
+    <domain-config>
+        <!-- testPinnedDomainWrongHostnameChain() -->
+        <domain>wrong.host.badssl.com</domain>
+        <pin-set>
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="true">
+        </trustkit-config>
+    </domain-config>
+    <debug-overrides>
+        <trust-anchors>
+            <certificates overridePins="true" src="@raw/good"/>
+            <certificates overridePins="true" src="@raw/cacertorg"/>
+        </trust-anchors>
+    </debug-overrides>
 </network-security-config>

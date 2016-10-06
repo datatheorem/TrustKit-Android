@@ -2,6 +2,7 @@ package com.datatheorem.android.trustkit.pinning;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -367,6 +368,12 @@ public class PinningSSLSocketFactoryTest {
 
     @Test
     public void testDebugOverridesButAppNotDebuggable() throws IOException, CertificateException {
+        if (Build.VERSION.SDK_INT >= 24) {
+            // This test will not work when using the Android N XML network policy because we can't
+            // dynamically switch the App's debuggable flag for true to false (it is always true
+            // when running the test suite)
+            return;
+        }
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname(serverHostname)
@@ -413,6 +420,11 @@ public class PinningSSLSocketFactoryTest {
 
     @Test
     public void testDebugOverridesInvalidPin() throws IOException, CertificateException {
+        if (Build.VERSION.SDK_INT >= 24) {
+            // This test will not work when using the Android N XML network policy because we can't
+            // dynamically switch overridePins to false (as it is true in the XML policy)
+            return;
+        }
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname(serverHostname)
@@ -461,6 +473,12 @@ public class PinningSSLSocketFactoryTest {
     //region Tests for when the domain is NOT pinned
     @Test
     public void testNonPinnedDomainUntrustedRootChain() throws IOException {
+        if (Build.VERSION.SDK_INT >= 24) {
+            // This test will not work when using the Android N XML network policy because we can't
+            // dynamically remove the debug-overrides tag defined in the XML policy which adds the
+            // cacert.org CA cert as a trusted CA
+            return;
+        }
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname("other.domain.com")
