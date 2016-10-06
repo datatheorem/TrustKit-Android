@@ -4,6 +4,8 @@ package com.datatheorem.android.trustkit.pinning;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Base64;
 
+import com.datatheorem.android.trustkit.CertificateUtils;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -40,9 +42,7 @@ public class PublicKeyPinTest {
                 "9JTH1ZcyFbX9hdBI4xPAtzFX51AsSa8dpRdG+8DmI41Q/1ludoMZboExHldlUbQH\n" +
                 "zUuHKF8/T+aNo/9FfpqDz1fFnuoF7tuwyRh73B0YDyDVTNuq7LJ4tmzpVvqIt2tn\n" +
                 "RJnQoL4pLQ40SQsoUi4FYG/gxJMoQX6ROWe2nyg=";
-        InputStream is = new ByteArrayInputStream(Base64.decode(pemCertificate, Base64.DEFAULT));
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        Certificate cert = cf.generateCertificate(is);
+        Certificate cert = CertificateUtils.certificateFromPem(pemCertificate);
         PublicKeyPin pin = new PublicKeyPin(cert);
         assertEquals("Ckvh+UFO2eHunqaB2w0jsrwrJJQcSoES+p9FUhVoszQ=", pin.toString());
     }

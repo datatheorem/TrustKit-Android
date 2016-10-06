@@ -81,6 +81,11 @@ class DebugOverridesTrustManager implements X509TrustManager {
         }
     }
 
+    public void checkServerTrusted(X509Certificate[] chain, String authType, String hostname)
+            throws CertificateException {
+        checkServerTrusted(chain, authType);
+    }
+
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType)
             throws CertificateException {
