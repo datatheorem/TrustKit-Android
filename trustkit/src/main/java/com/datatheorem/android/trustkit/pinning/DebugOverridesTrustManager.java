@@ -1,6 +1,7 @@
 package com.datatheorem.android.trustkit.pinning;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -10,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Enumeration;
 import java.util.Set;
 
 import javax.net.ssl.TrustManager;
@@ -19,37 +21,33 @@ import javax.net.ssl.X509TrustManager;
 
 /**
  * Used when <debug-overrides> is enabled in the network security policy and we are on a pre-N
- * Android device (as Android N automatically takes care of this). It first tries to validate
- * the server's certificate chain using the system's default trust manager, and then using a trust
- * manager configured with custom CAs (the ones defined in <debug-overrides>).
+ * Android device (as Android N automatically takes care of this). It returns a trust manager that
+ * trusts the supplied debug CA certificates, in addition to the Android system and user CA
+ * certificates.
  */
-class DebugOverridesTrustManager implements X509TrustManager {
+class DebugOverridesTrustManager {
 
-    // The trust manager we use to do the default SSL validation
-    private final X509TrustManager systemTrustManager;
-
-    // A trust manager configured with custom/debug CA certificates
-    private final X509TrustManager customCaTrustManager;
-
-    public DebugOverridesTrustManager(@NonNull Set<Certificate> debugCaCerts)
-            throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException,
-            KeyManagementException {
-        customCaTrustManager = getCustomCaTrustManager(debugCaCerts);
-        systemTrustManager = SystemTrustManager.getDefault();
-    }
-
-    private static X509TrustManager getCustomCaTrustManager(Set<Certificate> debugCaCerts) throws
+    public static X509TrustManager getInstance(Set<Certificate> debugCaCerts) throws
             CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {
         X509TrustManager debugTrustManager = null;
 
-
-        // Create a KeyStore containing our trusted CAs
-        String keyStoreType = KeyStore.getDefaultType();
-        KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+        // Create a KeyStore containing our trusted CAs and the Android user and system CAs
+        KeyStore systemKeyStore = KeyStore.getInstance("AndroidCAStore");
+        systemKeyStore.load(null, null);
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(null, null);
+        // Copy the user and system CAs from the Android store - is there a faster way to do this?
+        Enumeration aliases = systemKeyStore.aliases();
+        while (aliases.hasMoreElements()) {
+            String alias = (String) aliases.nextElement();
+            X509Certificate cert = (X509Certificate) systemKeyStore.getCertificate(alias);
+            keyStore.setCertificateEntry(alias , cert);
+        }
+
+        // Add the extra debug CAs to the store
         for (Certificate caCert : debugCaCerts) {
-            System.out.println("ca=" + ((X509Certificate) caCert).getSubjectDN());
-            keyStore.setCertificateEntry("ca", caCert);
+            String alias = "debug: " + ((X509Certificate) caCert).getSubjectDN().getName();
+            keyStore.setCertificateEntry(alias , caCert);
         }
 
         // Create a TrustManager that trusts the CAs in our KeyStore
@@ -68,34 +66,5 @@ class DebugOverridesTrustManager implements X509TrustManager {
             throw new IllegalStateException("Should never happen");
         }
         return debugTrustManager;
-    }
-
-    @Override
-    public void checkServerTrusted(X509Certificate[] chain, String authType)
-            throws CertificateException {
-        try {
-            systemTrustManager.checkServerTrusted(chain, authType);
-        } catch (CertificateException e) {
-            // Try validating with the custom CAs
-            customCaTrustManager.checkServerTrusted(chain, authType);
-        }
-    }
-
-    public void checkServerTrusted(X509Certificate[] chain, String authType, String hostname)
-            throws CertificateException {
-        checkServerTrusted(chain, authType);
-    }
-
-    @Override
-    public void checkClientTrusted(X509Certificate[] chain, String authType)
-            throws CertificateException {
-        throw new CertificateException("Client certificates not supported!");
-    }
-
-    @Override
-    public X509Certificate[] getAcceptedIssuers() {
-        // getAcceptedIssuers is meant to be used to determine which trust anchors the server will
-        // accept when verifying clients.
-        return null;
     }
 }

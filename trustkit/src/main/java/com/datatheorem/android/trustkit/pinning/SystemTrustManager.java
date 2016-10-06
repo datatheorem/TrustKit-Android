@@ -14,6 +14,8 @@ import javax.net.ssl.X509TrustManager;
 
 class SystemTrustManager {
 
+    private static final X509TrustManager systemTrustManager = getSystemTrustManager();
+
     /**
      * Retrieve the platform's default trust manager.
      * Depending on the device's API level, the trust manager will consecutively do path validation
@@ -23,7 +25,11 @@ class SystemTrustManager {
      * @return the platform's default trust manager.
      */
     @NonNull
-    public static X509TrustManager getDefault() {
+    public static X509TrustManager getInstance() {
+        return systemTrustManager;
+    }
+
+    private static X509TrustManager getSystemTrustManager() {
         X509TrustManager systemTrustManager = null;
         TrustManagerFactory trustManagerFactory;
         try {

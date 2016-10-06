@@ -2,6 +2,7 @@ package com.datatheorem.android.trustkit;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -32,22 +33,31 @@ import java.util.UUID;
 public class TrustKit {
 
     private static final String TRUSTKIT_VENDOR_ID = "TRUSTKIT_VENDOR_ID";
+    protected static TrustKit trustKitInstance;
+
     private final TrustKitConfiguration trustKitConfiguration;
     protected BackgroundReporter backgroundReporter;
-    protected static TrustKit trustKitInstance;
 
     protected TrustKit(@NonNull Context context,
                        @NonNull TrustKitConfiguration trustKitConfiguration) {
         this.trustKitConfiguration = trustKitConfiguration;
 
-        // Try to process the debug-overrides setting and parse the custom CA certificates
-        // TODO(ad): Put the debug overrides config here; make sure to check for the debug flag
-        Set<Certificate> debugOverridesCaCerts = null;
-        if (trustKitConfiguration.shouldOverridePins()) {
-            debugOverridesCaCerts = trustKitConfiguration.getDebugCaCertificates();
+        // Try to process the debug-overrides setting and parse the custom CA certificates if the
+        // App is debuggable
+        boolean isAppDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+        Set<Certificate> debugCaCerts = null;
+        boolean shouldOverridePins = false;
+        if (isAppDebuggable) {
+            debugCaCerts = trustKitConfiguration.getDebugCaCertificates();
+            if (debugCaCerts != null) {
+                TrustKitLog.i("App is debuggable - processing <debug-overrides> configuration.");
+            }
+            shouldOverridePins = trustKitConfiguration.shouldOverridePins();
         }
+
         try {
-            TrustKitTrustManagerBuilder.initializeBaselineTrustManager(debugOverridesCaCerts);
+            TrustKitTrustManagerBuilder.initializeBaselineTrustManager(debugCaCerts,
+                    shouldOverridePins);
         } catch (CertificateException | NoSuchAlgorithmException | KeyManagementException
                 | KeyStoreException | IOException e) {
             throw new ConfigurationException("Could not parse <debug-overrides> certificates");

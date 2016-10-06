@@ -23,18 +23,23 @@ public class TrustKitTrustManagerBuilder {
     // The trust manager we will use to perform the default SSL validation
     protected static X509TrustManager baselineTrustManager = null;
 
-    public static void initializeBaselineTrustManager(@Nullable Set<Certificate> debugCaCerts)
+    // Pinning validation can be disabled if debug-overrides is set
+    private static boolean shouldOverridePins = false;
+
+    public static void initializeBaselineTrustManager(@Nullable Set<Certificate> debugCaCerts,
+                                                      boolean debugOverridePins)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             KeyManagementException, IOException {
 
         if (baselineTrustManager != null) {
             throw new IllegalStateException("TrustKit has already been initialized");
         }
-        baselineTrustManager = SystemTrustManager.getDefault();
+        baselineTrustManager = SystemTrustManager.getInstance();
+        shouldOverridePins = debugOverridePins;
 
         if ((debugCaCerts != null) && (debugCaCerts.size() > 0) && (Build.VERSION.SDK_INT < 24)) {
             // Debug overrides is enabled and we are on a pre-N device; we need to do it manually
-            baselineTrustManager = new DebugOverridesTrustManager(debugCaCerts);
+            baselineTrustManager = DebugOverridesTrustManager.getInstance(debugCaCerts);
         }
     }
 
@@ -45,8 +50,8 @@ public class TrustKitTrustManagerBuilder {
         DomainPinningPolicy serverConfig =
                 TrustKit.getInstance().getConfiguration().getConfigForHostname(serverHostname);
 
-        if (serverConfig == null) {
-            // Domain is NOT pinned - only do baseline validation
+        if ((serverConfig == null) || (shouldOverridePins)) {
+            // Domain is NOT pinned or there is a debug override - only do baseline validation
             return baselineTrustManager;
         } else {
             return new PinningTrustManager(serverHostname, serverConfig, baselineTrustManager);

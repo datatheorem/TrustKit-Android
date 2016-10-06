@@ -43,10 +43,6 @@ public class TrustKitConfiguration {
 
     @Nullable
     public Set<Certificate> getDebugCaCertificates() {
-        if (!shouldOverridePins) {
-            throw new IllegalStateException("Tried to retrieve debug CA certificates when pinning" +
-                    " should not be overridden");
-        }
         return debugCaCertificates;
     }
 
@@ -327,9 +323,7 @@ public class TrustKitConfiguration {
         int eventType = parser.next();
         while (!((eventType == XmlPullParser.END_TAG) && "trust-anchors".equals(parser.getName()))) {
             // Look for the next certificates tag
-            if ((eventType == XmlPullParser.START_TAG)
-                    && "certificates".equals(parser.getName().trim())) {
-
+            if ((eventType == XmlPullParser.START_TAG) && "certificates".equals(parser.getName())) {
                 // For simplicity, we only support one global overridePins setting, where Android N
                 // allows setting overridePins for each debug certificate bundles
                 boolean currentOverridePins =
@@ -347,7 +341,8 @@ public class TrustKitConfiguration {
                 // Parse the supplied certificate file
                 String caPathFromUser = parser.getAttributeValue(null, "src").trim();
 
-                // The framework expects the certificate to be in the res/raw/ folder of the App
+                // Parse the path to the certificate bundle for src=@raw - we ignore system or user
+                // as the src
                 if (!TextUtils.isEmpty(caPathFromUser) && !caPathFromUser.equals("user")
                         && !caPathFromUser.equals("system") && caPathFromUser.startsWith("@raw")) {
 
