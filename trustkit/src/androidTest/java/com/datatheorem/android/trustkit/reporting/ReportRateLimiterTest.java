@@ -1,27 +1,24 @@
 package com.datatheorem.android.trustkit.reporting;
 
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinningValidationResult;
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 
-@Config(constants = BuildConfig.class)
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ReportRateLimiterTest {
 
     private HashSet<PublicKeyPin> pinList = new HashSet<PublicKeyPin>() {{
