@@ -44,6 +44,7 @@ public class TrustKit {
 
         // Try to process the debug-overrides setting and parse the custom CA certificates if the
         // App is debuggable
+        // Do not use BuildConfig.DEBUG as it does not work for libraries
         boolean isAppDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
         Set<Certificate> debugCaCerts = null;
         boolean shouldOverridePins = false;

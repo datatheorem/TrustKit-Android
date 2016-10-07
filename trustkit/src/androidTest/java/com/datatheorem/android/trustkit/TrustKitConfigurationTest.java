@@ -22,6 +22,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -224,7 +225,10 @@ public class TrustKitConfigurationTest {
                 "    </domain-config>\n" +
                 "    <debug-overrides>\n" +
                 "        <trust-anchors>\n" +
-                "            <certificates overridePins=\"true\" src=\"@raw/cert\"/>\n" +
+                "            <certificates overridePins=\"true\" src=\"@raw/good\"/>\n" +
+                "            <certificates overridePins=\"true\" src=\"@raw/cacertorg\"/>\n" +
+                // We ignore src=sytem or user
+                "            <certificates overridePins=\"true\" src=\"system\"/>\n" +
                 "        </trust-anchors>\n" +
                 "    </debug-overrides>\n" +
                 "</network-security-config>";
@@ -232,14 +236,24 @@ public class TrustKitConfigurationTest {
                 parseXmlString(xml));
 
         // Validate the debug overrides configuration
-        int certResId =
-                context.getResources().getIdentifier("cert", "raw", context.getPackageName());
-        InputStream certStream = context.getResources().openRawResource(certResId);
-        Certificate expectedCert =
-                CertificateFactory.getInstance("X.509").generateCertificate(certStream);
+        int goodCertResId =
+                context.getResources().getIdentifier("good", "raw", context.getPackageName());
+        InputStream goodCertStream = context.getResources().openRawResource(goodCertResId);
+        final Certificate goodCert =
+                CertificateFactory.getInstance("X.509").generateCertificate(goodCertStream);
         assertTrue(config.shouldOverridePins());
-        // TODO(ad): Handle multiple certificates
-        assertTrue(config.getDebugCaCertificates().contains(expectedCert));
+        int caCertResId =
+                context.getResources().getIdentifier("cacertorg", "raw", context.getPackageName());
+        InputStream caCertStream = context.getResources().openRawResource(caCertResId);
+        final Certificate caCert =
+                CertificateFactory.getInstance("X.509").generateCertificate(caCertStream);
+        assertTrue(config.shouldOverridePins());
+
+        HashSet expectedCertificates = new HashSet<Certificate>() {{
+            add(goodCert);
+            add(caCert);
+        }};
+        assertEquals(expectedCertificates, config.getDebugCaCertificates());
     }
 
     @Test

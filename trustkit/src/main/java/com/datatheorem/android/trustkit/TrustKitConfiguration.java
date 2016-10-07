@@ -37,7 +37,6 @@ public class TrustKitConfiguration {
     @Nullable final private Set<Certificate> debugCaCertificates;
 
     public boolean shouldOverridePins() {
-        // TODO(ad): Let's put the logic here to always return false if we are not in debug mode
         return shouldOverridePins;
     }
 
@@ -307,8 +306,6 @@ public class TrustKitConfiguration {
 
     private static class DebugOverridesTag {
         boolean overridePins = false;
-        // TODO(ad): The supplied file may contain multiple certificates and also there may be
-        // multiple <certificates> tags
         Set<Certificate> debugCaCertificates = null;
     }
 
@@ -319,6 +316,7 @@ public class TrustKitConfiguration {
         parser.require(XmlPullParser.START_TAG, null, "debug-overrides");
         DebugOverridesTag result = new DebugOverridesTag();
         Boolean lastOverridePinsEncountered = null;
+        Set<Certificate> debugCaCertificates = new HashSet<>();
 
         int eventType = parser.next();
         while (!((eventType == XmlPullParser.END_TAG) && "trust-anchors".equals(parser.getName()))) {
@@ -352,8 +350,7 @@ public class TrustKitConfiguration {
                                             caPathFromUser.split("/")[1], "raw",
                                             context.getPackageName()));
 
-                    result.debugCaCertificates = new HashSet<>();
-                    result.debugCaCertificates.add(CertificateFactory.getInstance("X.509")
+                    debugCaCertificates.add(CertificateFactory.getInstance("X.509")
                             .generateCertificate(stream));
 
                 } else {
@@ -367,6 +364,9 @@ public class TrustKitConfiguration {
 
         if (lastOverridePinsEncountered != null) {
             result.overridePins = lastOverridePinsEncountered;
+        }
+        if (debugCaCertificates.size() > 0) {
+            result.debugCaCertificates = debugCaCertificates;
         }
         return result;
     }
