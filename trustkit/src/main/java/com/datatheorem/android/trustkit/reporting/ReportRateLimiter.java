@@ -24,13 +24,13 @@ class ReportRateLimiter {
         }
 
         // Check to see if an identical report is already in the cache
-        List<Object> cacheEntry = new ArrayList<Object>() {{
-            add(report.getNotedHostname());
-            add(report.getServerHostname());
-            add(report.getServerPort());
-            add(report.getValidatedCertificateChainAsPem());
-            add(report.getValidationResult());
-        }};
+        List<Object> cacheEntry = new ArrayList<>();
+        cacheEntry.add(report.getNotedHostname());
+        cacheEntry.add(report.getServerHostname());
+        cacheEntry.add(report.getServerPort());
+        cacheEntry.add(report.getValidatedCertificateChainAsPem());
+        cacheEntry.add(report.getValidationResult());
+
         boolean shouldRateLimitReport = reportsCache.contains(cacheEntry);
         if (!shouldRateLimitReport){
             reportsCache.add(cacheEntry);
