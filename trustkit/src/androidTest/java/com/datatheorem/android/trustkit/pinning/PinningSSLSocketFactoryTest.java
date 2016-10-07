@@ -94,12 +94,12 @@ public class PinningSSLSocketFactoryTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        TestableTrustKit.reset();
+        TestableTrustManagerBuilder.reset();
     }
 
     @After
     public void tearDown() {
-        TestableTrustKit.reset();
-        TestableTrustManagerBuilder.reset();
     }
 
     //region Tests for when the domain is pinned
