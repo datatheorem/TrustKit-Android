@@ -1,12 +1,10 @@
-package com.datatheorem.android.trustkit;
+package com.datatheorem.android.trustkit.config;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.datatheorem.android.trustkit.config.ConfigurationException;
-import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -26,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 
 
-// TODO(ad): Make this private
 public class TrustKitConfiguration {
 
     @NonNull final private Set<DomainPinningPolicy> domainPolicies;
@@ -114,7 +111,7 @@ public class TrustKitConfiguration {
     }
 
     @NonNull
-    static TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
+    static public TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
                                                @NonNull XmlPullParser parser)
             throws XmlPullParserException, IOException, ParseException, CertificateException {
         // Handle nested domain config tags

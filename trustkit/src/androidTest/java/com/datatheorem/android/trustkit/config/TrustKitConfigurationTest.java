@@ -1,10 +1,11 @@
-package com.datatheorem.android.trustkit;
+package com.datatheorem.android.trustkit.config;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
 import org.junit.Test;
@@ -22,7 +23,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.text.ParseException;
 import java.util.HashSet;
-import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;

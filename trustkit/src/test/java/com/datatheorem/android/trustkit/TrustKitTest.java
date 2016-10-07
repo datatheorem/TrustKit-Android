@@ -1,10 +1,6 @@
 package com.datatheorem.android.trustkit;
 
-import android.content.Context;
-import android.os.Build;
-
-import com.datatheorem.android.trustkit.TrustKit;
-import com.datatheorem.android.trustkit.TrustKitConfiguration;
+import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 @Config(constants = BuildConfig.class, sdk = 23)

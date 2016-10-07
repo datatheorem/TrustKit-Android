@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import com.datatheorem.android.trustkit.config.TestableTrustKitConfiguration;
+import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import java.security.cert.Certificate;
@@ -25,7 +27,7 @@ public class TestableTrustKit extends TrustKit {
     public static void init(@NonNull Set<DomainPinningPolicy> domainConfigSet,
                             @NonNull Context context,
                             BackgroundReporter reporter) {
-        trustKitInstance = new TrustKit(context, new TrustKitConfiguration(domainConfigSet));
+        trustKitInstance = new TrustKit(context, new TestableTrustKitConfiguration(domainConfigSet));
         TrustKit.getInstance().backgroundReporter = reporter;
     }
 
@@ -35,7 +37,7 @@ public class TestableTrustKit extends TrustKit {
                             @Nullable Set<Certificate> debugCaCerts,
                             @NonNull Context context,
                             BackgroundReporter reporter) {
-        trustKitInstance = new TrustKit(context, new TrustKitConfiguration(domainConfigSet,
+        trustKitInstance = new TrustKit(context, new TestableTrustKitConfiguration(domainConfigSet,
                 shouldOverridePins, debugCaCerts));
         TrustKit.getInstance().backgroundReporter = reporter;
     }

@@ -10,6 +10,7 @@ import android.security.NetworkSecurityPolicy;
 import android.support.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
+import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.pinning.TrustKitTrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -25,7 +26,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
