@@ -2,6 +2,7 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.os.AsyncTask;
 
+import com.datatheorem.android.trustkit.pinning.SystemTrustManager;
 import com.datatheorem.android.trustkit.pinning.TrustKitTrustManagerBuilder;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
@@ -24,12 +25,14 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
 
     @Override
     protected final Integer doInBackground(Object... params) {
+        Integer lastResponseCode = null;
 
         // First parameter is the report
         PinningFailureReport report = (PinningFailureReport) params[0];
 
         // Remaining parameters are report URLs - send the report to each of them
         for (int i=1;i<params.length;i++) {
+            // TODO(ad): Ensure the last URI is not skipped
             URL reportUri = (URL) params[i];
             HttpsURLConnection connection = null;
             try {
@@ -50,32 +53,16 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
                 stream.flush();
                 stream.close();
 
+                lastResponseCode = connection.getResponseCode();
             } catch (IOException e) {
                 TrustKitLog.i("Background upload - task completed with error:" + e.getMessage());
             } finally {
                 if (connection != null) {
-
                     connection.disconnect();
-                    try {
-                        TrustKitLog.i(String.valueOf(connection.getResponseCode()));
-                    } catch (IOException e) {
-                        TrustKitLog.i(e.getMessage());
-                    }
                 }
-                TrustKitLog.i("conn null before deco");
-            }
-
-            if (connection != null) {
-                try {
-                    TrustKitLog.i(String.valueOf(connection.getResponseCode()));
-                } catch (IOException e) {
-                    TrustKitLog.i("post final " + e.getMessage());
-                }
-            } else {
-                TrustKitLog.i("Meh");
             }
         }
-        return null;
+        return lastResponseCode;
     }
 
     private static SSLSocketFactory getSystemSSLSocketFactory() {
@@ -90,11 +77,7 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
         }
 
         try {
-            // Get a trust manager for a hostname that is not pinned so we get a non-pinning trust
-            // manager
-            context.init(null, new TrustManager[] {
-                    TrustKitTrustManagerBuilder.getTrustManager("not.a.real.domain")
-            }, null);
+            context.init(null, new TrustManager[] { SystemTrustManager.getInstance() }, null);
         } catch (KeyManagementException e) {
             throw new IllegalStateException("Should never happen");
         }

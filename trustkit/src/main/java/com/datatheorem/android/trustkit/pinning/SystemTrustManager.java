@@ -12,7 +12,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 
-class SystemTrustManager {
+public class SystemTrustManager {
 
     private static final X509TrustManager systemTrustManager = getSystemTrustManager();
 
