@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.reporting;
 
+import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
 
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
@@ -20,32 +21,33 @@ import java.util.Set;
  */
 class PinningFailureReport implements Serializable {
     // Fields specific to TrustKit reports
-//    private static final String APP_PLATFORM = "ANDROID";
-    private String appBundleId;
-    private String appVersion;
-    private String appVendorId;
-    private String trustKitVersion;
-    private PinningValidationResult validationResult;
+    private static final String APP_PLATFORM = "ANDROID";
+    @NonNull private final String appBundleId;
+    @NonNull private final String appVersion;
+    @NonNull private final String appVendorId;
+    @NonNull private final String trustKitVersion;
+    @NonNull private final PinningValidationResult validationResult;
 
     // Fields from the HPKP spec
-    private String serverHostname;
-    private int serverPort; // Not properly returned right now and will always be 0
-    private String notedHostname;
-    private boolean includeSubdomains;
-    private boolean enforcePinning;
-    private List<String> servedCertificateChainAsPem;
-    private List<String> validatedCertificateChainAsPem;
-    private Date dateTime;
-    private Set<PublicKeyPin> knownPins;
+    @NonNull private final String serverHostname;
+    private final int serverPort; // Not properly returned right now and will always be 0
+    @NonNull private final String notedHostname;
+    private final boolean includeSubdomains;
+    private final boolean enforcePinning;
+    @NonNull private final List<String> servedCertificateChainAsPem;
+    @NonNull private final List<String> validatedCertificateChainAsPem;
+    @NonNull private final Date dateTime;
+    @NonNull private final Set<PublicKeyPin> knownPins;
 
 
-    PinningFailureReport(String appBundleId, String appVersion, String appVendorId,
-                         String trustKitVersion, String hostname, int port,
-                         String notedHostname, boolean includeSubdomains,
-                         boolean enforcePinning, List<String> servedCertificateChain,
-                         List<String> validatedCertificateChain, Date dateTime,
-                         Set<PublicKeyPin> knownPins,
-                         PinningValidationResult validationResult) {
+    PinningFailureReport(@NonNull String appBundleId, @NonNull String appVersion,
+                         @NonNull String appVendorId, @NonNull String trustKitVersion,
+                         @NonNull String hostname, int port, @NonNull String notedHostname,
+                         boolean includeSubdomains, boolean enforcePinning,
+                         @NonNull List<String> servedCertificateChain,
+                         @NonNull List<String> validatedCertificateChain, @NonNull Date dateTime,
+                         @NonNull Set<PublicKeyPin> knownPins,
+                         @NonNull PinningValidationResult validationResult) {
         this.appBundleId = appBundleId;
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;
@@ -62,14 +64,13 @@ class PinningFailureReport implements Serializable {
         this.validationResult = validationResult;
     }
 
-    public JSONObject toJson() {
-        TrustKitLog.i("Dans le json");
+    JSONObject toJson() {
         JSONObject jsonReport = new JSONObject();
         try {
             jsonReport.put("app-bundle-id", appBundleId);
             jsonReport.put("app-version", String.valueOf(appVersion));
             jsonReport.put("app-vendor-id", appVendorId);
-            jsonReport.put("app-platform", "ANDROID");
+            jsonReport.put("app-platform", APP_PLATFORM);
             jsonReport.put("trustkit-version", trustKitVersion);
             jsonReport.put("hostname", serverHostname);
             jsonReport.put("port", serverPort);
@@ -85,7 +86,6 @@ class PinningFailureReport implements Serializable {
             }
             jsonReport.put("validated-certificate-chain", ValidatedCertificateChainAsJson);
 
-
             JSONArray ServedCertificateChainAsJson = new JSONArray();
             for (String validatedCertificate : servedCertificateChainAsPem) {
                 ServedCertificateChainAsJson.put(validatedCertificate);
@@ -94,39 +94,47 @@ class PinningFailureReport implements Serializable {
 
             JSONArray jsonArrayKnownPins = new JSONArray();
             for (PublicKeyPin knownPin : knownPins) {
-                jsonArrayKnownPins.put(knownPin.toString());
+                jsonArrayKnownPins.put("pin-sha256=\"" + knownPin.toString() + "\"");
             }
             jsonReport.put("known-pins", jsonArrayKnownPins);
 
         } catch (JSONException ex) {
             // Should never happen
-            throw new IllegalStateException("JSON error for report:" + this.toString());
+            throw new IllegalStateException("JSON error for report: " + this.toString());
         }
         return jsonReport;
     }
 
     @Override
     public String toString() {
-        return toJson().toString();
+        try {
+            return toJson().toString(2);
+        } catch (JSONException e) {
+            return toJson().toString();
+        }
     }
 
-    public String getNotedHostname() {
+    @NonNull
+    String getNotedHostname() {
         return notedHostname;
     }
 
-    public String getServerHostname() {
+    @NonNull
+    String getServerHostname() {
         return serverHostname;
     }
 
-    public List<String> getValidatedCertificateChainAsPem() {
+    @NonNull
+    List<String> getValidatedCertificateChainAsPem() {
         return validatedCertificateChainAsPem;
     }
 
-    public PinningValidationResult getValidationResult() {
+    @NonNull
+    PinningValidationResult getValidationResult() {
         return validationResult;
     }
 
-    public int getServerPort() {
+    int getServerPort() {
         return serverPort;
     }
 }
