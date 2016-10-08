@@ -3,7 +3,6 @@ package com.datatheorem.android.trustkit.reporting;
 import android.os.AsyncTask;
 
 import com.datatheorem.android.trustkit.pinning.SystemTrustManager;
-import com.datatheorem.android.trustkit.pinning.TrustKitTrustManagerBuilder;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.io.BufferedOutputStream;
@@ -32,7 +31,6 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
 
         // Remaining parameters are report URLs - send the report to each of them
         for (int i=1;i<params.length;i++) {
-            // TODO(ad): Ensure the last URI is not skipped
             URL reportUri = (URL) params[i];
             HttpsURLConnection connection = null;
             try {

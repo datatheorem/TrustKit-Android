@@ -9,11 +9,12 @@ import java.util.Set;
 
 // Very basic implementation to rate-limit identical reports to once a day
 class ReportRateLimiter {
+
     private static final long MAX_SECONDS_BETWEEN_CACHE_RESET = 3600*24;
     private static Set<List<Object>> reportsCache = new HashSet<>();
     protected static Date lastReportsCacheResetDate = new Date();
 
-    public synchronized static boolean shouldRateLimit(final PinningFailureReport report) {
+    synchronized static boolean shouldRateLimit(final PinningFailureReport report) {
         // Reset the cache if it was created more than 24 hours ago
         Date currentDate = new Date();
         long secondsSinceLastReset =
