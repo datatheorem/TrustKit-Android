@@ -1,14 +1,12 @@
 package com.datatheorem.android.trustkit.reporting;
 
-import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.datatheorem.android.trustkit.CertificateUtils;
-import com.datatheorem.android.trustkit.PinningValidationResult;
+import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
-import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +17,6 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.UUID;
 
 
 @RunWith(AndroidJUnit4.class)

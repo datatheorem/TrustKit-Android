@@ -2,7 +2,7 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.text.format.DateFormat;
 
-import com.datatheorem.android.trustkit.PinningValidationResult;
+import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 

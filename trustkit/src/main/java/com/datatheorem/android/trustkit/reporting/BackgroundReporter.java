@@ -4,7 +4,7 @@ package com.datatheorem.android.trustkit.reporting;
 import android.util.Base64;
 
 import com.datatheorem.android.trustkit.BuildConfig;
-import com.datatheorem.android.trustkit.PinningValidationResult;
+import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 

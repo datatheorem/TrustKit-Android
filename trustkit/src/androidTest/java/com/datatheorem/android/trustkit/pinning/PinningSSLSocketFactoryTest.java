@@ -1,13 +1,11 @@
 package com.datatheorem.android.trustkit.pinning;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.datatheorem.android.trustkit.CertificateUtils;
-import com.datatheorem.android.trustkit.PinningValidationResult;
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
@@ -38,7 +36,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 
 @RunWith(AndroidJUnit4.class)

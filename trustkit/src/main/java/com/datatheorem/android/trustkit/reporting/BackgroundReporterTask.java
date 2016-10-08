@@ -20,9 +20,10 @@ import javax.net.ssl.TrustManager;
 
 class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
 
+    private static final SSLSocketFactory systemSocketFactory = getSystemSSLSocketFactory();
+
     @Override
     protected final Integer doInBackground(Object... params) {
-        SSLSocketFactory systemSocketFactory = getSystemSSLSocketFactory();
 
         // First parameter is the report
         PinningFailureReport report = (PinningFailureReport) params[0];

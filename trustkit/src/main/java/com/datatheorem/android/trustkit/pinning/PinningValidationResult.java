@@ -1,4 +1,4 @@
-package com.datatheorem.android.trustkit;
+package com.datatheorem.android.trustkit.pinning;
 
 
 public enum PinningValidationResult {
