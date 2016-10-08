@@ -11,12 +11,18 @@ import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -87,23 +93,30 @@ public class BackgroundReporterTest {
                     // Wrong pins
                     add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
                     add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
+                }})
+                .setShouldDisableDefaultReportUri(true)
+                .setReportUris(new HashSet<String>() {{ add("https://overmind.datatheorem.com"); }})
+                .build();
 
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
-                null);
-
-        BackgroundReporter reporter = new BackgroundReporter(true, "com.unit.tests", "1.2",
+        TestableBackgroundReporter reporter = new TestableBackgroundReporter(true, "com.unit.tests",
+                "1.2",
                 TestableTrustKit.getOrCreateVendorIdentifier(InstrumentationRegistry.getContext()));
+
+        TestableBackgroundReporter reporterSpy = Mockito.spy(reporter);
 
         ArrayList<X509Certificate> certChain = new ArrayList<>();
         certChain.add((X509Certificate)leaf);
         certChain.add((X509Certificate)intermediate);
 
-        reporter.pinValidationFailed("mail.google.com", 443, certChain, certChain,
-                TestableTrustKit.getInstance().getConfiguration()
-                .getConfigForHostname("mail.google.com"),
-                PinningValidationResult.FAILED);
+        reporterSpy.pinValidationFailed(serverHostname, 443, certChain, certChain,
+                domainPolicy, PinningValidationResult.FAILED);
+
+        // TODO(ad): Validate the content of the report
+        // TODO(ad): Test the rate limiter
+        verify(reporterSpy).sendReport(
+                (PinningFailureReport) org.mockito.Matchers.isNotNull(),
+                eq(new HashSet<URL>() {{ add(new URL("https://overmind.datatheorem.com")); }} )
+        );
     }
 }
 

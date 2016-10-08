@@ -90,7 +90,7 @@ public class BackgroundReporter {
         }
     }
 
-    private void sendReport(PinningFailureReport report, Set<URL> reportUriSet) {
+    protected void sendReport(PinningFailureReport report, Set<URL> reportUriSet) {
         // Prepare the AsyncTask's arguments
         ArrayList<Object> taskParameters = new ArrayList<>();
         taskParameters.add(report);
