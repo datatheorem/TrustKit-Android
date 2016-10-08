@@ -1,6 +1,7 @@
 package com.datatheorem.android.trustkit.reporting;
 
 
+import android.support.annotation.NonNull;
 import android.util.Base64;
 
 import com.datatheorem.android.trustkit.BuildConfig;
@@ -31,8 +32,8 @@ public class BackgroundReporter {
     // Configuration and Objects managing all the operation done by the BackgroundReporter
     private final boolean shouldRateLimitsReports;
 
-    public BackgroundReporter(boolean shouldRateLimitsReports, String appPackageName,
-                              String appVersion, String appVendorId) {
+    public BackgroundReporter(boolean shouldRateLimitsReports, @NonNull String appPackageName,
+                              @NonNull String appVersion, @NonNull String appVendorId) {
         this.shouldRateLimitsReports = shouldRateLimitsReports;
         this.appPackageName = appPackageName;
         this.appVersion = appVersion;
@@ -55,12 +56,12 @@ public class BackgroundReporter {
         return certificateAsPem;
     }
 
-    public void pinValidationFailed(String serverHostname,
-                                    Integer serverPort,
-                                    List<X509Certificate> servedCertificateChain,
-                                    List<X509Certificate> validatedCertificateChain,
-                                    DomainPinningPolicy serverConfig,
-                                    PinningValidationResult validationResult) {
+    public void pinValidationFailed(@NonNull String serverHostname,
+                                    @NonNull Integer serverPort,
+                                    @NonNull List<X509Certificate> servedCertificateChain,
+                                    @NonNull List<X509Certificate> validatedCertificateChain,
+                                    @NonNull DomainPinningPolicy serverConfig,
+                                    @NonNull PinningValidationResult validationResult) {
 
         TrustKitLog.i("Generating pin failure report for " + serverHostname);
 
@@ -90,7 +91,8 @@ public class BackgroundReporter {
         }
     }
 
-    protected void sendReport(PinningFailureReport report, Set<URL> reportUriSet) {
+    protected void sendReport(@NonNull PinningFailureReport report,
+                              @NonNull Set<URL> reportUriSet) {
         // Prepare the AsyncTask's arguments
         ArrayList<Object> taskParameters = new ArrayList<>();
         taskParameters.add(report);

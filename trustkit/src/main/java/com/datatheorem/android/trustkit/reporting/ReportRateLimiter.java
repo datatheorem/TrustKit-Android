@@ -1,6 +1,8 @@
 package com.datatheorem.android.trustkit.reporting;
 
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -11,10 +13,10 @@ import java.util.Set;
 class ReportRateLimiter {
 
     private static final long MAX_SECONDS_BETWEEN_CACHE_RESET = 3600*24;
-    private static Set<List<Object>> reportsCache = new HashSet<>();
+    private static final Set<List<Object>> reportsCache = new HashSet<>();
     protected static Date lastReportsCacheResetDate = new Date();
 
-    synchronized static boolean shouldRateLimit(final PinningFailureReport report) {
+    synchronized static boolean shouldRateLimit(@NonNull final PinningFailureReport report) {
         // Reset the cache if it was created more than 24 hours ago
         Date currentDate = new Date();
         long secondsSinceLastReset =
