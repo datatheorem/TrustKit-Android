@@ -1,33 +1,20 @@
 package com.datatheorem.android.trustkit.reporting;
 
 
-import android.os.AsyncTask;
 import android.util.Base64;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.PinningValidationResult;
-import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
-import com.datatheorem.android.trustkit.pinning.TrustKitTrustManagerBuilder;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
+import java.util.Set;
 
 
 /**
@@ -35,8 +22,6 @@ import javax.net.ssl.TrustManager;
  * to the specific URI.
  */
 public class BackgroundReporter {
-
-
 
     // Main application environment information
     private final String appPackageName;
@@ -70,7 +55,6 @@ public class BackgroundReporter {
         return certificateAsPem;
     }
 
-
     public void pinValidationFailed(String serverHostname,
                                     Integer serverPort,
                                     List<X509Certificate> servedCertificateChain,
@@ -99,91 +83,21 @@ public class BackgroundReporter {
                 serverConfig.getPublicKeyHashes(), validationResult);
 
         // If a similar report hasn't been sent recently, send it now
-        if (shouldRateLimitsReports && ReportRateLimiter.shouldRateLimit(report)) {
-            TrustKitLog.i("Pin failure report for " + serverHostname
-                    + " was not sent due to rate-limiting");
-            return;
+        if (!(shouldRateLimitsReports && ReportRateLimiter.shouldRateLimit(report))) {
+            sendReport(report, serverConfig.getReportUris());
+        } else {
+            TrustKitLog.i("Report for " + serverHostname + " was not sent due to rate-limiting");
         }
-
-        new AsyncTask<HashSet<URL>, Void, Integer>() {
-            @SafeVarargs
-            @Override
-            protected final Integer doInBackground(HashSet<URL>... params) {
-                for (final URL reportUri : params[0]) {
-                    HttpsURLConnection connection = null;
-                    try {
-                        connection = (HttpsURLConnection) reportUri.openConnection();
-                        connection.setRequestMethod("POST");
-                        connection.setRequestProperty("Content-Type", "application/json");
-                        connection.setDoOutput(true);
-                        connection.setChunkedStreamingMode(0);
-
-                        // Use the default system factory to ensure we are not doing pinning validation
-                        // TODO(ad): Test this
-                        connection.setSSLSocketFactory(getSystemSSLSocketFactory());
-
-                        connection.connect();
-
-                        final OutputStream stream =
-                                new BufferedOutputStream(connection.getOutputStream());
-                        stream.write(report.toJson().toString().getBytes("UTF-8"));
-                        stream.flush();
-                        stream.close();
-
-                    } catch (IOException e) {
-                        TrustKitLog.i("Background upload - task completed with error:"
-                                + e.getMessage());
-                    } finally {
-                        if (connection != null) {
-
-                            connection.disconnect();
-                            try {
-                                TrustKitLog.i(String.valueOf(connection.getResponseCode()));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                TrustKitLog.i(e.getMessage());
-                            }
-                        }
-
-                        TrustKitLog.i("conn null before deco");
-
-                    }
-
-                    if (connection != null) {
-                        try {
-                            TrustKitLog.i(String.valueOf(connection.getResponseCode()));
-                        } catch (IOException e) {
-                            TrustKitLog.i("post final " + e.getMessage());
-                        }
-                    } else {
-                        TrustKitLog.i("Meh");
-                    }
-                }
-                return null;
-            }
-
-        }.execute((HashSet<URL>) serverConfig.getReportUris());
     }
 
-    private static SSLSocketFactory getSystemSSLSocketFactory() {
-        SSLContext context;
-        try {
-            context = SSLContext.getInstance("TLS");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Should never happen");
+    private void sendReport(PinningFailureReport report, Set<URL> reportUriSet) {
+        // Prepare the AsyncTask's arguments
+        ArrayList<Object> taskParameters = new ArrayList<>();
+        taskParameters.add(report);
+        for (URL reportUri : reportUriSet) {
+            taskParameters.add(reportUri);
         }
-        if (context == null) {
-            throw new IllegalStateException("Should never happen");
-        }
-
-        try {
-            // Get a trust manager for an empty hostname so we get a non-pinning trust manager
-            context.init(null, new TrustManager[] {TrustKitTrustManagerBuilder.getTrustManager("")},
-                    null);
-        } catch (KeyManagementException e) {
-            throw new IllegalStateException("Should never happen");
-        }
-        return context.getSocketFactory();
+        // Call the task
+        new BackgroundReporterTask().execute(taskParameters.toArray());
     }
-
 }

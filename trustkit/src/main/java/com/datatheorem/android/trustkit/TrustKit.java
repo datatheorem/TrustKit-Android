@@ -84,7 +84,7 @@ public class TrustKit {
     }
 
     @NonNull
-    private static String getOrCreateVendorIdentifier(@NonNull Context appContext) {
+    protected static String getOrCreateVendorIdentifier(@NonNull Context appContext) {
         SharedPreferences trustKitSharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(appContext);
         // We store the vendor ID in the App's preferences
