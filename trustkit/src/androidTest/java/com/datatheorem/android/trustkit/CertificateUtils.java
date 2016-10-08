@@ -77,9 +77,8 @@ public class CertificateUtils {
         pemCertificate = pemCertificate.replace("-----BEGIN CERTIFICATE-----\n", "");
         pemCertificate = pemCertificate.replace("-----END CERTIFICATE-----", "");
         InputStream is = new ByteArrayInputStream(Base64.decode(pemCertificate, Base64.DEFAULT));
-        CertificateFactory cf = null;
         try {
-            cf = CertificateFactory.getInstance("X.509");
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
             return cf.generateCertificate(is);
         } catch (CertificateException e) {
            throw new RuntimeException("Should never happen");

@@ -3,8 +3,6 @@ package com.datatheorem.android.trustkit.reporting;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.datatheorem.android.trustkit.BuildConfig;
-import com.datatheorem.android.trustkit.CertificateUtils;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
@@ -20,12 +18,7 @@ import org.mockito.Mockito;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.sql.Date;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 import static com.datatheorem.android.trustkit.CertificateUtils.testCertChain;
 import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
@@ -62,7 +55,7 @@ public class BackgroundReporterTest {
                 .setReportUris(new HashSet<String>() {{ add("https://overmind.datatheorem.com"); }})
                 .build();
 
-        TestableBackgroundReporter reporter = new TestableBackgroundReporter(true, "com.unit.tests",
+        TestableBackgroundReporter reporter = new TestableBackgroundReporter("com.unit.tests",
                 "1.2",
                 TestableTrustKit.getOrCreateVendorIdentifier(InstrumentationRegistry.getContext()));
         TestableBackgroundReporter reporterSpy = Mockito.spy(reporter);

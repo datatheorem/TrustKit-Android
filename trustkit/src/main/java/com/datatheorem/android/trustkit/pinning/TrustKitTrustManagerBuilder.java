@@ -8,7 +8,6 @@ import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
@@ -29,7 +28,7 @@ public class TrustKitTrustManagerBuilder {
     public static void initializeBaselineTrustManager(@Nullable Set<Certificate> debugCaCerts,
                                                       boolean debugOverridePins)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
-            KeyManagementException, IOException {
+            IOException {
 
         if (baselineTrustManager != null) {
             throw new IllegalStateException("TrustKit has already been initialized");

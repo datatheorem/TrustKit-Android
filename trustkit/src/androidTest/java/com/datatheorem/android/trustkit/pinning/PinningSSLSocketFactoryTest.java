@@ -10,7 +10,6 @@ import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,16 +27,15 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
 
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 
+@SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
 public class PinningSSLSocketFactoryTest {
 
@@ -93,10 +91,6 @@ public class PinningSSLSocketFactoryTest {
         MockitoAnnotations.initMocks(this);
         TestableTrustKit.reset();
         TestableTrustManagerBuilder.reset();
-    }
-
-    @After
-    public void tearDown() {
     }
 
     //region Tests for when the domain is pinned

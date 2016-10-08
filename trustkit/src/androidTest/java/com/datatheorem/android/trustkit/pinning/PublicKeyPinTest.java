@@ -2,18 +2,14 @@ package com.datatheorem.android.trustkit.pinning;
 
 
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Base64;
 
 import com.datatheorem.android.trustkit.CertificateUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;

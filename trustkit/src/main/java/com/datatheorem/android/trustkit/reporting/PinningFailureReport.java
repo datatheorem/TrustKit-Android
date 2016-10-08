@@ -3,9 +3,9 @@ package com.datatheorem.android.trustkit.reporting;
 import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
 
+import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
-import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,10 +22,10 @@ import java.util.Set;
 class PinningFailureReport implements Serializable {
     // Fields specific to TrustKit reports
     private static final String APP_PLATFORM = "ANDROID";
+    private static final String trustKitVersion = BuildConfig.VERSION_NAME;
     @NonNull private final String appBundleId;
     @NonNull private final String appVersion;
     @NonNull private final String appVendorId;
-    @NonNull private final String trustKitVersion;
     @NonNull private final PinningValidationResult validationResult;
 
     // Fields from the HPKP spec
@@ -41,17 +41,15 @@ class PinningFailureReport implements Serializable {
 
 
     PinningFailureReport(@NonNull String appBundleId, @NonNull String appVersion,
-                         @NonNull String appVendorId, @NonNull String trustKitVersion,
-                         @NonNull String hostname, int port, @NonNull String notedHostname,
-                         boolean includeSubdomains, boolean enforcePinning,
-                         @NonNull List<String> servedCertificateChain,
+                         @NonNull String appVendorId, @NonNull String hostname, int port,
+                         @NonNull String notedHostname, boolean includeSubdomains,
+                         boolean enforcePinning, @NonNull List<String> servedCertificateChain,
                          @NonNull List<String> validatedCertificateChain, @NonNull Date dateTime,
                          @NonNull Set<PublicKeyPin> knownPins,
                          @NonNull PinningValidationResult validationResult) {
         this.appBundleId = appBundleId;
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;
-        this.trustKitVersion = trustKitVersion;
         this.serverHostname = hostname;
         this.serverPort = port;
         this.notedHostname = notedHostname;

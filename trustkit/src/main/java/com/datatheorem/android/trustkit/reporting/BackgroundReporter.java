@@ -4,7 +4,6 @@ package com.datatheorem.android.trustkit.reporting;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 
-import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -77,7 +76,7 @@ public class BackgroundReporter {
 
         // Generate the corresponding pin failure report
         PinningFailureReport report = new PinningFailureReport(appPackageName, appVersion,
-                appVendorId, BuildConfig.VERSION_NAME, serverHostname, serverPort,
+                appVendorId, serverHostname, serverPort,
                 serverConfig.getHostname(), serverConfig.shouldIncludeSubdomains(),
                 serverConfig.shouldEnforcePinning(), servedCertificateChainAsPem,
                 validatedCertificateChainAsPem, new Date(System.currentTimeMillis()),

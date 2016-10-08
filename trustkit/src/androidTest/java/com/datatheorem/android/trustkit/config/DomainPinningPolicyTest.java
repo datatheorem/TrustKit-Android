@@ -77,8 +77,7 @@ public class DomainPinningPolicyTest {
 
         boolean didReceiveConfigError = false;
         try {
-            DomainPinningPolicy policy = new DomainPinningPolicy("www.test.com", true, badPins,
-                    true, date, reportUris, false);
+            new DomainPinningPolicy("www.test.com", true, badPins, true, date, reportUris, false);
         }
         catch (ConfigurationException e) {
             if (e.getMessage().startsWith("Less than two pins")) {
@@ -94,8 +93,7 @@ public class DomainPinningPolicyTest {
     public void testBadPolicyPinTld() throws MalformedURLException {
         boolean didReceiveConfigError = false;
         try {
-            DomainPinningPolicy policy = new DomainPinningPolicy("com", true, pins, true,
-                    date, reportUris, false);
+            new DomainPinningPolicy("com", true, pins, true, date, reportUris, false);
         }
         catch (ConfigurationException e) {
             if (e.getMessage().startsWith("Tried to pin an invalid domain")) {

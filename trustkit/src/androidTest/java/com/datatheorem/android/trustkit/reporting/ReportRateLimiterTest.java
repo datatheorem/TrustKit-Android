@@ -3,7 +3,6 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
@@ -21,12 +20,12 @@ import static junit.framework.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class ReportRateLimiterTest {
 
-    private HashSet<PublicKeyPin> pinList = new HashSet<PublicKeyPin>() {{
+    private final HashSet<PublicKeyPin> pinList = new HashSet<PublicKeyPin>() {{
         add(new PublicKeyPin("rFjc3wG7lTZe43zeYTvPq8k4xdDEutCmIhI5dn4oCeE="));
         add(new PublicKeyPin("0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8="));
     }};
 
-    private ArrayList<String> pemCertificateList1 = new ArrayList<String>() {{
+    private final ArrayList<String> pemCertificateList1 = new ArrayList<String>() {{
         add("-----BEGIN CERTIFICATE-----\n"+
                 "MIIDGTCCAgGgAwIBAgIJAI1jD1qixIPLMA0GCSqGSIb3DQEBBQUAMCMxITAfBgNV\n"+
                 "BAMMGGV2aWxjZXJ0LmRhdGF0aGVvcmVtLmNvbTAeFw0xNTEyMjAxMzU4NDNaFw0y\n"+
@@ -48,7 +47,7 @@ public class ReportRateLimiterTest {
                 "-----END CERTIFICATE-----");
     }};
 
-    private ArrayList<String> pemCertificateList2 = new ArrayList<String>() {{
+    private final ArrayList<String> pemCertificateList2 = new ArrayList<String>() {{
         add("-----BEGIN CERTIFICATE-----\n" +
                 "MIIE2TCCA8GgAwIBAgIQFVDTs9tHXX3ivhstjNW2zANBgkqhkiG9w0BAQUFADA8\n" +
                 "MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMVGhhd3RlLCBJbmMuMRYwFAYDVQQDEw1U\n" +
@@ -83,7 +82,7 @@ public class ReportRateLimiterTest {
     @Test
     public void test() {
         PinningFailureReport report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
-                BuildConfig.VERSION_NAME, "www.host.com", 443, "host.com", true, true,
+                "www.host.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
                 pinList, PinningValidationResult.FAILED);
 
@@ -101,7 +100,7 @@ public class ReportRateLimiterTest {
 
         // Ensure the same report with a different validation result will be sent
         report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
-                BuildConfig.VERSION_NAME, "www.host.com", 443, "host.com", true, true,
+                "www.host.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
                 pinList, PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
         assertFalse(ReportRateLimiter.shouldRateLimit(report));
@@ -109,7 +108,7 @@ public class ReportRateLimiterTest {
 
         // Ensure the same report with a different hostname will be sent
         report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
-                BuildConfig.VERSION_NAME, "www.otherhost.com", 443, "host.com", true, true,
+                "www.otherhost.com", 443, "host.com", true, true,
                 pemCertificateList1, pemCertificateList1, new Date(),
                 pinList, PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
         assertFalse(ReportRateLimiter.shouldRateLimit(report));
@@ -118,7 +117,7 @@ public class ReportRateLimiterTest {
 
         // Ensure the same report with a different certificate chain will be sent
         report = new PinningFailureReport("com.test", "1.2.3", "vendorId",
-                BuildConfig.VERSION_NAME, "www.otherhost.com", 443, "host.com", true, true,
+                "www.otherhost.com", 443, "host.com", true, true,
                 pemCertificateList2, pemCertificateList2, new Date(),
                 pinList, PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED);
         assertFalse(ReportRateLimiter.shouldRateLimit(report));

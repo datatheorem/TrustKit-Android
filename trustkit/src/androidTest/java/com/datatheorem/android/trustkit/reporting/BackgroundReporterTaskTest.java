@@ -1,13 +1,9 @@
 package com.datatheorem.android.trustkit.reporting;
 
-import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.datatheorem.android.trustkit.BuildConfig;
-import com.datatheorem.android.trustkit.CertificateUtils;
 import com.datatheorem.android.trustkit.TestableTrustKit;
-import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
 
@@ -17,8 +13,6 @@ import org.junit.runner.RunWith;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,14 +24,14 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(AndroidJUnit4.class)
 public class BackgroundReporterTaskTest {
 
-    private HashSet<PublicKeyPin> knownPins = new HashSet<PublicKeyPin>() {{
+    private final HashSet<PublicKeyPin> knownPins = new HashSet<PublicKeyPin>() {{
         add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
         add(new PublicKeyPin("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="));
     }};
 
-    private PinningFailureReport report = new PinningFailureReport("com.unit.test", "1.2",
+    private final PinningFailureReport report = new PinningFailureReport("com.unit.test", "1.2",
             TestableTrustKit.getOrCreateVendorIdentifier(InstrumentationRegistry.getContext()),
-            BuildConfig.VERSION_NAME, "www.datatheorem.com", 0, "datatheorem.com", true, true,
+            "www.datatheorem.com", 0, "datatheorem.com", true, true,
             testCertChainPem, testCertChainPem, new Date(System.currentTimeMillis()), knownPins,
             PinningValidationResult.FAILED);
 

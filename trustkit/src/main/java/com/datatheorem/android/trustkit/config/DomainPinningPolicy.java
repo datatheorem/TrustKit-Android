@@ -125,16 +125,14 @@ public final class DomainPinningPolicy {
 
     @Override
     public String toString() {
-        return new StringBuilder()
-                .append("DomainPinningPolicy{")
-                .append("hostname = ").append(hostname).append("\n")
-                .append("knownPins = ").append(Arrays.toString(publicKeyHashes.toArray()))
-                .append("\n")
-                .append("shouldEnforcePinning = ").append(shouldEnforcePinning).append("\n")
-                .append("reportUris = ").append(reportUris).append("\n")
-                .append("shouldIncludeSubdomains = ").append(shouldIncludeSubdomains).append("\n")
-                .append("}")
-                .toString();
+        return "DomainPinningPolicy{" +
+                "hostname = " + hostname + "\n" +
+                "knownPins = " + Arrays.toString(publicKeyHashes.toArray()) +
+                "\n" +
+                "shouldEnforcePinning = " + shouldEnforcePinning + "\n" +
+                "reportUris = " + reportUris + "\n" +
+                "shouldIncludeSubdomains = " + shouldIncludeSubdomains + "\n" +
+                "}";
     }
 
 

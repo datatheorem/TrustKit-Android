@@ -113,7 +113,7 @@ public class TrustKitConfiguration {
     @NonNull
     static public TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
                                                @NonNull XmlPullParser parser)
-            throws XmlPullParserException, IOException, ParseException, CertificateException {
+            throws XmlPullParserException, IOException, CertificateException {
         // Handle nested domain config tags
         // https://developer.android.com/training/articles/security-config.html#ConfigInheritance
         List<DomainPinningPolicy.Builder> builderList = new ArrayList<>();

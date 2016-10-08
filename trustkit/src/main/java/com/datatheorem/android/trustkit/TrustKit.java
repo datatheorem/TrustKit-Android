@@ -59,8 +59,8 @@ public class TrustKit {
         try {
             TrustKitTrustManagerBuilder.initializeBaselineTrustManager(debugCaCerts,
                     shouldOverridePins);
-        } catch (CertificateException | NoSuchAlgorithmException | KeyManagementException
-                | KeyStoreException | IOException e) {
+        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
+                | IOException e) {
             throw new ConfigurationException("Could not parse <debug-overrides> certificates");
         }
 
@@ -131,7 +131,7 @@ public class TrustKit {
             trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(context,
                     context.getResources().getXml(policyResourceId)
             );
-        } catch (ParseException | XmlPullParserException | IOException e) {
+        } catch (XmlPullParserException | IOException e) {
             throw new ConfigurationException("Could not parse network security policy file");
         } catch (CertificateException e) {
             throw new ConfigurationException("Could not find the debug certificate in the network " +
