@@ -73,7 +73,6 @@ public class PublicKeyPinTest {
         try {
             new PublicKeyPin("ZW5jb2U=");
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
             if (e.getMessage().startsWith("Invalid pin")) {
                 didReturnError = true;
             }
