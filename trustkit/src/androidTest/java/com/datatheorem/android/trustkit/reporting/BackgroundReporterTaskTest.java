@@ -5,7 +5,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
-import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
+import com.datatheorem.android.trustkit.config.PublicKeyPin;
 
 import org.junit.Before;
 import org.junit.Test;

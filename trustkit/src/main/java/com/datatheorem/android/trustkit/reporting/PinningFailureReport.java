@@ -5,7 +5,7 @@ import android.text.format.DateFormat;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
-import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
+import com.datatheorem.android.trustkit.config.PublicKeyPin;
 
 import org.json.JSONArray;
 import org.json.JSONException;

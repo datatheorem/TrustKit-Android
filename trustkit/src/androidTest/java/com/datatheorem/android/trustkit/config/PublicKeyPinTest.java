@@ -1,9 +1,10 @@
-package com.datatheorem.android.trustkit.pinning;
+package com.datatheorem.android.trustkit.config;
 
 
 import android.support.test.runner.AndroidJUnit4;
 
 import com.datatheorem.android.trustkit.CertificateUtils;
+import com.datatheorem.android.trustkit.config.PublicKeyPin;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

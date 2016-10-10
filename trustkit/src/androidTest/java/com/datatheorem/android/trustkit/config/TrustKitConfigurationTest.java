@@ -4,10 +4,6 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
-import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
-import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParser;

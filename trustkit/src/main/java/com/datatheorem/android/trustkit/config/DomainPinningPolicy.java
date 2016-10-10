@@ -3,8 +3,6 @@ package com.datatheorem.android.trustkit.config;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.datatheorem.android.trustkit.pinning.PublicKeyPin;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;

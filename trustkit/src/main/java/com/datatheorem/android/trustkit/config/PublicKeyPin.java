@@ -1,4 +1,4 @@
-package com.datatheorem.android.trustkit.pinning;
+package com.datatheorem.android.trustkit.config;
 
 import android.support.annotation.NonNull;
 import android.util.Base64;
