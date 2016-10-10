@@ -46,7 +46,7 @@ public class DomainPinningPolicyTest {
             expectedPins.add(new PublicKeyPin(pinStr));
 
         }
-        assertEquals(expectedPins, policy.getPublicKeyHashes());
+        assertEquals(expectedPins, policy.getPublicKeyPins());
 
         // Ensure the default report URI was added as shouldDisableDefaultReportUri is false
         Set<URL> expectedReportUris = new HashSet<>();

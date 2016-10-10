@@ -81,7 +81,7 @@ public class TrustKitConfigurationTest {
             add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
             add(new PublicKeyPin("grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME="));
         }};
-        assertEquals(expectedPins, domainConfig.getPublicKeyHashes());
+        assertEquals(expectedPins, domainConfig.getPublicKeyPins());
     }
 
     @Test
@@ -297,12 +297,12 @@ public class TrustKitConfigurationTest {
             add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
             add(new PublicKeyPin("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="));
         }};
-        assertEquals(expectedPins, domainConfig.getPublicKeyHashes());
+        assertEquals(expectedPins, domainConfig.getPublicKeyPins());
 
         // Validate the configuration of the parent domain-config for a subdomain
         domainConfig = config.getConfigForHostname("subdomain.datatheorem.com");
         assertEquals(new HashSet<>(), domainConfig.getReportUris());
-        assertEquals(expectedPins, domainConfig.getPublicKeyHashes());
+        assertEquals(expectedPins, domainConfig.getPublicKeyPins());
 
         // Validate the configuration of a nested domain-config for a subdomain
         domainConfig = config.getConfigForHostname("other.datatheorem.com");
@@ -311,7 +311,7 @@ public class TrustKitConfigurationTest {
             add(new PublicKeyPin("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC="));
             add(new PublicKeyPin("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD="));
         }};
-        assertEquals(expectedOtherPins, domainConfig.getPublicKeyHashes());
+        assertEquals(expectedOtherPins, domainConfig.getPublicKeyPins());
 
         HashSet<URL> expectedUri = new HashSet<URL>() {{
             // The default report URI should be there
@@ -321,7 +321,7 @@ public class TrustKitConfigurationTest {
 
         // Validate the configuration of a nested domain-config for an unrelated domain
         domainConfig = config.getConfigForHostname("unrelated.domain.com");
-        assertEquals(expectedPins, domainConfig.getPublicKeyHashes());
+        assertEquals(expectedPins, domainConfig.getPublicKeyPins());
 
         HashSet<URL> expectedUnrelatedUri = new HashSet<URL>() {{
             // The default report URI should be there

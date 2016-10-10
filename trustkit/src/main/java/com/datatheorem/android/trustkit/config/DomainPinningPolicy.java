@@ -27,7 +27,7 @@ public final class DomainPinningPolicy {
 
     @NonNull private final String hostname;
     private final boolean shouldIncludeSubdomains;
-    @NonNull private final Set<PublicKeyPin> publicKeyHashes;
+    @NonNull private final Set<PublicKeyPin> publicKeyPins;
     @Nullable private final Date expirationDate;
     private final boolean shouldEnforcePinning;
     @NonNull private final Set<URL> reportUris;
@@ -60,9 +60,9 @@ public final class DomainPinningPolicy {
         }
 
         // Parse the supplied pins
-        publicKeyHashes = new HashSet<>();
+        publicKeyPins = new HashSet<>();
         for (String pinStr : publicKeyHashStrList)  {
-            publicKeyHashes.add(new PublicKeyPin(pinStr));
+            publicKeyPins.add(new PublicKeyPin(pinStr));
         }
 
         // Parse the supplied report URLs
@@ -99,8 +99,8 @@ public final class DomainPinningPolicy {
     }
 
     @NonNull
-    public Set<PublicKeyPin> getPublicKeyHashes() {
-        return publicKeyHashes;
+    public Set<PublicKeyPin> getPublicKeyPins() {
+        return publicKeyPins;
     }
 
     public boolean shouldEnforcePinning() {
@@ -125,7 +125,7 @@ public final class DomainPinningPolicy {
     public String toString() {
         return "DomainPinningPolicy{" +
                 "hostname = " + hostname + "\n" +
-                "knownPins = " + Arrays.toString(publicKeyHashes.toArray()) +
+                "knownPins = " + Arrays.toString(publicKeyPins.toArray()) +
                 "\n" +
                 "shouldEnforcePinning = " + shouldEnforcePinning + "\n" +
                 "reportUris = " + reportUris + "\n" +

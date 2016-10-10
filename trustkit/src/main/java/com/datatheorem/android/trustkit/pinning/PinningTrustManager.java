@@ -85,7 +85,7 @@ class PinningTrustManager implements X509TrustManager {
         // validation succeeded. On Android N this was already taken care of by the netsec policy
         if ((Build.VERSION.SDK_INT < 24) && (!didChainValidationFail)) {
             didPinningValidationFail = !isPinInChain(validatedServerChain,
-                    serverConfig.getPublicKeyHashes());
+                    serverConfig.getPublicKeyPins());
         }
 
         // Send a pinning failure report if needed
@@ -107,7 +107,7 @@ class PinningTrustManager implements X509TrustManager {
             StringBuilder errorBuilder = new StringBuilder()
                     .append("Pin verification failed")
                     .append("\n  Configured pins: ");
-            for (PublicKeyPin pin : serverConfig.getPublicKeyHashes()) {
+            for (PublicKeyPin pin : serverConfig.getPublicKeyPins()) {
                 errorBuilder.append(pin);
                 errorBuilder.append(" ");
             }

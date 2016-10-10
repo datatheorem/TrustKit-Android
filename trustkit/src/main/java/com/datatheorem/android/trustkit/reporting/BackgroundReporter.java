@@ -80,7 +80,7 @@ public class BackgroundReporter {
                 serverConfig.getHostname(), serverConfig.shouldIncludeSubdomains(),
                 serverConfig.shouldEnforcePinning(), servedCertificateChainAsPem,
                 validatedCertificateChainAsPem, new Date(System.currentTimeMillis()),
-                serverConfig.getPublicKeyHashes(), validationResult);
+                serverConfig.getPublicKeyPins(), validationResult);
 
         // If a similar report hasn't been sent recently, send it now
         if (!(shouldRateLimitsReports && ReportRateLimiter.shouldRateLimit(report))) {
