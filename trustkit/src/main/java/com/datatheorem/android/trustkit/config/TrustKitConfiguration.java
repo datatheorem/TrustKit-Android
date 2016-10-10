@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 
@@ -32,15 +33,6 @@ public class TrustKitConfiguration {
     // as a global setting instead of a per-<certificates> setting like Android N does
     final private boolean shouldOverridePins;
     @Nullable final private Set<Certificate> debugCaCertificates;
-
-    public boolean shouldOverridePins() {
-        return shouldOverridePins;
-    }
-
-    @Nullable
-    public Set<Certificate> getDebugCaCertificates() {
-        return debugCaCertificates;
-    }
 
     protected TrustKitConfiguration(@NonNull Set<DomainPinningPolicy> domainConfigSet) {
         this(domainConfigSet, false, null);
@@ -67,13 +59,26 @@ public class TrustKitConfiguration {
         this.debugCaCertificates = debugCaCerts;
     }
 
+    public boolean shouldOverridePins() {
+        return shouldOverridePins;
+    }
+
+    @Nullable
+    public Set<Certificate> getDebugCaCertificates() {
+        return debugCaCertificates;
+    }
+
     /**
-     * Return a configuration or null if the specified domain is not pinned.
-     * @param serverHostname
-     * @return DomainPinningPolicy
+     * Get the {@link DomainPinningPolicy} corresponding to the provided hostname.
+     * When matching the most specific matching domain rule will be used, if no match exists
+     * then null will be returned.
+     *
+     * @param serverHostname the server's hostname
+     * @return DomainPinningPolicy the domain's policy or null if the supplied hostname has no
+     * policy defined
      */
     @Nullable
-    public DomainPinningPolicy getConfigForHostname(@NonNull String serverHostname) {
+    public DomainPinningPolicy getPolicyForHostname(@NonNull String serverHostname) {
         DomainPinningPolicy bestMatchPolicy = null;
         for (DomainPinningPolicy domainPolicy : this.domainPolicies) {
             if (domainPolicy.getHostname().equals(serverHostname)) {
@@ -112,7 +117,7 @@ public class TrustKitConfiguration {
 
     @NonNull
     static public TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
-                                               @NonNull XmlPullParser parser)
+                                                      @NonNull XmlPullParser parser)
             throws XmlPullParserException, IOException, CertificateException {
         // Handle nested domain config tags
         // https://developer.android.com/training/articles/security-config.html#ConfigInheritance
@@ -207,7 +212,7 @@ public class TrustKitConfiguration {
         String expirationDate = parser.getAttributeValue(null, "expiration");
         if (expirationDate != null) {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                 sdf.setLenient(false);
                 Date date = sdf.parse(expirationDate);
                 if (date == null) {

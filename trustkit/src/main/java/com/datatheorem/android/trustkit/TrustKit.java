@@ -102,7 +102,8 @@ public class TrustKit {
     /** Initialize TrustKit with the network security policy file at the default location
      * res/xml/network_security_config.xml .
      *
-     * @param context
+     * @param context the application's context
+     * @throws ConfigurationException if the policy could not be parsed or contained errors
      */
     public static void initWithNetworkPolicy(@NonNull Context context) {
         // Try to get the default network policy resource ID
@@ -113,8 +114,9 @@ public class TrustKit {
 
     /** Initialize TrustKit with the network security policy file with the specified resource ID.
      *
-     * @param context
-     * @param policyResourceId
+     * @param context the application's context
+     * @param policyResourceId the resource ID for the network security policy to use
+     * @throws ConfigurationException if the policy could not be parsed or contained errors
      */
     public static void initWithNetworkPolicy(@NonNull Context context, int policyResourceId) {
         // On Android N, ensure that the system was also able to load the policy
