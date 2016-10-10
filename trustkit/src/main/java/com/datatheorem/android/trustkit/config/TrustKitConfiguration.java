@@ -27,12 +27,12 @@ import java.util.Set;
 
 public class TrustKitConfiguration {
 
-    @NonNull final private Set<DomainPinningPolicy> domainPolicies;
+    @NonNull private final Set<DomainPinningPolicy> domainPolicies;
 
     // For simplicity, this works slightly differently than Android N as we use shouldOverridePins
     // as a global setting instead of a per-<certificates> setting like Android N does
-    final private boolean shouldOverridePins;
-    @Nullable final private Set<Certificate> debugCaCertificates;
+    private final boolean shouldOverridePins;
+    @Nullable private final Set<Certificate> debugCaCertificates;
 
     protected TrustKitConfiguration(@NonNull Set<DomainPinningPolicy> domainConfigSet) {
         this(domainConfigSet, false, null);
@@ -116,7 +116,7 @@ public class TrustKitConfiguration {
     }
 
     @NonNull
-    static public TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
+    public static TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
                                                       @NonNull XmlPullParser parser)
             throws XmlPullParserException, IOException, CertificateException {
         // Handle nested domain config tags
@@ -156,7 +156,7 @@ public class TrustKitConfiguration {
 
     // Heavily inspired from
     // https://github.com/android/platform_frameworks_base/blob/master/core/java/android/security/net/config/XmlConfigSource.java
-    static private List<DomainPinningPolicy.Builder> readDomainConfig(
+    private static List<DomainPinningPolicy.Builder> readDomainConfig(
             XmlPullParser parser, DomainPinningPolicy.Builder parentBuilder)
             throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "domain-config");
