@@ -19,13 +19,11 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
-import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.text.ParseException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,7 +43,8 @@ public class TrustKit {
         // Try to process the debug-overrides setting and parse the custom CA certificates if the
         // App is debuggable
         // Do not use BuildConfig.DEBUG as it does not work for libraries
-        boolean isAppDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+        boolean isAppDebuggable = (0 !=
+                (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
         Set<Certificate> debugCaCerts = null;
         boolean shouldOverridePins = false;
         if (isAppDebuggable) {
@@ -100,14 +99,11 @@ public class TrustKit {
         return appVendorId;
     }
 
-    @NonNull
-    public static TrustKit getInstance() {
-        if (trustKitInstance == null) {
-            throw new IllegalStateException("TrustKit has not been initialized");
-        }
-        return trustKitInstance;
-    }
-
+    /** Initialize TrustKit with the network security policy file at the default location
+     * res/xml/network_security_config.xml .
+     *
+     * @param context
+     */
     public static void initWithNetworkPolicy(@NonNull Context context) {
         // Try to get the default network policy resource ID
         final int networkSecurityConfigId = context.getResources().getIdentifier(
@@ -115,6 +111,11 @@ public class TrustKit {
         initWithNetworkPolicy(context, networkSecurityConfigId);
     }
 
+    /** Initialize TrustKit with the network security policy file with the specified resource ID.
+     *
+     * @param context
+     * @param policyResourceId
+     */
     public static void initWithNetworkPolicy(@NonNull Context context, int policyResourceId) {
         // On Android N, ensure that the system was also able to load the policy
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M &&
@@ -141,7 +142,17 @@ public class TrustKit {
         trustKitInstance = new TrustKit(context, trustKitConfiguration);
     }
 
+    @NonNull
+    public static TrustKit getInstance() {
+        if (trustKitInstance == null) {
+            throw new IllegalStateException("TrustKit has not been initialized");
+        }
+        return trustKitInstance;
+    }
+
+    @NonNull
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
 
+    @NonNull
     public BackgroundReporter getReporter() { return backgroundReporter; }
 }
