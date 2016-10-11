@@ -40,8 +40,7 @@ public class TrustKit {
                        @NonNull TrustKitConfiguration trustKitConfiguration) {
         this.trustKitConfiguration = trustKitConfiguration;
 
-        // Try to process the debug-overrides setting and parse the custom CA certificates if the
-        // App is debuggable
+        // Setup the debug-overrides setting if the App is debuggable
         // Do not use BuildConfig.DEBUG as it does not work for libraries
         boolean isAppDebuggable = (0 !=
                 (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
@@ -99,33 +98,36 @@ public class TrustKit {
         return appVendorId;
     }
 
-    /** Initialize TrustKit with the network security policy file at the default location
+    /** Initialize TrustKit with the Network Security cCnfiguration file at the default location
      * res/xml/network_security_config.xml.
      *
-     * For more information about pinning configuration using the policy file, see
+     * For more information about pinning configuration using Network Security Configuration, see
      * https://developer.android.com/training/articles/security-config.html#CertificatePinning.
      *
      * @param context the application's context
      * @throws ConfigurationException if the policy could not be parsed or contained errors
      */
-    public synchronized static void initializeWithNetworkPolicy(@NonNull Context context) {
+    public synchronized static void initializeWithNetworkSecurityConfiguration(
+            @NonNull Context context) {
         // Try to get the default network policy resource ID
         final int networkSecurityConfigId = context.getResources().getIdentifier(
                 "network_security_config", "xml", context.getPackageName());
-        initializeWithNetworkPolicy(context, networkSecurityConfigId);
+        initializeWithNetworkSecurityConfiguration(context, networkSecurityConfigId);
     }
 
-    /** Initialize TrustKit with the network security policy file with the specified resource ID.
+    /** Initialize TrustKit with the Network Security Configuration file with the specified
+     * resource ID.
      *
-     * For more information about pinning configuration using the policy file, see
+     * For more information about pinning configuration using Network Security Configuration, see
      * https://developer.android.com/training/articles/security-config.html#CertificatePinning.
      *
      * @param context the application's context
-     * @param policyResourceId the resource ID for the network security policy to use
+     * @param configurationResourceId the resource ID for the Network Security Configuration file to
+     *                                use
      * @throws ConfigurationException if the policy could not be parsed or contained errors
      */
-    public synchronized static void initializeWithNetworkPolicy(@NonNull Context context,
-                                                                int policyResourceId) {
+    public synchronized static void initializeWithNetworkSecurityConfiguration(
+            @NonNull Context context, int configurationResourceId) {
         if (trustKitInstance != null) {
             throw new IllegalStateException("TrustKit has already been initialized");
         }
@@ -143,7 +145,7 @@ public class TrustKit {
         TrustKitConfiguration trustKitConfiguration;
         try {
             trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(context,
-                    context.getResources().getXml(policyResourceId)
+                    context.getResources().getXml(configurationResourceId)
             );
         } catch (XmlPullParserException | IOException e) {
             throw new ConfigurationException("Could not parse network security policy file");
