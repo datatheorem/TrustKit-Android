@@ -1,11 +1,9 @@
 package com.datatheorem.android.trustkit;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.security.NetworkSecurityPolicy;
 import android.support.annotation.NonNull;
 
@@ -15,6 +13,7 @@ import com.datatheorem.android.trustkit.pinning.SSLSocketFactory;
 import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
+import com.datatheorem.android.trustkit.utils.VendorIdentifier;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -26,14 +25,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.net.ssl.X509TrustManager;
 
 
 public class TrustKit {
 
-    private static final String TRUSTKIT_VENDOR_ID = "TRUSTKIT_VENDOR_ID";
     protected static TrustKit trustKitInstance;
 
     private final TrustKitConfiguration trustKitConfiguration;
@@ -79,28 +76,11 @@ public class TrustKit {
             appVersion = "N/A";
         }
 
-        String appVendorId = getOrCreateVendorIdentifier(context);
+        String appVendorId = VendorIdentifier.getOrCreate(context);
         this.backgroundReporter = new BackgroundReporter(true, appPackageName, appVersion,
                 appVendorId);
     }
 
-    // TODO(ad): Move this to a separate class
-    @NonNull
-    protected static String getOrCreateVendorIdentifier(@NonNull Context appContext) {
-        SharedPreferences trustKitSharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(appContext);
-        // We store the vendor ID in the App's preferences
-        String appVendorId = trustKitSharedPreferences.getString(TRUSTKIT_VENDOR_ID, "");
-        if (appVendorId.equals("")) {
-            // First time the App is running: generate and store a new vendor ID
-            TrustKitLog.i("Generating new vendor identifier...");
-            appVendorId = UUID.randomUUID().toString();
-            SharedPreferences.Editor editor = trustKitSharedPreferences.edit();
-            editor.putString(TRUSTKIT_VENDOR_ID, appVendorId);
-            editor.apply();
-        }
-        return appVendorId;
-    }
 
     /** Initialize TrustKit with the Network Security cCnfiguration file at the default location
      * res/xml/network_security_config.xml.

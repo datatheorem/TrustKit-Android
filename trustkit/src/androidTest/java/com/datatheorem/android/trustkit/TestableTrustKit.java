@@ -48,10 +48,4 @@ public class TestableTrustKit extends TrustKit {
         trustKitInstance = null;
         TestableTrustManagerBuilder.reset();
     }
-
-
-    @NonNull
-    public static String getOrCreateVendorIdentifier(@NonNull Context appContext) {
-        return TrustKit.getOrCreateVendorIdentifier(appContext);
-    }
 }

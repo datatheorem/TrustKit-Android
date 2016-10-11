@@ -6,6 +6,8 @@ import android.support.test.runner.AndroidJUnit4;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import com.datatheorem.android.trustkit.utils.VendorIdentifier;
+import com.datatheorem.android.trustkit.utils.VendorIdentifierTest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +59,7 @@ public class BackgroundReporterTest {
 
         TestableBackgroundReporter reporter = new TestableBackgroundReporter("com.unit.tests",
                 "1.2",
-                TestableTrustKit.getOrCreateVendorIdentifier(InstrumentationRegistry.getContext()));
+                VendorIdentifier.getOrCreate(InstrumentationRegistry.getContext()));
         TestableBackgroundReporter reporterSpy = Mockito.spy(reporter);
 
         // Call the method twice to also test the report rate limiter

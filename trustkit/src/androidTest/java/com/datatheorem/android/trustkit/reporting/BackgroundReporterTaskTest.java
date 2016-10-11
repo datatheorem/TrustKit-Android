@@ -6,6 +6,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
+import com.datatheorem.android.trustkit.utils.VendorIdentifier;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class BackgroundReporterTaskTest {
     }};
 
     private final PinningFailureReport report = new PinningFailureReport("com.unit.test", "1.2",
-            TestableTrustKit.getOrCreateVendorIdentifier(InstrumentationRegistry.getContext()),
+            VendorIdentifier.getOrCreate(InstrumentationRegistry.getContext()),
             "www.datatheorem.com", 0, "datatheorem.com", true, true,
             testCertChainPem, testCertChainPem, new Date(System.currentTimeMillis()), knownPins,
             PinningValidationResult.FAILED);
