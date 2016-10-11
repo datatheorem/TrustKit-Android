@@ -100,7 +100,10 @@ public class TrustKit {
     }
 
     /** Initialize TrustKit with the network security policy file at the default location
-     * res/xml/network_security_config.xml .
+     * res/xml/network_security_config.xml.
+     *
+     * For more information about pinning configuration using the policy file, see
+     * https://developer.android.com/training/articles/security-config.html#CertificatePinning.
      *
      * @param context the application's context
      * @throws ConfigurationException if the policy could not be parsed or contained errors
@@ -113,6 +116,9 @@ public class TrustKit {
     }
 
     /** Initialize TrustKit with the network security policy file with the specified resource ID.
+     *
+     * For more information about pinning configuration using the policy file, see
+     * https://developer.android.com/training/articles/security-config.html#CertificatePinning.
      *
      * @param context the application's context
      * @param policyResourceId the resource ID for the network security policy to use
