@@ -9,10 +9,10 @@ import java.net.Socket;
 import javax.net.ssl.TrustManager;
 
 
-class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
+public class SSLSocketFactory extends SSLCertificateSocketFactory {
 
     // TODO(ad): Figure this out
-    TrustKitSSLSocketFactory() {
+    public SSLSocketFactory() {
         super(0);
     }
 
@@ -20,7 +20,7 @@ class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
     public Socket createSocket(String host, int port, InetAddress localAddr, int localPort)
             throws IOException {
         // Force the use of our trust manager
-        setTrustManagers(new TrustManager[]{TrustKitTrustManagerBuilder.getTrustManager(host)});
+        setTrustManagers(new TrustManager[]{TrustManagerBuilder.getTrustManager(host)});
 
         // Try to create the socket, which will trigger the SSL handshake
         return super.createSocket(host, port, localAddr, localPort);
@@ -29,7 +29,7 @@ class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
     @Override
     public Socket createSocket(Socket k, String host, int port, boolean close) throws IOException {
         // Force the use of our trust manager
-        setTrustManagers(new TrustManager[]{TrustKitTrustManagerBuilder.getTrustManager(host)});
+        setTrustManagers(new TrustManager[]{TrustManagerBuilder.getTrustManager(host)});
 
         // Try to create the socket, which will trigger the SSL handshake
         return super.createSocket(k, host, port, close);
@@ -38,7 +38,7 @@ class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
     @Override
     public Socket createSocket(String host, int port) throws IOException {
         // Force the use of our trust manager
-        setTrustManagers(new TrustManager[]{TrustKitTrustManagerBuilder.getTrustManager(host)});
+        setTrustManagers(new TrustManager[]{TrustManagerBuilder.getTrustManager(host)});
 
         // Try to create the socket, which will trigger the SSL handshake
         return super.createSocket(host, port);

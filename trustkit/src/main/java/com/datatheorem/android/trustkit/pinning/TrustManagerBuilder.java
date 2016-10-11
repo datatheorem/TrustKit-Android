@@ -17,21 +17,20 @@ import java.util.Set;
 import javax.net.ssl.X509TrustManager;
 
 
-public class TrustKitTrustManagerBuilder {
+public class TrustManagerBuilder {
 
     // The trust manager we will use to perform the default SSL validation
     protected static X509TrustManager baselineTrustManager = null;
 
     // Pinning validation can be disabled if debug-overrides is set
-    private static boolean shouldOverridePins = false;
+    protected static boolean shouldOverridePins = false;
 
     public static void initializeBaselineTrustManager(@Nullable Set<Certificate> debugCaCerts,
                                                       boolean debugOverridePins)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             IOException {
-
         if (baselineTrustManager != null) {
-            throw new IllegalStateException("TrustKit has already been initialized");
+            throw new IllegalStateException("TrustManagerBuilder has already been initialized");
         }
         baselineTrustManager = SystemTrustManager.getInstance();
         shouldOverridePins = debugOverridePins;
@@ -44,7 +43,7 @@ public class TrustKitTrustManagerBuilder {
 
     public static X509TrustManager getTrustManager(@NonNull String serverHostname) {
         if (baselineTrustManager == null) {
-            throw new IllegalStateException("TrustKit has not been initialized");
+            throw new IllegalStateException("TrustManagerBuilder has not been initialized");
         }
         DomainPinningPolicy serverConfig =
                 TrustKit.getInstance().getConfiguration().getPolicyForHostname(serverHostname);

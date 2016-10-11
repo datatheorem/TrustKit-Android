@@ -11,7 +11,8 @@ import android.support.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
-import com.datatheorem.android.trustkit.pinning.TrustKitTrustManagerBuilder;
+import com.datatheorem.android.trustkit.pinning.SSLSocketFactory;
+import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
@@ -26,6 +27,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.net.ssl.X509TrustManager;
 
 
 public class TrustKit {
@@ -55,7 +58,7 @@ public class TrustKit {
         }
 
         try {
-            TrustKitTrustManagerBuilder.initializeBaselineTrustManager(debugCaCerts,
+            TrustManagerBuilder.initializeBaselineTrustManager(debugCaCerts,
                     shouldOverridePins);
         } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
                 | IOException e) {
@@ -81,6 +84,7 @@ public class TrustKit {
                 appVendorId);
     }
 
+    // TODO(ad): Move this to a separate class
     @NonNull
     protected static String getOrCreateVendorIdentifier(@NonNull Context appContext) {
         SharedPreferences trustKitSharedPreferences =
@@ -107,12 +111,12 @@ public class TrustKit {
      * @param context the application's context
      * @throws ConfigurationException if the policy could not be parsed or contained errors
      */
-    public synchronized static void initializeWithNetworkSecurityConfiguration(
+    public synchronized static TrustKit initializeWithNetworkSecurityConfiguration(
             @NonNull Context context) {
         // Try to get the default network policy resource ID
-        final int networkSecurityConfigId = context.getResources().getIdentifier(
+        int networkSecurityConfigId = context.getResources().getIdentifier(
                 "network_security_config", "xml", context.getPackageName());
-        initializeWithNetworkSecurityConfiguration(context, networkSecurityConfigId);
+        return initializeWithNetworkSecurityConfiguration(context, networkSecurityConfigId);
     }
 
     /** Initialize TrustKit with the Network Security Configuration file with the specified
@@ -126,7 +130,7 @@ public class TrustKit {
      *                                use
      * @throws ConfigurationException if the policy could not be parsed or contained errors
      */
-    public synchronized static void initializeWithNetworkSecurityConfiguration(
+    public synchronized static TrustKit initializeWithNetworkSecurityConfiguration(
             @NonNull Context context, int configurationResourceId) {
         if (trustKitInstance != null) {
             throw new IllegalStateException("TrustKit has already been initialized");
@@ -155,6 +159,7 @@ public class TrustKit {
         }
 
         trustKitInstance = new TrustKit(context, trustKitConfiguration);
+        return trustKitInstance;
     }
 
     @NonNull
@@ -167,6 +172,16 @@ public class TrustKit {
 
     @NonNull
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
+
+    @NonNull
+    public javax.net.ssl.SSLSocketFactory getSSLSocketFactory() {
+        return new SSLSocketFactory();
+    }
+
+    @NonNull
+    public X509TrustManager getTrustManager(@NonNull String serverHostname) {
+        return TrustManagerBuilder.getTrustManager(serverHostname);
+    }
 
     @NonNull
     public BackgroundReporter getReporter() { return backgroundReporter; }
