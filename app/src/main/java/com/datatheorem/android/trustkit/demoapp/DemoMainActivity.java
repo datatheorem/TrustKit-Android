@@ -20,7 +20,7 @@ public class DemoMainActivity extends AppCompatActivity {
 
         TextView textView = (TextView) findViewById(R.id.textview);
 
-        TrustKit.initWithNetworkPolicy(this);
+        TrustKit.initializeWithNetworkPolicy(this);
         textView.setText(TrustKit.getInstance().getConfiguration().getDebugCaCertificates().toString());
     }
 
