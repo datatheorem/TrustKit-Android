@@ -16,14 +16,6 @@ dependencies {
     androidTestCompile "com.crittercism.dexmaker:dexmaker:$rootProject.libVersions.dexmaker"
     androidTestCompile "com.crittercism.dexmaker:dexmaker-dx:$rootProject.libVersions.dexmaker"
     androidTestCompile "com.crittercism.dexmaker:dexmaker-mockito:$rootProject.libVersions.dexmaker"
-
-    testCompile "junit:junit:$rootProject.libVersions.junit"
-
-    testCompile "org.robolectric:robolectric:$rootProject.libVersions.robolectric"
-    testCompile "org.mockito:mockito-core:$rootProject.libVersions.mockito.unit"
-
-    testCompile 'org.json:json:20140107'
-    testCompile "com.squareup.okhttp3:mockwebserver:$rootProject.libVersions.mockwebserver"
 }
 
 android {
@@ -34,14 +26,6 @@ android {
         versionCode trustkitVersionCode
         versionName trustkitVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-
-    lintOptions {
-        abortOnError false
-    }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
     }
 }
 
