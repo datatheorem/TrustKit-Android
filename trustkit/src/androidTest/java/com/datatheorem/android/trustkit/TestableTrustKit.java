@@ -9,7 +9,6 @@ import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.config.TestableTrustKitConfiguration;
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.pinning.TestableTrustManagerBuilder;
-import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import java.security.cert.Certificate;

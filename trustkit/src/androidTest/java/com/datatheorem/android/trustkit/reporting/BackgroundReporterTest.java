@@ -3,11 +3,10 @@ package com.datatheorem.android.trustkit.reporting;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.utils.VendorIdentifier;
-import com.datatheorem.android.trustkit.utils.VendorIdentifierTest;
 
 import org.json.JSONArray;
 import org.json.JSONException;

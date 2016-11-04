@@ -82,7 +82,7 @@ public class TrustKit {
     }
 
 
-    /** Initialize TrustKit with the Network Security cCnfiguration file at the default location
+    /** Initialize TrustKit with the Network Security Configuration file at the default location
      * res/xml/network_security_config.xml.
      *
      * For more information about pinning configuration using Network Security Configuration, see
@@ -128,8 +128,8 @@ public class TrustKit {
         // Then try to load the supplied policy
         TrustKitConfiguration trustKitConfiguration;
         try {
-            trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(context,
-                    context.getResources().getXml(configurationResourceId)
+            trustKitConfiguration = TrustKitConfiguration.fromXmlPolicy(
+                    context, context.getResources().getXml(configurationResourceId)
             );
         } catch (XmlPullParserException | IOException e) {
             throw new ConfigurationException("Could not parse network security policy file");
