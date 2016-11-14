@@ -37,7 +37,6 @@ ext{
             ]
     ]
 
-    // TODO(ad): Remove + and set versions
     libVersions = [
         junit: '4.12',
         mockito : [
