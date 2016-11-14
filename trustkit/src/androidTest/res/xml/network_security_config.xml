@@ -7,7 +7,7 @@
         <pin-set>
             <!-- Valid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>
+            <pin digest="SHA-256">2kOi4HdYYsvTR1sTIR7RHwlf2SescTrpza9ZrWy7poQ=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
