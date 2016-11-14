@@ -182,7 +182,7 @@ public class SSLSocketFactoryTest {
                 .setShouldEnforcePinning(true)
                 .setPublicKeyHashes(new HashSet<String>() {{
                     // Valid pin
-                    add("grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=");
+                    add("2kOi4HdYYsvTR1sTIR7RHwlf2SescTrpza9ZrWy7poQ=");
                     add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
                 }}).build();
 
