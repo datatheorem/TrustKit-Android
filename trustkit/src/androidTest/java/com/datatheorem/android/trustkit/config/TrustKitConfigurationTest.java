@@ -18,6 +18,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 
 import static junit.framework.Assert.assertEquals;
@@ -140,28 +142,9 @@ public class TrustKitConfigurationTest {
         assertTrue(domainConfig.shouldEnforcePinning());
     }
 
-    @Test
-    public void testExpiredPolicy() throws XmlPullParserException, IOException,
-            ParseException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
-        String xml = "" +
-                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<network-security-config>\n" +
-                "    <domain-config>\n" +
-                "        <domain>www.datatheorem.com</domain>\n" +
-                "        <pin-set expiration=\"2016-01-01\">\n" +
-                "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
-                "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
-                "        </pin-set>\n" +
-                "    </domain-config>\n" +
-                "</network-security-config>";
-        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
-                parseXmlString(xml));
-        assertNull(config.getPolicyForHostname("www.datatheorem.com"));
-    }
 
     @Test
-    public void testNonExpiredPolicy() throws XmlPullParserException, IOException,
+    public void testExpirationDate() throws XmlPullParserException, IOException,
             ParseException, CertificateException {
         Context context = InstrumentationRegistry.getContext();
         String xml = "" +
@@ -177,7 +160,10 @@ public class TrustKitConfigurationTest {
                 "</network-security-config>";
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
                 parseXmlString(xml));
-        assertNotNull(config.getPolicyForHostname("www.datatheorem.com"));
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd");
+        Date expectedDate = parser.parse("2018-01-01");
+        assertEquals(config.getPolicyForHostname("www.datatheorem.com").getExpirationDate(),
+                expectedDate);
     }
 
     @Test

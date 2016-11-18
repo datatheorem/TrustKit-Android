@@ -7,11 +7,13 @@ import android.support.annotation.NonNull;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
+import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.net.ssl.X509TrustManager;
@@ -84,8 +86,15 @@ class PinningTrustManager implements X509TrustManager {
         // Before Android N, manually perform pinning validation on the verified chain if path
         // validation succeeded. On Android N this was already taken care of by the netsec policy
         if ((Build.VERSION.SDK_INT < 24) && (!didChainValidationFail)) {
-            didPinningValidationFail = !isPinInChain(validatedServerChain,
-                    serverConfig.getPublicKeyPins());
+
+            boolean hasPinningPolicyExpired = (serverConfig.getExpirationDate() != null)
+                    && (serverConfig.getExpirationDate().compareTo(new Date()) < 0);
+
+            // Only do pinning validation if the policy has not expired
+            if (!hasPinningPolicyExpired) {
+                didPinningValidationFail = !isPinInChain(validatedServerChain,
+                        serverConfig.getPublicKeyPins());
+            }
         }
 
         // Send a pinning failure report if needed

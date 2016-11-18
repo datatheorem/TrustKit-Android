@@ -97,14 +97,6 @@ public class TrustKitConfiguration {
                 }
             }
         }
-
-        // Ensure that the pinning policy has not expired
-        if ((bestMatchPolicy != null) && (bestMatchPolicy.getExpirationDate() != null)) {
-            if (bestMatchPolicy.getExpirationDate().compareTo(new Date()) < 0) {
-                TrustKitLog.w("Pinning policy for " + serverHostname + " has expired.");
-                return null;
-            }
-        }
         return bestMatchPolicy;
     }
 

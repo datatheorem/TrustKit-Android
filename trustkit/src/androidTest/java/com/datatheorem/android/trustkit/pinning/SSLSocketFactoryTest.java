@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -273,6 +274,39 @@ public class SSLSocketFactoryTest {
                 (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
                 eq(TestableTrustKit.getInstance().getConfiguration().getPolicyForHostname(serverHostname)),
                 eq(PinningValidationResult.FAILED)
+        );
+    }
+
+    @Test
+    public void testPinnedDomainInvalidPinAndPolicyExpired() throws IOException {
+        String serverHostname = "www.github.com";
+        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
+                .setHostname(serverHostname)
+                .setShouldEnforcePinning(false)
+                // The pinning policy expired yesterday
+                .setExpirationDate(new Date(System.currentTimeMillis()-24*60*60*1000))
+                .setPublicKeyHashes(new HashSet<String>() {{
+                    // Wrong pins
+                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
+                }}).build();
+
+        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
+                InstrumentationRegistry.getContext(),
+                mockReporter);
+
+        // Create an SSLSocketFactory and ensure connection succeeds
+        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        test.createSocket(serverHostname, 443);
+
+        // Ensure the background reporter was NOT called
+        verify(mockReporter, never()).pinValidationFailed(
+                anyString(),
+                anyInt(),
+                (List<X509Certificate>) any(),
+                (List<X509Certificate>) any(),
+                any(DomainPinningPolicy.class),
+                any(PinningValidationResult.class)
         );
     }
 
