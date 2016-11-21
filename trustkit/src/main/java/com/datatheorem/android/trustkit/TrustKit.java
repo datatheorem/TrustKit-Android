@@ -9,7 +9,7 @@ import android.support.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
-import com.datatheorem.android.trustkit.pinning.SSLSocketFactory;
+import com.datatheorem.android.trustkit.pinning.TrustKitSSLSocketFactory;
 import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -155,7 +155,7 @@ public class TrustKit {
 
     @NonNull
     public javax.net.ssl.SSLSocketFactory getSSLSocketFactory() {
-        return new SSLSocketFactory();
+        return new TrustKitSSLSocketFactory();
     }
 
     @NonNull

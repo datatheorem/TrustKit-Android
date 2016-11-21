@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
-import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;

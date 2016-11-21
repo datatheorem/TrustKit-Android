@@ -5,7 +5,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
-import com.datatheorem.android.trustkit.pinning.SSLSocketFactory;
+import com.datatheorem.android.trustkit.pinning.TrustKitSSLSocketFactory;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import org.junit.Before;
@@ -62,7 +62,7 @@ public class HttpLibrariesTest {
         URL url = new URL("https://"+serverHostname);
         try {
             httpsURLConnection = (HttpsURLConnection) url.openConnection();
-            httpsURLConnection.setSSLSocketFactory(new SSLSocketFactory());
+            httpsURLConnection.setSSLSocketFactory(new TrustKitSSLSocketFactory());
 
             InputStream inputStream = httpsURLConnection.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -101,7 +101,7 @@ public class HttpLibrariesTest {
         TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPinningPolicy); }},
                 InstrumentationRegistry.getContext(), reporter);
         OkHttpClient client = new OkHttpClient().newBuilder()
-                .sslSocketFactory(new SSLSocketFactory(),
+                .sslSocketFactory(new TrustKitSSLSocketFactory(),
                         TestableTrustKit.getInstance().getTrustManager("https://"+serverHostname))
                 .build();
 

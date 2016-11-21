@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
 
 @SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
-public class SSLSocketFactoryTest {
+public class TrustKitSSLSocketFactoryTest {
 
     @Mock
     private BackgroundReporter mockReporter;
@@ -110,8 +110,8 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection fails
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -151,8 +151,8 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection fails
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -191,8 +191,8 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection succeeds
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -222,8 +222,8 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection fails
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -262,8 +262,8 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection succeeds
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was called
@@ -295,8 +295,8 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection succeeds
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -326,8 +326,8 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection fails
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -372,10 +372,10 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection succeeds
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert and
         // disables pinning when overridePins is true
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -419,9 +419,9 @@ public class SSLSocketFactoryTest {
                 mockReporter);
         mockContext.getApplicationInfo().flags = originalAppFlags;
 
-        // Create an SSLSocketFactory and ensure connection fails
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
         // This means that debug-overrides property was ignored because the App is not debuggable
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -466,10 +466,10 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection fails
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
         // This means that debug-overrides properly enables the supplied debug CA cert but does not
         // disable pinning when overridePins is false
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -516,9 +516,9 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection fails
+        // Create an TrustKitSSLSocketFactory and ensure connection fails
         // This means that TrustKit does not interfere with default certificate validation
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -558,8 +558,8 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection succeeds
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -593,9 +593,9 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection succeeds
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -629,9 +629,9 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an SSLSocketFactory and ensure connection succeeds
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         // This means that debug-overrides does not disable the System CAs
-        javax.net.ssl.SSLSocketFactory test = new SSLSocketFactory();
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called

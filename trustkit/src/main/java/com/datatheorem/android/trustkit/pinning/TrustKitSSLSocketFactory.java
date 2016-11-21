@@ -9,10 +9,10 @@ import java.net.Socket;
 import javax.net.ssl.TrustManager;
 
 
-public class SSLSocketFactory extends SSLCertificateSocketFactory {
+public class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
 
     // TODO(ad): Figure this out
-    public SSLSocketFactory() {
+    public TrustKitSSLSocketFactory() {
         super(0);
     }
 
