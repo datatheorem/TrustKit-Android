@@ -329,9 +329,9 @@ public class TrustKitConfiguration {
                 if ((lastOverridePinsEncountered != null)
                         && (lastOverridePinsEncountered != currentOverridePins)) {
                     lastOverridePinsEncountered = false;
-                    TrustKitLog.w("Different values for overridePins are set in the policy but " +
-                            "TrustKit only supports one value; using overridePins=false for all " +
-                            "connections");
+                    TrustKitLog.w("Warning: different values for overridePins are set in the " +
+                            "policy but TrustKit only supports one value; using " +
+                            "overridePins=false for all connections");
                 } else {
                     lastOverridePinsEncountered = currentOverridePins;
                 }
