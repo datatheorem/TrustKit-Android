@@ -68,7 +68,7 @@ import java.util.regex.Matcher;
  * @version $Revision$
  * @since Validator 1.4
  */
-@SuppressWarnings({"ForLoopReplaceableByForEach", "unused", "SameParameterValue"})
+@SuppressWarnings({"ALL"})
 class RegexValidator implements Serializable {
     private static final long serialVersionUID = -8832409930574867162L;
     private final Pattern[] patterns;

@@ -159,8 +159,8 @@ public class TrustKitConfiguration {
             throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "domain-config");
 
-        DomainPinningPolicy.Builder builder = new DomainPinningPolicy.Builder();
-        builder.setParent(parentBuilder);
+        DomainPinningPolicy.Builder builder = new DomainPinningPolicy.Builder()
+                .setParent(parentBuilder);
 
         List<DomainPinningPolicy.Builder> builderList = new ArrayList<>();
         // Put the current builder as the first one in the list, so the parent always gets built
