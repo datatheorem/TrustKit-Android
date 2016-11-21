@@ -20,11 +20,11 @@ import java.io.IOException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSocketFactory;
 
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -97,21 +97,11 @@ public class TrustKitSSLSocketFactoryTest {
     public void testPinnedDomainExpiredChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "expired.badssl.com";
-        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
-                .setHostname(serverHostname)
-                .setShouldEnforcePinning(true)
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Wrong pins
-                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
-                mockReporter);
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection fails
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -138,21 +128,11 @@ public class TrustKitSSLSocketFactoryTest {
     public void testPinnedDomainWrongHostnameChain() throws IOException {
         // Initialize TrustKit
         String serverHostname = "wrong.host.badssl.com";
-        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
-                .setHostname(serverHostname)
-                .setShouldEnforcePinning(true)
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Wrong pins
-                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
-                mockReporter);
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection fails
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -178,18 +158,8 @@ public class TrustKitSSLSocketFactoryTest {
     @Test
     public void testPinnedDomainSuccess() throws IOException {
         String serverHostname = "www.datatheorem.com";
-        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
-                .setHostname(serverHostname)
-                .setShouldEnforcePinning(true)
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Valid pin
-                    add("2kOi4HdYYsvTR1sTIR7RHwlf2SescTrpza9ZrWy7poQ=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
-                mockReporter);
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
@@ -209,31 +179,21 @@ public class TrustKitSSLSocketFactoryTest {
     @Test
     public void testPinnedDomainInvalidPin() throws IOException {
         String serverHostname = "www.yahoo.com";
-        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
-                .setHostname(serverHostname)
-                .setShouldEnforcePinning(true)
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Wrong pins
-                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
-                mockReporter);
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection fails
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        boolean didReceiveHandshakeError = false;
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        boolean didReceivePinningError = false;
         try {
             test.createSocket(serverHostname, 443);
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
-                didReceiveHandshakeError = true;
+                didReceivePinningError = true;
             }
         }
-        assertTrue(didReceiveHandshakeError);
+        assertTrue(didReceivePinningError);
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -249,21 +209,11 @@ public class TrustKitSSLSocketFactoryTest {
     @Test
     public void testPinnedDomainInvalidPinAndPinningNotEnforced() throws IOException {
         String serverHostname = "www.github.com";
-        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
-                .setHostname(serverHostname)
-                .setShouldEnforcePinning(false)
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Wrong pins
-                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
-                mockReporter);
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was called
@@ -279,24 +229,12 @@ public class TrustKitSSLSocketFactoryTest {
 
     @Test
     public void testPinnedDomainInvalidPinAndPolicyExpired() throws IOException {
-        String serverHostname = "www.github.com";
-        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
-                .setHostname(serverHostname)
-                .setShouldEnforcePinning(false)
-                // The pinning policy expired yesterday
-                .setExpirationDate(new Date(System.currentTimeMillis()-24*60*60*1000))
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Wrong pins
-                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
-                mockReporter);
+        String serverHostname = "www.microsoft.com";
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -313,21 +251,11 @@ public class TrustKitSSLSocketFactoryTest {
     @Test
     public void testPinnedDomainUntrustedChainAndPinningNotEnforced() throws IOException {
         String serverHostname = "untrusted-root.badssl.com";
-        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
-                .setHostname(serverHostname)
-                .setShouldEnforcePinning(false)
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Wrong pins
-                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
-                mockReporter);
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection fails
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -354,6 +282,12 @@ public class TrustKitSSLSocketFactoryTest {
 
     @Test
     public void testDebugOverridesInvalidPinButOverridePins() throws IOException, CertificateException {
+        if (Build.VERSION.SDK_INT >= 24) {
+            // This test will not work when using the Android N XML network policy because we can't
+            // dynamically remove the debug-overrides tag defined in the XML policy which adds the
+            // cacert.org CA cert as a trusted CA
+            return;
+        }
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname(serverHostname)
@@ -375,7 +309,7 @@ public class TrustKitSSLSocketFactoryTest {
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert and
         // disables pinning when overridePins is true
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -421,7 +355,7 @@ public class TrustKitSSLSocketFactoryTest {
 
         // Create an TrustKitSSLSocketFactory and ensure connection fails
         // This means that debug-overrides property was ignored because the App is not debuggable
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -469,17 +403,17 @@ public class TrustKitSSLSocketFactoryTest {
         // Create an TrustKitSSLSocketFactory and ensure connection fails
         // This means that debug-overrides properly enables the supplied debug CA cert but does not
         // disable pinning when overridePins is false
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        boolean didReceiveHandshakeError = false;
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        boolean didReceivePinningError = false;
         try {
             test.createSocket(serverHostname, 443);
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
-                didReceiveHandshakeError = true;
+                didReceivePinningError = true;
             }
         }
-        assertTrue(didReceiveHandshakeError);
+        assertTrue(didReceivePinningError);
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -496,12 +430,6 @@ public class TrustKitSSLSocketFactoryTest {
     //region Tests for when the domain is NOT pinned
     @Test
     public void testNonPinnedDomainUntrustedRootChain() throws IOException {
-        if (Build.VERSION.SDK_INT >= 24) {
-            // This test will not work when using the Android N XML network policy because we can't
-            // dynamically remove the debug-overrides tag defined in the XML policy which adds the
-            // cacert.org CA cert as a trusted CA
-            return;
-        }
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname("other.domain.com")
@@ -518,7 +446,7 @@ public class TrustKitSSLSocketFactoryTest {
 
         // Create an TrustKitSSLSocketFactory and ensure connection fails
         // This means that TrustKit does not interfere with default certificate validation
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443);
@@ -545,21 +473,11 @@ public class TrustKitSSLSocketFactoryTest {
     public void testNonPinnedDomainSuccess() throws IOException {
         // Initialize TrustKit
         String serverHostname = "www.google.com";
-        final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
-                .setHostname("other.domain.com")
-                .setShouldEnforcePinning(true)
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Wrong pins
-                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
-                mockReporter);
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -575,6 +493,13 @@ public class TrustKitSSLSocketFactoryTest {
 
     @Test
     public void testDebugOverrides() throws IOException, CertificateException {
+        if (Build.VERSION.SDK_INT >= 24) {
+            // This test will not work when using the Android N XML network policy because we can't
+            // dynamically add/remove a debug-override tag defined in the XML policy which adds the
+            // cacert.org CA cert as a trusted CA
+            return;
+        }
+
         String serverHostname = "www.cacert.org";
         // Create a policy for a different domain
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
@@ -595,7 +520,7 @@ public class TrustKitSSLSocketFactoryTest {
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called
@@ -611,6 +536,13 @@ public class TrustKitSSLSocketFactoryTest {
 
     @Test
     public void testDebugOverridesSystemCa() throws IOException, CertificateException {
+        if (Build.VERSION.SDK_INT >= 24) {
+            // This test will not work when using the Android N XML network policy because we can't
+            // dynamically add/remove a debug-override tag defined in the XML policy which adds the
+            // cacert.org CA cert as a trusted CA
+            return;
+        }
+
         String serverHostname = "www.google.com";
         // Create a policy for a different domain
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
@@ -631,7 +563,7 @@ public class TrustKitSSLSocketFactoryTest {
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         // This means that debug-overrides does not disable the System CAs
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = new TrustKitSSLSocketFactory();
         test.createSocket(serverHostname, 443);
 
         // Ensure the background reporter was NOT called

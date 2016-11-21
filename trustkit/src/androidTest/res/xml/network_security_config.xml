@@ -18,7 +18,7 @@
         <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
@@ -29,7 +29,18 @@
         <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="false">
+        </trustkit-config>
+    </domain-config>
+    <domain-config>
+        <!-- testPinnedDomainInvalidPinAndPolicyExpired() -->
+        <domain>www.microsoft.com</domain>
+        <pin-set expiration="2015-01-01">
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
@@ -40,7 +51,7 @@
         <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
@@ -51,7 +62,7 @@
         <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
         <trustkit-config enforcePinning="false">
         </trustkit-config>
@@ -62,15 +73,9 @@
         <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
     </domain-config>
-    <debug-overrides>
-        <trust-anchors>
-            <certificates overridePins="true" src="@raw/good"/>
-            <certificates overridePins="true" src="@raw/cacertorg"/>
-        </trust-anchors>
-    </debug-overrides>
 </network-security-config>

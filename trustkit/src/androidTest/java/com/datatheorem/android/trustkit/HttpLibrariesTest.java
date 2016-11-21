@@ -43,7 +43,8 @@ public class HttpLibrariesTest {
     static private final URL testUrl;
     static {
         try {
-            testUrl = new URL("https://www.datatheorem.com");
+            // The network policy for the tests has invalid pins configured for this domain
+            testUrl = new URL("https://www.yahoo.com");
         } catch (MalformedURLException e) {
             throw new RuntimeException("Should never happen");
         }
@@ -58,15 +59,7 @@ public class HttpLibrariesTest {
     @Test
     public void testHttpsUrlConnectionWithTrustKit() throws MalformedURLException {
         // Initialize TrustKit
-        final DomainPinningPolicy domainPinningPolicy = new DomainPinningPolicy.Builder()
-                .setHostname(testUrl.getHost())
-                .setShouldEnforcePinning(true)
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Wrong pins
-                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPinningPolicy); }},
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), reporter);
 
         // Test a connection
@@ -110,15 +103,7 @@ public class HttpLibrariesTest {
     @Test
     public void testOkhttp3WithTrustKit() throws MalformedURLException {
         // Initialize TrustKit
-        final DomainPinningPolicy domainPinningPolicy = new DomainPinningPolicy.Builder()
-                .setHostname(testUrl.getHost())
-                .setShouldEnforcePinning(true)
-                .setPublicKeyHashes(new HashSet<String>() {{
-                    // Wrong pins
-                    add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
-                    add("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=");
-                }}).build();
-        TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPinningPolicy); }},
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), reporter);
 
         // Test a connection

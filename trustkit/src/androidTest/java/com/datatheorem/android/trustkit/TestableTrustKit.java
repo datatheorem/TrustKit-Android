@@ -23,6 +23,14 @@ public class TestableTrustKit extends TrustKit {
         backgroundReporter = reporter;
     }
 
+
+    public static TrustKit initializeWithNetworkSecurityConfiguration(@NonNull Context context,
+                                                                      BackgroundReporter reporter) {
+        TrustKit.initializeWithNetworkSecurityConfiguration(context);
+        TrustKit.getInstance().backgroundReporter = reporter;
+        return TrustKit.getInstance();
+    }
+
     // This lets us directly specify domain settings without parsing an XML file and inject/mock
     // the background reporter
     public static void init(@NonNull Set<DomainPinningPolicy> domainConfigSet,
