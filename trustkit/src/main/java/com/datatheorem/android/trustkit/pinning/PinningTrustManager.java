@@ -154,6 +154,6 @@ class PinningTrustManager implements X509TrustManager {
     public X509Certificate[] getAcceptedIssuers() {
         // getAcceptedIssuers is meant to be used to determine which trust anchors the server will
         // accept when verifying clients.
-        return null;
+        return new X509Certificate[0];
     }
 }

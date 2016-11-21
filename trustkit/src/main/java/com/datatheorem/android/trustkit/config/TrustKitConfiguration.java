@@ -12,6 +12,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidParameterException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -79,6 +80,12 @@ public class TrustKitConfiguration {
      */
     @Nullable
     public DomainPinningPolicy getPolicyForHostname(@NonNull String serverHostname) {
+        // Check if the hostname seems valid
+        DomainValidator domainValidator = DomainValidator.getInstance(false);
+        if (!domainValidator.isValid(serverHostname)) {
+            throw new IllegalArgumentException("Invalid domain supplied: " + serverHostname);
+        }
+
         DomainPinningPolicy bestMatchPolicy = null;
         for (DomainPinningPolicy domainPolicy : this.domainPolicies) {
             if (domainPolicy.getHostname().equals(serverHostname)) {

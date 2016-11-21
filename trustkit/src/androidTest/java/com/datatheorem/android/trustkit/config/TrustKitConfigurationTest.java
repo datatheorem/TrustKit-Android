@@ -32,8 +32,6 @@ import static junit.framework.Assert.assertTrue;
 public class TrustKitConfigurationTest {
 
     private XmlPullParser parseXmlString(String xmlString) throws XmlPullParserException {
-
-
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         factory.setNamespaceAware(true);
 
@@ -41,6 +39,33 @@ public class TrustKitConfigurationTest {
         String test = xmlString.replace("\n","").replace("  ","");
         xpp.setInput(new StringReader(test));
         return xpp;
+    }
+
+    @Test
+    public void testBadHostnameValidation() throws XmlPullParserException, IOException, CertificateException {
+        Context context = InstrumentationRegistry.getContext();
+        String xml = "" +
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<network-security-config>\n" +
+                "    <domain-config>\n" +
+                "        <domain>www.datatheorem.com</domain>\n" +
+                "        <pin-set>\n" +
+                "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
+                "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
+                "        </pin-set>\n" +
+                "    </domain-config>\n" +
+                "</network-security-config>";
+        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
+                parseXmlString(xml));
+
+        // Ensure that something that isn't a domain (such as a URL) gets rejected
+        boolean wasBadDomainRejected = false;
+        try {
+            config.getPolicyForHostname("https://www.datatheorem.com");
+        } catch (IllegalArgumentException e) {
+            wasBadDomainRejected = true;
+        }
+        assertTrue(wasBadDomainRejected);
     }
 
     @Test
