@@ -92,6 +92,7 @@ public class TrustKitConfigurationTest {
         // Validate the domain's configuration
         DomainPinningPolicy domainConfig = config.getPolicyForHostname("www.datatheorem.com");
 
+        assertNotNull(domainConfig);
         assertEquals("www.datatheorem.com", domainConfig.getHostname());
         // Validate default values
         assertFalse(domainConfig.shouldIncludeSubdomains());
@@ -164,6 +165,7 @@ public class TrustKitConfigurationTest {
                 parseXmlString(xml));
 
         DomainPinningPolicy domainConfig = config.getPolicyForHostname("www.datatheorem.com");
+        assertNotNull(domainConfig);
         assertTrue(domainConfig.shouldEnforcePinning());
     }
 
@@ -187,8 +189,10 @@ public class TrustKitConfigurationTest {
                 parseXmlString(xml));
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd");
         Date expectedDate = parser.parse("2018-01-01");
-        assertEquals(config.getPolicyForHostname("www.datatheorem.com").getExpirationDate(),
-                expectedDate);
+
+        DomainPinningPolicy serverConfig = config.getPolicyForHostname("www.datatheorem.com");
+        assertNotNull(serverConfig);
+        assertEquals(serverConfig.getExpirationDate(), expectedDate);
     }
 
     @Test
@@ -213,6 +217,7 @@ public class TrustKitConfigurationTest {
 
         // Ensure the list of report URIs is empty
         DomainPinningPolicy domainConfig = config.getPolicyForHostname("www.datatheorem.com");
+        assertNotNull(domainConfig);
         assertEquals(new HashSet<>(), domainConfig.getReportUris());
     }
 
@@ -302,6 +307,7 @@ public class TrustKitConfigurationTest {
 
         // Validate the configuration of the parent domain-config
         DomainPinningPolicy domainConfig = config.getPolicyForHostname("datatheorem.com");
+        assertNotNull(domainConfig);
         assertEquals(new HashSet<>(), domainConfig.getReportUris());
 
         HashSet<PublicKeyPin> expectedPins = new HashSet<PublicKeyPin>() {{
@@ -312,6 +318,7 @@ public class TrustKitConfigurationTest {
 
         // Validate the configuration of the parent domain-config for a subdomain
         domainConfig = config.getPolicyForHostname("subdomain.datatheorem.com");
+        assertNotNull(domainConfig);
         assertEquals(new HashSet<>(), domainConfig.getReportUris());
         assertEquals(expectedPins, domainConfig.getPublicKeyPins());
 
@@ -322,6 +329,7 @@ public class TrustKitConfigurationTest {
             add(new PublicKeyPin("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC="));
             add(new PublicKeyPin("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD="));
         }};
+        assertNotNull(domainConfig);
         assertEquals(expectedOtherPins, domainConfig.getPublicKeyPins());
 
         HashSet<URL> expectedUri = new HashSet<URL>() {{
@@ -332,6 +340,7 @@ public class TrustKitConfigurationTest {
 
         // Validate the configuration of a nested domain-config for an unrelated domain
         domainConfig = config.getPolicyForHostname("unrelated.domain.com");
+        assertNotNull(domainConfig);
         assertEquals(expectedPins, domainConfig.getPublicKeyPins());
 
         HashSet<URL> expectedUnrelatedUri = new HashSet<URL>() {{

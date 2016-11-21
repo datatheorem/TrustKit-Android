@@ -25,6 +25,7 @@ import javax.security.auth.x500.X500Principal;
  *
  * @hide
  */
+@SuppressWarnings({"StatementWithEmptyBody", "JavaDoc", "SameParameterValue"})
 final class DistinguishedNameParser {
     private final String dn;
     private final int length;

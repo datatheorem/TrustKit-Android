@@ -40,7 +40,7 @@ public class HttpLibrariesTest {
     @Mock
     private BackgroundReporter reporter;
 
-    static private URL testUrl;
+    static private final URL testUrl;
     static {
         try {
             testUrl = new URL("https://www.datatheorem.com");
@@ -89,7 +89,9 @@ public class HttpLibrariesTest {
                 didReceiveHandshakeError = true;
             }
         } finally {
-            connection.disconnect();
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
 
         assertTrue(didReceiveHandshakeError);

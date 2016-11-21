@@ -62,6 +62,7 @@ import java.util.Locale;
  * @version $Revision$
  * @since Validator 1.4
  */
+@SuppressWarnings({"SimplifiableIfStatement", "BooleanMethodIsAlwaysInverted", "unused"})
 class DomainValidator implements Serializable {
     private static final int MAX_DOMAIN_LENGTH = 253;
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
