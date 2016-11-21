@@ -47,6 +47,9 @@ ext{
         android : [
             appCompat : '24.2.1',
             testRunner: '0.5'
+        ],
+        testing: [
+                okhttp3: '3.4.2',
         ]
     ]
 
