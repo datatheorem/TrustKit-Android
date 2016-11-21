@@ -17,23 +17,15 @@ import java.util.List;
 import java.util.Set;
 
 
-/**
- * The BackgroundReporter save a report when a pinning validation fail and send the report
- * to the specific URI.
- */
 public class BackgroundReporter {
 
-    // Main application environment information
+    // App meta-data to be sent with the reports
     private final String appPackageName;
     private final String appVersion;
     private final String appVendorId;
 
-    // Configuration and Objects managing all the operation done by the BackgroundReporter
-    private final boolean shouldRateLimitsReports;
-
-    public BackgroundReporter(boolean shouldRateLimitsReports, @NonNull String appPackageName,
-                              @NonNull String appVersion, @NonNull String appVendorId) {
-        this.shouldRateLimitsReports = shouldRateLimitsReports;
+    public BackgroundReporter(@NonNull String appPackageName, @NonNull String appVersion,
+                              @NonNull String appVendorId) {
         this.appPackageName = appPackageName;
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;
@@ -83,7 +75,7 @@ public class BackgroundReporter {
                 serverConfig.getPublicKeyPins(), validationResult);
 
         // If a similar report hasn't been sent recently, send it now
-        if (!(shouldRateLimitsReports && ReportRateLimiter.shouldRateLimit(report))) {
+        if (!(ReportRateLimiter.shouldRateLimit(report))) {
             sendReport(report, serverConfig.getReportUris());
         } else {
             TrustKitLog.i("Report for " + serverHostname + " was not sent due to rate-limiting");

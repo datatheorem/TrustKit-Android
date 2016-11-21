@@ -77,8 +77,7 @@ public class TrustKit {
         }
 
         String appVendorId = VendorIdentifier.getOrCreate(context);
-        this.backgroundReporter = new BackgroundReporter(true, appPackageName, appVersion,
-                appVendorId);
+        this.backgroundReporter = new BackgroundReporter(appPackageName, appVersion, appVendorId);
     }
 
 
