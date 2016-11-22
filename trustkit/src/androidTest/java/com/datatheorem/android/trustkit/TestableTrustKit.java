@@ -20,14 +20,14 @@ public class TestableTrustKit extends TrustKit {
     private TestableTrustKit(Context context, TrustKitConfiguration trustKitConfiguration,
                              BackgroundReporter reporter) {
         super(context, trustKitConfiguration);
-        backgroundReporter = reporter;
+        TestableTrustManagerBuilder.setReporter(reporter);
     }
 
 
     public static TrustKit initializeWithNetworkSecurityConfiguration(@NonNull Context context,
                                                                       BackgroundReporter reporter) {
         TrustKit.initializeWithNetworkSecurityConfiguration(context);
-        TrustKit.getInstance().backgroundReporter = reporter;
+        TestableTrustManagerBuilder.setReporter(reporter);
         return TrustKit.getInstance();
     }
 
@@ -37,7 +37,7 @@ public class TestableTrustKit extends TrustKit {
                             @NonNull Context context,
                             BackgroundReporter reporter) {
         trustKitInstance = new TrustKit(context, new TestableTrustKitConfiguration(domainConfigSet));
-        TrustKit.getInstance().backgroundReporter = reporter;
+        TestableTrustManagerBuilder.setReporter(reporter);
     }
 
 
@@ -48,7 +48,7 @@ public class TestableTrustKit extends TrustKit {
                             BackgroundReporter reporter) {
         trustKitInstance = new TrustKit(context, new TestableTrustKitConfiguration(domainConfigSet,
                 shouldOverridePins, debugCaCerts));
-        TrustKit.getInstance().backgroundReporter = reporter;
+        TestableTrustManagerBuilder.setReporter(reporter);
     }
 
     public static void reset() {

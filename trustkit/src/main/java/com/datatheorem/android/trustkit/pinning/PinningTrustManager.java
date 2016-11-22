@@ -4,7 +4,6 @@ import android.net.http.X509TrustManagerExtensions;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
-import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
 
@@ -103,7 +102,7 @@ class PinningTrustManager implements X509TrustManager {
                 // Hostname or path validation failed - not a pinning error
                 validationResult = PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
             }
-            TrustKit.getInstance().getReporter().pinValidationFailed(serverHostname, 0,
+            TrustManagerBuilder.getReporter().pinValidationFailed(serverHostname, 0,
                     servedServerChain, validatedServerChain, serverConfig, validationResult);
         }
 

@@ -26,6 +26,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Set;
 
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
 
@@ -34,7 +35,6 @@ public class TrustKit {
     protected static TrustKit trustKitInstance;
 
     private final TrustKitConfiguration trustKitConfiguration;
-    protected BackgroundReporter backgroundReporter;
 
     protected TrustKit(@NonNull Context context,
                        @NonNull TrustKitConfiguration trustKitConfiguration) {
@@ -54,14 +54,6 @@ public class TrustKit {
             shouldOverridePins = trustKitConfiguration.shouldOverridePins();
         }
 
-        try {
-            TrustManagerBuilder.initializeBaselineTrustManager(debugCaCerts,
-                    shouldOverridePins);
-        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
-                | IOException e) {
-            throw new ConfigurationException("Could not parse <debug-overrides> certificates");
-        }
-
         // Create the background reporter for sending pin failure reports
         String appPackageName = context.getPackageName();
         String appVersion;
@@ -77,7 +69,17 @@ public class TrustKit {
         }
 
         String appVendorId = VendorIdentifier.getOrCreate(context);
-        this.backgroundReporter = new BackgroundReporter(appPackageName, appVersion, appVendorId);
+        BackgroundReporter reporter = new BackgroundReporter(appPackageName, appVersion,
+                appVendorId);
+
+        // Initialize the trust manager builder
+        try {
+            TrustManagerBuilder.initializeBaselineTrustManager(debugCaCerts,
+                    shouldOverridePins, reporter);
+        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
+                | IOException e) {
+            throw new ConfigurationException("Could not parse <debug-overrides> certificates");
+        }
     }
 
 
@@ -87,9 +89,10 @@ public class TrustKit {
      * For more information about pinning configuration using Network Security Configuration, see
      * https://developer.android.com/training/articles/security-config.html#CertificatePinning.
      *
-     * @param context the application's context
-     * @throws ConfigurationException if the policy could not be parsed or contained errors
+     * @param context the application's context.
+     * @throws ConfigurationException if the policy could not be parsed or contained errors.
      */
+    @NonNull
     public synchronized static TrustKit initializeWithNetworkSecurityConfiguration(
             @NonNull Context context) {
         // Try to get the default network policy resource ID
@@ -104,11 +107,12 @@ public class TrustKit {
      * For more information about pinning configuration using Network Security Configuration, see
      * https://developer.android.com/training/articles/security-config.html#CertificatePinning.
      *
-     * @param context the application's context
+     * @param context the application's context.
      * @param configurationResourceId the resource ID for the Network Security Configuration file to
-     *                                use
-     * @throws ConfigurationException if the policy could not be parsed or contained errors
+     *                                use.
+     * @throws ConfigurationException if the policy could not be parsed or contained errors.
      */
+    @NonNull
     public synchronized static TrustKit initializeWithNetworkSecurityConfiguration(
             @NonNull Context context, int configurationResourceId) {
         if (trustKitInstance != null) {
@@ -133,14 +137,18 @@ public class TrustKit {
         } catch (XmlPullParserException | IOException e) {
             throw new ConfigurationException("Could not parse network security policy file");
         } catch (CertificateException e) {
-            throw new ConfigurationException("Could not find the debug certificate in the network " +
-                    "security police file");
+            throw new ConfigurationException("Could not find the debug certificate in the " +
+                    "network security police file");
         }
 
         trustKitInstance = new TrustKit(context, trustKitConfiguration);
         return trustKitInstance;
     }
 
+    /** Retrieve the initialized instance of TrustKit.
+     *
+     * @throws IllegalStateException if TrustKit has not been initialized
+     */
     @NonNull
     public static TrustKit getInstance() {
         if (trustKitInstance == null) {
@@ -149,19 +157,29 @@ public class TrustKit {
         return trustKitInstance;
     }
 
+    /** Retrieve the current TrustKit configuration.
+     *
+     */
     @NonNull
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
 
+    /** Retrieve an SSLSSocketFactory that implements SSL pinning based on the current TrustKit
+     * configuration. It can be used with most network APIs (such as HttpsUrlConnection) to add SSL
+     * pinning validation to the connections.
+     */
     @NonNull
-    public javax.net.ssl.SSLSocketFactory getSSLSocketFactory() {
+    public SSLSocketFactory getSSLSocketFactory() {
         return new TrustKitSSLSocketFactory();
     }
 
+    /** Retrieve a trust manager that implements SSL pinning based on the current TrustKit
+     * configuration for the supplied hostname.
+     *
+     * @param serverHostname the server's hostname that the trust manager will be used to connect
+     *                       to.
+     */
     @NonNull
     public X509TrustManager getTrustManager(@NonNull String serverHostname) {
         return TrustManagerBuilder.getTrustManager(serverHostname);
     }
-
-    @NonNull
-    public BackgroundReporter getReporter() { return backgroundReporter; }
 }

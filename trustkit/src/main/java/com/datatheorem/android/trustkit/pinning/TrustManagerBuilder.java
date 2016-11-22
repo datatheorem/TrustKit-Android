@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 
 import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
@@ -25,8 +26,12 @@ public class TrustManagerBuilder {
     // Pinning validation can be disabled if debug-overrides is set
     protected static boolean shouldOverridePins = false;
 
+    // The reporter that will send pinning failure reports
+    protected static BackgroundReporter backgroundReporter = null;
+
     public static void initializeBaselineTrustManager(@Nullable Set<Certificate> debugCaCerts,
-                                                      boolean debugOverridePins)
+                                                      boolean debugOverridePins,
+                                                      BackgroundReporter reporter)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             IOException {
         if (baselineTrustManager != null) {
@@ -39,6 +44,8 @@ public class TrustManagerBuilder {
             // Debug overrides is enabled and we are on a pre-N device; we need to do it manually
             baselineTrustManager = DebugOverridesTrustManager.getInstance(debugCaCerts);
         }
+
+        backgroundReporter = reporter;
     }
 
     public static X509TrustManager getTrustManager(@NonNull String serverHostname) {
@@ -54,5 +61,14 @@ public class TrustManagerBuilder {
         } else {
             return new PinningTrustManager(serverHostname, serverConfig, baselineTrustManager);
         }
+    }
+
+    /** Retrieve the background reporter to be used for sending pinning validation reports.
+     */
+    static BackgroundReporter getReporter() {
+        if (backgroundReporter == null) {
+            throw new IllegalStateException("TrustManagerBuilder has not been initialized");
+        }
+        return backgroundReporter;
     }
 }
