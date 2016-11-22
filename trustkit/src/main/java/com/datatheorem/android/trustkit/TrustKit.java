@@ -82,7 +82,6 @@ public class TrustKit {
         }
     }
 
-
     /** Initialize TrustKit with the Network Security Configuration file at the default location
      * res/xml/network_security_config.xml.
      *
@@ -147,7 +146,7 @@ public class TrustKit {
 
     /** Retrieve the initialized instance of TrustKit.
      *
-     * @throws IllegalStateException if TrustKit has not been initialized
+     * @throws IllegalStateException if TrustKit has not been initialized.
      */
     @NonNull
     public static TrustKit getInstance() {
@@ -163,20 +162,22 @@ public class TrustKit {
     @NonNull
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
 
-    /** Retrieve an SSLSSocketFactory that implements SSL pinning based on the current TrustKit
-     * configuration. It can be used with most network APIs (such as HttpsUrlConnection) to add SSL
-     * pinning validation to the connections.
+    /** Retrieve an SSLSSocketFactory that implements SSL pinning validation based on the current
+     * TrustKit configuration. It can be used with most network APIs (such as HttpsUrlConnection) to
+     * add SSL pinning validation to the connections.
      */
     @NonNull
     public SSLSocketFactory getSSLSocketFactory() {
         return new TrustKitSSLSocketFactory();
     }
 
-    /** Retrieve a trust manager that implements SSL pinning based on the current TrustKit
-     * configuration for the supplied hostname.
+    /** Retrieve an X509TrustManager that implements SSL pinning validation based on the current
+     * TrustKit configuration for the supplied hostname. It can be used with some network APIs that
+     * let developers supply a trust manager to customize SSL validation.
      *
-     * @param serverHostname the server's hostname that the trust manager will be used to connect
-     *                       to.
+     * @param serverHostname the server's hostname that the X509TrustManager will be used to connect
+     *                       to. This hostname will be used to retrieve the pinning policy from the
+     *                       current TrustKit configuration.
      */
     @NonNull
     public X509TrustManager getTrustManager(@NonNull String serverHostname) {
