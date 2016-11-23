@@ -13,6 +13,11 @@ TrustKit Android works by extending the [Android N Network Security Configuratio
 * It adds the ability to send reports when pinning validation failed for a specific connection. Reports have a format that is similar to the report-uri feature of [HTTP Public Key Pinning](https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning) and [TrustKit iOS](https://github.com/datatheorem/trustkit).
 
 
+Getting Started
+----------------
+
+TBD
+
 Sample Usage
 ---------------
 
