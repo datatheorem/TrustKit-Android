@@ -91,7 +91,7 @@ Limitations
 
 To keep the code base as simple as possible, TrustKit Android currently has the following limitations when running on a pre-Android N device:
 
-* The `SSLSocketFactory` or `X509TrustManager` provided by TrustKit for SSL pinning validation are configured for a specific domain, and do not properly handle pinning validation if there is a redirection to a different domain during the connection. This should not be a problem as pinning validation is only meant to be used on the few specific domains on which the App's server API is hosted. Redirections to other domains are unlikely to happen in this scenario.
+* The `SSLSocketFactory` or `X509TrustManager` provided by TrustKit for SSL pinning validation are configured for a specific domain, and will keep this domain's pinning policy even if there is a redirection to a different domain during the connection. This should not be a problem as pinning validation is only meant to be used on the few specific domains on which the App's server API is hosted. Redirections to other domains should not happen in this scenario.
 * The `<trust-anchors>` setting is only applied when used within the global `<debug-overrides>` tag. Hence, custom trust anchors for specific domains cannot be set. 
 * Within the `<trust-anchors>` tag, only `<certificate>` tags pointing to a raw certificate file are supported (the `user` or `system` values for the `src` attribute will be ignored).
 

@@ -40,7 +40,6 @@ ext{
     libVersions = [
         junit: '4.12',
         mockito : [
-                // TODO (jb) add the reason we need to use this one instead of the most recent
                 android: '1.10.19'
                 ],
         dexmaker : '1.4',

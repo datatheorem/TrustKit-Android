@@ -30,6 +30,100 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
 
+/**
+ * Class that provides all of the TrustKit public APIs.
+ *
+ * <p>
+ *     It should be used to initialize the App's SSL pinning policy and to retrieve the
+ *     corresponding {@code SSLSocketFactory} and {@code X509TrustManager}, to be used to add SSL
+ *     pinning validation to the App's network connections.
+ * </p>
+ *
+ * <h3>Supported Android N Network Security Settings</h3>
+ *
+ * <p>
+ *     On devices before Android N, TrustKit supports the following XML tags defined in the
+ *     <a href="https://developer.android.com/training/articles/security-config.html#CertificatePinning">
+ *         Android N Network Security Configuration</a> for deploying SSL pinning:
+ * </p>
+ *
+ * <ul>
+ *     <li>{@code <domain-config>}.</li>
+ *     <li>{@code <domain>} and the {@code includeSubdomains} attribute.</li>
+ *     <li>{@code <pin-set>} and the {@code expiration} attribute.</li>
+ *     <li>{@code <pin>} and the {@code digest} attribute.</li>
+ *     <li>{@code <debug-overrides>}.</li>
+ *     <li>{@code <trust-anchors>}, but only within a {@code <debug-overrides>} tag. Hence, custom
+ *     trust anchors for specific domains cannot be set.</li>
+ *     <li>{@code <certificates>} and the {@code overridePins} and {@code src} attributes. Only raw
+ *     certificate files are supported for the {@code src} attribute ({@code user} and
+ *     {@code system} values will be ignored).</li>
+ * </ul>
+ *
+ *<p>
+ *     On Android N devices, the OS' implementation is used and all XML tags are supported.
+ *</p>
+ *
+ * <h3>Additional TrustKit Settings</h3>
+ *
+ * <p>
+ *     TrustKit provides additional functionality to not enforce pinning validation and to allow
+ *     reports to be sent by the App whenever a pinning validation failure occurred.
+ * </p>
+ *
+ * <ul>
+ *     <li>{@code <trustkit-config>}: The main tag for specifying additional TrustKit settings, to
+ *     be defined within a {@code <domain-config>} entry. It supports the following attributes:
+ *
+ *     <ul>
+ *         <li>{@code enforcePinning}: if set to {@code false}, TrustKit will not block SSL
+ *         connections that caused a pinning validation error; default value is {@code false}. When
+ *         a pinning failure occurs, pin failure reports will always be sent to the configured
+ *         report URIs regardless of the value of {@code enforcePinning}. This behavior allows
+ *         deploying pinning validation without the risk of locking out users due to a
+ *         misconfiguration, while still receiving reports in order to assess how many users would
+ *         be affected by pinning.</li>
+ *
+ *         <li>{@code disableDefaultReportUri}: if set to {@code true}, the default report URL for
+ *         sending pin failure reports will be disabled; default value is {@code false}. By default,
+ *         pin failure reports are sent to a report server hosted by Data Theorem, for detecting
+ *         potential CA compromises and man-in-the-middle attacks, as well as providing a free
+ *         dashboard for developers; email
+ *         <a href="mailto:info@datatheorem.com">info@datatheorem.com</a> if you'd like a dashboard
+ *         for your App. Only pin failure reports are sent, which contain the App's package name,
+ *         a randomly-generated ID, and the server's hostname and certificate chain that failed
+ *         validation.</li>
+ *     </ul>
+ *
+ *     <li>{@code <report-uri>}: A URL to which pin validation failures should be reported, to be
+ *     defined within a {@code <trustkit-config} tag. The format of the reports is similar to the
+ *     one described in RFC 7469 for the HPKP specification:
+ *     <pre>
+ *     <code>
+ *     {
+ *     "app-bundle-id":"com.example.ABC",
+ *     "app-version":"1.0",
+ *     "app-vendor-id":"599F9C00-92DC-4B5C-9464-7971F01F8370",
+ *     "date-time": "2015-07-10T20:03:14Z",
+ *     "hostname": "mail.example.com",
+ *     "port": 0,
+ *     "include-subdomains": true,
+ *     "noted-hostname": "example.com",
+ *     "validated-certificate-chain": [
+ *     pem1, ... pemN
+ *     ],
+ *     "known-pins": [
+ *     "pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\"",
+ *     "pin-sha256=\"E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=\""
+ *     ],
+ *     "validation-result":1
+ *     }
+ *     </code>
+ *     </pre>
+ *     </li>
+ * </ul>
+ *
+ */
 public class TrustKit {
 
     protected static TrustKit trustKitInstance;
@@ -85,9 +179,6 @@ public class TrustKit {
     /** Initialize TrustKit with the Network Security Configuration file at the default location
      * res/xml/network_security_config.xml.
      *
-     * For more information about pinning configuration using Network Security Configuration, see
-     * https://developer.android.com/training/articles/security-config.html#CertificatePinning.
-     *
      * @param context the application's context.
      * @throws ConfigurationException if the policy could not be parsed or contained errors.
      */
@@ -102,9 +193,6 @@ public class TrustKit {
 
     /** Initialize TrustKit with the Network Security Configuration file with the specified
      * resource ID.
-     *
-     * For more information about pinning configuration using Network Security Configuration, see
-     * https://developer.android.com/training/articles/security-config.html#CertificatePinning.
      *
      * @param context the application's context.
      * @param configurationResourceId the resource ID for the Network Security Configuration file to
@@ -162,22 +250,36 @@ public class TrustKit {
     @NonNull
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
 
-    /** Retrieve an SSLSSocketFactory that implements SSL pinning validation based on the current
-     * TrustKit configuration. It can be used with most network APIs (such as HttpsUrlConnection) to
-     * add SSL pinning validation to the connections.
+    /** Retrieve an {@code SSLSSocketFactory} that implements SSL pinning validation based on the
+     * current TrustKit configuration. It can be used with most network APIs (such as
+     * {@code HttpsUrlConnection}) to add SSL pinning validation to the connections.
+     *
+     * The {@code SSLSocketFactory} is configured for the specific domain the socket will connect to
+     * first, and will keep this domain's pinning policy even if there is a redirection to a
+     * different domain during the connection. Hence validation will always fail in the case of a
+     * redirection to a different domain.
+     * Pinning validation is only meant to be used on the App's API server(s), and redirections to
+     * other domains should not happen in this use case.
      */
     @NonNull
     public SSLSocketFactory getSSLSocketFactory() {
         return new TrustKitSSLSocketFactory();
     }
 
-    /** Retrieve an X509TrustManager that implements SSL pinning validation based on the current
-     * TrustKit configuration for the supplied hostname. It can be used with some network APIs that
-     * let developers supply a trust manager to customize SSL validation.
+    /** Retrieve an {@code X509TrustManager} that implements SSL pinning validation based on the
+     * current TrustKit configuration for the supplied hostname. It can be used with some network
+     * APIs that let developers supply a trust manager to customize SSL validation.
      *
-     * @param serverHostname the server's hostname that the X509TrustManager will be used to connect
-     *                       to. This hostname will be used to retrieve the pinning policy from the
-     *                       current TrustKit configuration.
+     * The {@code X509TrustManager} is configured for the supplied hostname, and will keep this
+     * domain's pinning policy even if there is a redirection to a different domain during the
+     * connection. Hence validation will always fail in the case of a redirection to a different
+     * domain.
+     * Pinning validation is only meant to be used on the App's API server(s), and redirections to
+     * other domains should not happen in this use case.
+     *
+     * @param serverHostname the server's hostname that the {@code X509TrustManager} will be used to
+     *                       connect to. This hostname will be used to retrieve the pinning policy
+     *                       from the current TrustKit configuration.
      */
     @NonNull
     public X509TrustManager getTrustManager(@NonNull String serverHostname) {
