@@ -39,6 +39,10 @@ import javax.net.ssl.X509TrustManager;
  *     pinning validation to the App's network connections.
  * </p>
  *
+ * <p>
+ *     TrustKit can be configured using
+ * </p>
+ *
  * <h3>Supported Android N Network Security Settings</h3>
  *
  * <p>
@@ -71,9 +75,12 @@ import javax.net.ssl.X509TrustManager;
  *     reports to be sent by the App whenever a pinning validation failure occurred.
  * </p>
  *
- * <ul>
- *     <li>{@code <trustkit-config>}: The main tag for specifying additional TrustKit settings, to
- *     be defined within a {@code <domain-config>} entry. It supports the following attributes:
+ * <h4>{@code <trustkit-config>}</h4>
+ *
+ * <p>
+ *     The main tag for specifying additional TrustKit settings, to be defined within a
+ *     {@code <domain-config>} entry. It supports the following attributes:
+ * </p>
  *
  *     <ul>
  *         <li>{@code enforcePinning}: if set to {@code false}, TrustKit will not block SSL
@@ -95,9 +102,11 @@ import javax.net.ssl.X509TrustManager;
  *         validation.</li>
  *     </ul>
  *
- *     <li>{@code <report-uri>}: A URL to which pin validation failures should be reported, to be
- *     defined within a {@code <trustkit-config} tag. The format of the reports is similar to the
- *     one described in RFC 7469 for the HPKP specification:
+ * <h4>{@code <report-uri>}</h4>
+ *
+ *     A URL to which pin validation failures should be reported, to be defined within a
+ *     {@code <trustkit-config} tag. The format of the reports is similar to the one described in
+ *     RFC 7469 for the HPKP specification:
  *     <pre>
  *     <code>
  *     {
@@ -120,8 +129,43 @@ import javax.net.ssl.X509TrustManager;
  *     }
  *     </code>
  *     </pre>
- *     </li>
- * </ul>
+ *
+ * <h3>Sample TrustKit Configuration</h3>
+ * <p>
+ *     The following configuration will pin the www.datatheorem.com domain without enforcing pinning
+ *     validation, and will send pinning failure reports to report.datatheorem.com. It also defines
+ *     a debug overrides to add a debug certificate authority to the App's trust store for easier
+ *     debugging of the App's network traffic.
+ * </p>
+ * <pre>
+ *     {@code
+ *         <!-- res/xml/network_security_config.xml -->
+ *         <?xml version="1.0" encoding="utf-8"?>
+ *         <network-security-config>
+ *         <!-- Pin the domain www.datatheorem.com -->
+ *         <!-- Official Android N API -->
+ *         <domain-config>
+ *         <domain>www.datatheorem.com</domain>
+ *         <pin-set>
+ *         <pin digest="SHA-256">k3XnEYQCK79AtL9GYnT/nyhsabas03V+bhRQYHQbpXU=</pin>
+ *         <pin digest="SHA-256">2kOi4HdYYsvTR1sTIR7RHwlf2SescTrpza9ZrWy7poQ=</pin>
+ *         </pin-set>
+ *         <!-- TrustKit Android API -->
+ *         <!-- Do not enforce pinning validation -->
+ *         <trustkit-config enforcePinning="false">
+ *         <!-- Add a reporting URL for pin validation reports -->
+ *         <report-uri>http://report.datatheorem.com/log_report</report-uri>
+ *         </trustkit-config>
+ *         </domain-config>
+ *         <debug-overrides>
+ *         <trust-anchors>
+ *         <!-- For debugging purposes, add a debug CA and override pins -->
+ *         <certificates overridePins="true" src="@raw/debugca" />
+ *         </trust-anchors>
+ *         <debug-overrides>
+ *         </network-security-config>
+ *     }
+ * </pre>
  *
  */
 public class TrustKit {
@@ -254,12 +298,14 @@ public class TrustKit {
      * current TrustKit configuration. It can be used with most network APIs (such as
      * {@code HttpsUrlConnection}) to add SSL pinning validation to the connections.
      *
-     * The {@code SSLSocketFactory} is configured for the specific domain the socket will connect to
-     * first, and will keep this domain's pinning policy even if there is a redirection to a
-     * different domain during the connection. Hence validation will always fail in the case of a
-     * redirection to a different domain.
-     * Pinning validation is only meant to be used on the App's API server(s), and redirections to
-     * other domains should not happen in this use case.
+     * <p>
+     *     The {@code SSLSocketFactory} is configured for the specific domain the socket will
+     *     connect to first, and will keep this domain's pinning policy even if there is a
+     *     redirection to a different domain during the connection. Hence validation will always
+     *     fail in the case of a redirection to a different domain.
+     *     Pinning validation is only meant to be used on the App's API server(s), and redirections
+     *     to other domains should not happen in this use case.
+     * </p>
      */
     @NonNull
     public SSLSocketFactory getSSLSocketFactory() {
@@ -270,12 +316,14 @@ public class TrustKit {
      * current TrustKit configuration for the supplied hostname. It can be used with some network
      * APIs that let developers supply a trust manager to customize SSL validation.
      *
-     * The {@code X509TrustManager} is configured for the supplied hostname, and will keep this
-     * domain's pinning policy even if there is a redirection to a different domain during the
-     * connection. Hence validation will always fail in the case of a redirection to a different
-     * domain.
-     * Pinning validation is only meant to be used on the App's API server(s), and redirections to
-     * other domains should not happen in this use case.
+     * <p>
+     *     The {@code X509TrustManager} is configured for the supplied hostname, and will keep this
+     *     domain's pinning policy even if there is a redirection to a different domain during the
+     *     connection. Hence validation will always fail in the case of a redirection to a different
+     *     domain.
+     *     Pinning validation is only meant to be used on the App's API server(s), and redirections
+     *     to other domains should not happen in this use case.
+     * </p>
      *
      * @param serverHostname the server's hostname that the {@code X509TrustManager} will be used to
      *                       connect to. This hostname will be used to retrieve the pinning policy
