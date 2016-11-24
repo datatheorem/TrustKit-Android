@@ -40,7 +40,22 @@ import javax.net.ssl.X509TrustManager;
  * </p>
  *
  * <p>
- *     TrustKit can be configured using
+ *     TrustKit works by extending the
+ *     <a href="https://developer.android.com/training/articles/security-config.html">Android N
+ *     Network Security Configuration</a> in two ways:
+ *
+ *     <ul>
+ *         <li>It provides support for the SSL pinning functionality of the Android N Network
+ *             Security Configuration to earlier versions of Android, down to API level 17. This
+ *             allows Apps supporting versions of Android that earlier than N to implement SSL
+ *             pinning in a way that is future-proof.</li>
+ *
+ *         <li>It adds the ability to send reports when pinning validation failed for a specific
+ *             connection. Reports have a format that is similar to the report-uri feature of
+ *             <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning">HTTP
+ *             Public Key Pinning</a> and <a href="https://github.com/datatheorem/trustkit">TrustKit
+ *             iOS</a>.</li>
+ *     </ul>
  * </p>
  *
  * <h3>Supported Android N Network Security Settings</h3>
@@ -105,7 +120,7 @@ import javax.net.ssl.X509TrustManager;
  * <h4>{@code <report-uri>}</h4>
  *
  *     A URL to which pin validation failures should be reported, to be defined within a
- *     {@code <trustkit-config} tag. The format of the reports is similar to the one described in
+ *     {@code <trustkit-config>} tag. The format of the reports is similar to the one described in
  *     RFC 7469 for the HPKP specification:
  *     <pre>
  *     <code>
