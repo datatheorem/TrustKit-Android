@@ -266,7 +266,7 @@ public class TrustKitSSLSocketFactoryTest {
             }
         }
 
-        // Ensure the SSL handshake failed
+        // Ensure the SSL handshake failed (but not because of a pinning error)
         assertTrue(didReceiveHandshakeError);
 
         // Ensure the background reporter was called

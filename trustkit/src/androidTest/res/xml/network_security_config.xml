@@ -42,7 +42,7 @@
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
-        <trustkit-config enforcePinning="true">
+        <trustkit-config enforcePinning="false">
         </trustkit-config>
     </domain-config>
     <domain-config>
@@ -53,7 +53,7 @@
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
-        <trustkit-config enforcePinning="true">
+        <trustkit-config enforcePinning="false">
         </trustkit-config>
     </domain-config>
     <domain-config>
@@ -75,7 +75,7 @@
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
-        <trustkit-config enforcePinning="true">
+        <trustkit-config enforcePinning="false">
         </trustkit-config>
     </domain-config>
 </network-security-config>
