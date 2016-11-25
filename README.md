@@ -27,7 +27,7 @@ TrustKit Android can be deployed using Gradle, by adding this line to your _buil
 
 `compile 'com.datatheorem.truskit:trustkit-android:'`
 
-Then, deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android Network Security Configuration](https://developer.android.com/training/articles/security-config.html):
+Then, deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html):
 
 ```xml
 <!-- res/xml/network_security_config.xml -->
