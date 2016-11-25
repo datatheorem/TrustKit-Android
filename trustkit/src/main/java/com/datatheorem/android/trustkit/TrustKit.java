@@ -41,8 +41,8 @@ import javax.net.ssl.X509TrustManager;
  *
  * <p>
  *     TrustKit works by extending the
- *     <a href="https://developer.android.com/training/articles/security-config.html">Android N
- *     Network Security Configuration</a> in two ways:
+ *     <a href="https://developer.android.com/training/articles/security-config.html" target="_blank">
+ *         Android N Network Security Configuration</a> in two ways:
  *
  *     <ul>
  *         <li>It provides support for the SSL pinning functionality of the Android N Network
@@ -52,8 +52,8 @@ import javax.net.ssl.X509TrustManager;
  *
  *         <li>It adds the ability to send reports when pinning validation failed for a specific
  *             connection. Reports have a format that is similar to the report-uri feature of
- *             <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning">HTTP
- *             Public Key Pinning</a> and <a href="https://github.com/datatheorem/trustkit">TrustKit
+ *             <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning" target="_blank">HTTP
+ *             Public Key Pinning</a> and <a href="https://github.com/datatheorem/trustkit" target="_blank">TrustKit
  *             iOS</a>.</li>
  *     </ul>
  * </p>
@@ -62,7 +62,7 @@ import javax.net.ssl.X509TrustManager;
  *
  * <p>
  *     On devices before Android N, TrustKit supports the following XML tags defined in the
- *     <a href="https://developer.android.com/training/articles/security-config.html#CertificatePinning">
+ *     <a href="https://developer.android.com/training/articles/security-config.html#CertificatePinning" target="_blank">
  *         Android N Network Security Configuration</a> for deploying SSL pinning:
  * </p>
  *
@@ -121,29 +121,11 @@ import javax.net.ssl.X509TrustManager;
  *
  *     A URL to which pin validation failures should be reported, to be defined within a
  *     {@code <trustkit-config>} tag. The format of the reports is similar to the one described in
- *     RFC 7469 for the HPKP specification:
- *     <pre>
- *     <code>
- *     {
- *     "app-bundle-id":"com.example.ABC",
- *     "app-version":"1.0",
- *     "app-vendor-id":"599F9C00-92DC-4B5C-9464-7971F01F8370",
- *     "date-time": "2015-07-10T20:03:14Z",
- *     "hostname": "mail.example.com",
- *     "port": 0,
- *     "include-subdomains": true,
- *     "noted-hostname": "example.com",
- *     "validated-certificate-chain": [
- *     pem1, ... pemN
- *     ],
- *     "known-pins": [
- *     "pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\"",
- *     "pin-sha256=\"E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=\""
- *     ],
- *     "validation-result":1
- *     }
- *     </code>
- *     </pre>
+ *     <a href="https://tools.ietf.org/html/rfc7469#section-2.1.4" target="_blank">RFC 7469 for the HPKP
+ *     specification</a>. A sample TrustKit report is available
+ *     <a href="https://github.com/datatheorem/TrustKit-Android/blob/master/docs/sample_report.json" target="_blank">
+ *         in the project's repository
+ *     </a>.
  *
  * <h3>Sample TrustKit Configuration</h3>
  * <p>
