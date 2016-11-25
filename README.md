@@ -1,6 +1,6 @@
 TrustKit Android
 ============
-
+[![API](https://img.shields.io/badge/API-17%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=17)
 **TrustKit Android** is an open source library that makes it easy to deploy SSL public key pinning in any Android App.
 
 
@@ -23,9 +23,6 @@ Getting Started
 Sample Usage
 ---------------
 
-TrustKit Android can be deployed using Gradle, by adding this line to your _build.gradle_:
-
-`compile 'com.datatheorem.truskit:trustkit-android:'`
 
 Then, deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html):
 
