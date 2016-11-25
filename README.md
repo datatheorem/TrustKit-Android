@@ -16,14 +16,16 @@ TrustKit Android works by extending the [Android N Network Security Configuratio
 Getting Started
 ----------------
 
-TBD
+* Read the [Getting Started guide](https://github.com/datatheorem/TrustKit-Android/blob/master/docs/getting-started.md).
+* Check out the [API documentation](https://datatheorem.github.io/TrustKit-Android/documentation/).
+* The [iOS version of TrustKit](https://github.com/datatheorem/TrustKit) was initially released at the Black Hat USA 2015 conference.
 
 Sample Usage
 ---------------
 
 TrustKit Android can be deployed using Gradle, by adding this line to your _build.gradle_:
 
-`TDB compile 'com.datatheorem.truskit:trustkit-android:'`
+`compile 'com.datatheorem.truskit:trustkit-android:'`
 
 Then, deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android Network Security Configuration](https://developer.android.com/training/articles/security-config.html):
 
