@@ -37,7 +37,7 @@ public final class PublicKeyPin {
         if (spkiSha256Hash.length != 32) {
             throw new IllegalArgumentException("Invalid pin: length is not 32 bytes");
         }
-        pin = spkiPin;
+        pin = spkiPin.trim();
     }
 
     @Override

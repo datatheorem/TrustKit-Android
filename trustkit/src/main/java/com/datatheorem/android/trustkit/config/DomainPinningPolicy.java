@@ -46,15 +46,14 @@ public final class DomainPinningPolicy {
         if (!domainValidator.isValid(hostname)) {
             throw new ConfigurationException("Tried to pin an invalid domain: " + hostname);
         }
-        this.hostname = hostname;
+        this.hostname = hostname.trim();
 
         // Check if the configuration has at least two pins (including a backup pin)
         // TrustKit should not work if the configuration contains only one pin
         // more info (https://tools.ietf.org/html/rfc7469#page-21)
         if (publicKeyHashStrList.size() < 2) {
-            // TODO(ad): Once we've written the documentation, encore that this error is still valid
             throw new ConfigurationException("Less than two pins were supplied "+
-                    "for domain " + hostname + ". This might " +
+                    "for domain " + this.hostname + ". This might " +
                     "brick your App; please review the Getting Started guide in " +
                     "./docs/getting-started.md");
         }
