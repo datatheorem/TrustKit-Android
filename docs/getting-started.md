@@ -94,6 +94,26 @@ for the first time, it is advisable to set `enforcePinning` to `false`, so that 
 connections will succeed regardless of pin validation.
 
 
+#### Always provide at least one backup pin
+
+In order to prevent accidentally locking users out of your site, make sure you
+have at least one backup pin and that you have procedures in place to
+transition to using the backup pin if your primary pin can no longer be used.
+For example, if you pin to the public key of your server's certificate, you
+should generate a backup key that is stored somewhere safe. If you pin to an
+intermediate CA or a root CA, then you should also select an alternative CA
+that you are willing to switch to if your current CA (or their intermediate CA)
+becomes invalid for some reason.
+
+If you do not have a backup pin, you could inadvertently prevent your app from
+working until you released a new version of your app, and your users updated
+it. [One such
+incident](https://cabforum.org/pipermail/public/2016-November/008989.html) led
+to a bank having to ask their CA to issue a new certificate using a deprecated
+intermediate CA in order to allow their users to use the app, or face weeks of
+the app being unusable.
+
+
 #### Deploy a reporting server or use Data Theorem's free server
 
 Adding a report URL using the `<report-uri>` setting to receive pin validation 
@@ -139,4 +159,4 @@ protected void onCreate(Bundle savedInstanceState) {
 }
 ```
 
-Once TrustKit has been initialized and the client or connection's `SSLSocketFactory` has been set, it will verify the server's certificate chain against the configured pinning policy whenever an HTTPS connection is initiated. If a report URI has been configured, the App will also send reports to the specified URI whenever a pin validation failure occurred. 
+Once TrustKit has been initialized and the client or connection's `SSLSocketFactory` has been set, it will verify the server's certificate chain against the configured pinning policy whenever an HTTPS connection is initiated. If a report URI has been configured, the App will also send reports to the specified URI whenever a pin validation failure occurred.
