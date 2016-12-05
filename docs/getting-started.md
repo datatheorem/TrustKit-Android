@@ -110,6 +110,8 @@ was to be enforced.
 
 TrustKit Android can then be initialized using the default path for the  [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html) (_res/xml/network_security_config.xml_) or with a custom resource:
 
+<!-- REVIEW(bj): same question as in the README: what if I also have a network security configuration set up in my
+Android manifest? -->
 
 ```java
 @Override

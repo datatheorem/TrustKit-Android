@@ -26,7 +26,8 @@ Sample Usage
 
 Then, deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html):
 
-<!-- What if I specify both a security config file in my android manifest and also use trustkit? Will that just work, could there be some really subtle conflicts, or will things usually fail in an obvious way? - B.J. -->
+<!-- REVIEW(bj): What if I specify both a security config file in my android manifest and also use trustkit? Will that
+just work, could there be some really subtle conflicts, or will things usually fail in an obvious way? -->
 
 ```xml
 <!-- res/xml/network_security_config.xml -->
@@ -89,6 +90,15 @@ Once TrustKit Android has been initialized and the client or connection's `SSLSo
 
 Limitations
 ----------
+
+<!-- REVIEW(bj): Will TrustKit-Android apply its pinning policy to all SSL connections, or just those that explicitly
+use the TrustKitSSLSocketFactory? in other words, will it replace the default SSLSocketFactory in other code (Eg, SDKs,
+legac code, etc.)?
+
+I think it is important to clarify when TrustKit applies to network connections because I assume the Android network
+security policy file would normally apply to all Java SSLSocket* code in API level 24+, even code that is not explicitly
+configured to use it.
+-->
 
 On Android N devices, TrustKit uses the OS's implementation of pinning, and it is not affected by the following limitations.
 

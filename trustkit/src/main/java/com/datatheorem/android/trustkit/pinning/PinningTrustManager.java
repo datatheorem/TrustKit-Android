@@ -17,7 +17,7 @@ import java.util.Set;
 import javax.net.ssl.X509TrustManager;
 
 
-
+// REVIEW(bj): docstring?
 class PinningTrustManager implements X509TrustManager {
 
 

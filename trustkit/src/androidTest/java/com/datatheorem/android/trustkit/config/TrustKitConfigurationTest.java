@@ -142,6 +142,8 @@ public class TrustKitConfigurationTest {
         // Ensure a domain that is not a subdomain does not get the policy
         domainConfig = config.getPolicyForHostname("subdomain.datatheorem.fr");
         assertNull(domainConfig);
+
+        // REVIEW(bj): What does the report URI HashSet look like in this case?
     }
 
     @Test
