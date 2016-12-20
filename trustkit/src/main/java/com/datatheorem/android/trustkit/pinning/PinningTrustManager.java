@@ -3,6 +3,7 @@ package com.datatheorem.android.trustkit.pinning;
 import android.net.http.X509TrustManagerExtensions;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
@@ -22,7 +23,7 @@ class PinningTrustManager implements X509TrustManager {
 
 
     // The trust manager we use to do the default SSL validation
-    private final X509TrustManagerExtensions baselineTrustManager;
+    private X509TrustManagerExtensions baselineTrustManager = null;
 
     private final String serverHostname;
     private final DomainPinningPolicy serverConfig;
@@ -35,12 +36,14 @@ class PinningTrustManager implements X509TrustManager {
         this.serverHostname = serverHostname;
         this.serverConfig = serverConfig;
 
-        // We use the default trust manager so we can perform regular SSL validation and we wrap it
-        // in the Android-specific X509TrustManagerExtensions, which provides an API to compute the
-        // cleaned/verified server certificate chain that we eventually need for pinning validation.
-        // Also the X509TrustManagerExtensions provides a checkServerTrusted() where the hostname
-        // can be supplied, allowing it to call the (system) RootTrustManager on Android N
-        this.baselineTrustManager = new X509TrustManagerExtensions(baselineTrustManager);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // We use the default trust manager so we can perform regular SSL validation and we wrap it
+            // in the Android-specific X509TrustManagerExtensions, which provides an API to compute the
+            // cleaned/verified server certificate chain that we eventually need for pinning validation.
+            // Also the X509TrustManagerExtensions provides a checkServerTrusted() where the hostname
+            // can be supplied, allowing it to call the (system) RootTrustManager on Android N
+            this.baselineTrustManager = new X509TrustManagerExtensions(baselineTrustManager);
+        }
     }
 
     @Override
@@ -66,8 +69,10 @@ class PinningTrustManager implements X509TrustManager {
         // extra certificates an attacker might add: https://koz.io/pinning-cve-2016-2402/
         try {
 
-            validatedServerChain = baselineTrustManager.checkServerTrusted(chain, authType,
-                    serverHostname);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                validatedServerChain = baselineTrustManager.checkServerTrusted(chain, authType,
+                        serverHostname);
+            }
 
         } catch (CertificateException e) {
             if ((Build.VERSION.SDK_INT >= 24)

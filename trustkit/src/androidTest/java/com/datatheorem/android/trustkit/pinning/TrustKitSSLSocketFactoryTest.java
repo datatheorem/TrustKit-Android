@@ -157,6 +157,12 @@ public class TrustKitSSLSocketFactoryTest {
 
     @Test
     public void testPinnedDomainSuccess() throws IOException {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // This test will not work because we're using the X509TrustManagerExtensions API
+            // only available since 17
+            return;
+        }
+
         String serverHostname = "www.datatheorem.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
@@ -329,6 +335,10 @@ public class TrustKitSSLSocketFactoryTest {
             // This test will not work when using the Android N XML network policy because we can't
             // dynamically switch the App's debuggable flag for true to false (it is always true
             // when running the test suite)
+            return;
+        } else if (Build.VERSION.SDK_INT <= 17) {
+            // This test will not work because we're using the X509TrustManagerExtensions API
+            // only available since 17
             return;
         }
         String serverHostname = "www.cacert.org";
