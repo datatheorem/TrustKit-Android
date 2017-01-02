@@ -25,6 +25,7 @@ dependencies {
     compile project(':trustkit')
     compile "com.android.support:appcompat-v7:$rootProject.libVersions.android.appCompat"
     compile "com.android.support:design:$rootProject.libVersions.android.appCompat"
+    compile "com.squareup.okhttp3:okhttp:$rootProject.libVersions.testing.okhttp3"
 
     testCompile "junit:junit:$rootProject.libVersions.junit"
 

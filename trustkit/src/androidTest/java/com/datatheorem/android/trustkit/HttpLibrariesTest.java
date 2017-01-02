@@ -109,8 +109,7 @@ public class HttpLibrariesTest {
         // Test a connection
         boolean didReceiveHandshakeError = false;
         OkHttpClient client = new OkHttpClient().newBuilder()
-                .sslSocketFactory(new TrustKitSSLSocketFactory(),
-                        TestableTrustKit.getInstance().getTrustManager(testUrl.getHost()))
+                .sslSocketFactory(new TrustKitSSLSocketFactory())
                 .build();
         try {
             Request request = new Request.Builder().url(testUrl).build();
@@ -133,5 +132,39 @@ public class HttpLibrariesTest {
                 eq(TestableTrustKit.getInstance().getConfiguration()
                         .getPolicyForHostname(testUrl.getHost())),
                 eq(PinningValidationResult.FAILED));
+    }
+
+    @Test
+    public void testOkhttp3WithTrustKitOldBuilder() throws MalformedURLException {
+        // Initialize TrustKit
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+          InstrumentationRegistry.getContext(), reporter);
+
+        // Test a connection
+        boolean didReceiveHandshakeError = false;
+        OkHttpClient client = new OkHttpClient.Builder()
+          .sslSocketFactory(new TrustKitSSLSocketFactory())
+          .build();
+        try {
+            Request request = new Request.Builder().url(testUrl).build();
+            client.newCall(request).execute();
+        } catch (IOException e) {
+            if ((e.getCause() instanceof CertificateException
+              && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
+                didReceiveHandshakeError = true;
+            }
+        }
+
+        assertTrue(didReceiveHandshakeError);
+
+        // Ensure the reporter was called
+        verify(reporter).pinValidationFailed(
+          eq(testUrl.getHost()),
+          eq(0),
+          (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+          (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+          eq(TestableTrustKit.getInstance().getConfiguration()
+            .getPolicyForHostname(testUrl.getHost())),
+          eq(PinningValidationResult.FAILED));
     }
 }

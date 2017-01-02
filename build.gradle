@@ -48,7 +48,7 @@ ext{
             testRunner: '0.5'
         ],
         testing: [
-                okhttp3: '3.4.2',
+                okhttp3: '3.1.2',
         ]
     ]
 
