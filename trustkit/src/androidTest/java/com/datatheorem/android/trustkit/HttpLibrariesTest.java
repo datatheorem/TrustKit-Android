@@ -134,6 +134,13 @@ public class HttpLibrariesTest {
                 eq(PinningValidationResult.FAILED));
     }
 
+    // A specific test is needed for the previous version of the OkHttpClient Builder.
+    // The previous one signature only asks for a SSLSocketFactory compare to the newBuilder asking for
+    // a SSLSocketFactory and a TrustManager.
+    // It's a common issue with this version of OkHttp :
+    // https://github.com/square/okhttp/issues/2323#issuecomment-185055040/
+    // More information about they're trying to extract all the SSL needed object here :
+    // https://github.com/square/okhttp/blob/okhttp_31/okhttp/src/main/java/okhttp3/internal/Platform.java
     @Test
     public void testOkhttp3WithTrustKitOldBuilder() throws MalformedURLException {
         // Initialize TrustKit

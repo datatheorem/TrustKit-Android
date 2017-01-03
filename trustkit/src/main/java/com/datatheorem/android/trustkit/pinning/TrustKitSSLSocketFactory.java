@@ -23,12 +23,17 @@ import javax.net.ssl.TrustManager;
 
 public class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
 
+    // We need this field to be compatible with older versions of OkHttp
+    // https://github.com/square/okhttp/issues/2323#issuecomment-185055040
     private SSLSocketFactory delegate;
 
     // TODO(ad): Figure this out
     public TrustKitSSLSocketFactory() {
         super(0);
         try {
+            // As we want to be sure the delegate field always corresponds with our SSLSocketFactory
+            // We init the SSLContext for the "delegate" field
+            // We also update it each time we use our own SSLSocketFactory (see createSocket methods)
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, new TrustManager[]{TrustManagerBuilder.baselineTrustManager}, null);
             delegate = sslContext.getSocketFactory();
@@ -38,20 +43,13 @@ public class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
     }
 
     @Override
-    public String[] getDefaultCipherSuites() {
-        return new String[0];
-    }
-    @Override
-    public String[] getSupportedCipherSuites() {
-        return new String[0];
-    }
-
-    @Override
     public Socket createSocket(String host, int port, InetAddress localAddr, int localPort)
             throws IOException {
         // Force the use of our trust manager
         TrustManager[] pinningTrustManagers = new TrustManager[]{TrustManagerBuilder.getTrustManager(host)};
         setTrustManagers(pinningTrustManagers);
+
+        // We need to update the SSLContext for the "delegate" field
         SSLContext sslContext = null;
         try {
             sslContext = SSLContext.getInstance("TLS");
@@ -70,6 +68,8 @@ public class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
 
         TrustManager[] pinningTrustManagers = new TrustManager[]{TrustManagerBuilder.getTrustManager(host)};
         setTrustManagers(pinningTrustManagers);
+
+        // We need to update the SSLContext for the "delegate" field
         SSLContext sslContext = null;
         try {
             sslContext = SSLContext.getInstance("TLS");
@@ -85,9 +85,10 @@ public class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
     @Override
     public Socket createSocket(String host, int port) throws IOException {
         // Force the use of our trust manager
-
         TrustManager[] pinningTrustManagers = new TrustManager[]{TrustManagerBuilder.getTrustManager(host)};
         setTrustManagers(pinningTrustManagers);
+
+        // We need to update the SSLContext for the "delegate" field
         SSLContext sslContext = null;
         try {
             sslContext = SSLContext.getInstance("TLS");
