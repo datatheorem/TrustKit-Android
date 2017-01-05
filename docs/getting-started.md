@@ -82,7 +82,7 @@ Deploying SSL pinning in the App requires initializing TrustKit Android with a p
       <!-- For debugging purposes, add a debug CA and override pins -->
       <certificates overridePins="true" src="@raw/debugca" />
     </trust-anchors>
-  <debug-overrides>
+  </debug-overrides>
 </network-security-config>
 ```
 
