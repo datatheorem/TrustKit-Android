@@ -9,7 +9,7 @@ Overview
 
 TrustKit Android works by extending the [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html) in two ways:
 
-* It provides support for the <pin-set> (for SSL pinning) and <debug-overrides> functionality of the Network Security Configuration to earlier versions of Android, down to API level 17. This allows Apps supporting versions of Android that earlier than N to implement SSL pinning in a way that is future-proof.
+* It provides support for the `<pin-set>` (for SSL pinning) and `<debug-overrides>` functionality of the Network Security Configuration to earlier versions of Android, down to API level 17. This allows Apps that support versions of Android earlier than N to implement SSL pinning in a way that is future-proof.
 * It adds the ability to send reports when pinning validation failed for a specific connection. Reports have a format that is similar to the report-uri feature of [HTTP Public Key Pinning](https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning) and [TrustKit iOS](https://github.com/datatheorem/trustkit).
 
 
@@ -25,6 +25,9 @@ Sample Usage
 
 
 Then, deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html):
+
+<!-- REVIEW(bj): What if I specify both a security config file in my android manifest and also use trustkit? Will that
+just work, could there be some really subtle conflicts, or will things usually fail in an obvious way? -->
 
 ```xml
 <!-- res/xml/network_security_config.xml -->
@@ -88,13 +91,23 @@ Once TrustKit Android has been initialized and the client or connection's `SSLSo
 Limitations
 ----------
 
-To keep the code base as simple as possible, TrustKit Android currently has the following limitations when running on a pre-Android N device:
+<!-- REVIEW(bj): Will TrustKit-Android apply its pinning policy to all SSL connections, or just those that explicitly
+use the TrustKitSSLSocketFactory? in other words, will it replace the default SSLSocketFactory in other code (Eg, SDKs,
+legac code, etc.)?
 
-* The `SSLSocketFactory` or `X509TrustManager` provided by TrustKit for SSL pinning validation are configured for a specific domain, and will keep this domain's pinning policy even if there is a redirection to a different domain during the connection. This should not be a problem as pinning validation is only meant to be used on the few specific domains on which the App's server API is hosted. Redirections to other domains should not happen in this scenario.
+I think it is important to clarify when TrustKit applies to network connections because I assume the Android network
+security policy file would normally apply to all Java SSLSocket* code in API level 24+, even code that is not explicitly
+configured to use it.
+-->
+
+On Android N devices, TrustKit uses the OS's implementation of pinning, and it is not affected by the following limitations.
+
+On Android M and earlier devices, TrustKit provides uses its own implementation of pinning that is mostly-compatible with Android N's pinning behavior. However, in order to keep the code base as simple as possible, it has the following limitations:
+
+* The `SSLSocketFactory` or `X509TrustManager` provided by TrustKit for SSL pinning validation do not support redirections to a different domain. The implementations keep the pinning policy for the specified domain and will likely reject the other domain if it does not match the original domain's pins. In practice, this should not be a problem because pinning validation is only meant to be used on the few specific domains on which the App's server API is hosted --- redirections should not happen in this scenario.
 * The `<trust-anchors>` setting is only applied when used within the global `<debug-overrides>` tag. Hence, custom trust anchors for specific domains cannot be set. 
 * Within the `<trust-anchors>` tag, only `<certificate>` tags pointing to a raw certificate file are supported (the `user` or `system` values for the `src` attribute will be ignored).
 
-On Android N devices, the OS' implementation is used and is not affected by these limitations.
 
 
 License

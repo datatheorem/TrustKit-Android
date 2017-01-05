@@ -31,6 +31,7 @@ public class TrustManagerBuilder {
 
     public static void initializeBaselineTrustManager(@Nullable Set<Certificate> debugCaCerts,
                                                       boolean debugOverridePins,
+                                                      // REVIEW(bj): should the following line be @NonNull?
                                                       BackgroundReporter reporter)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             IOException {
