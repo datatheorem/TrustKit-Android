@@ -38,16 +38,10 @@ import static org.mockito.Mockito.verify;
 /**
  * Tests TrustKitSSLSocketFactory.
  *
- * The general testing strategy used here is to connect to live websites. This provides a variety of valid certificate
- * chains that can then have different pins applied to each. This requires no special mock servers or mock CA setup, but
- * it is dependent on the domains being live and having valid certificate chains.
- *
- * REVIEW(bj): ensure pinning success is tested when pinning to a root CA, an intermediate CA, and to the leaf
- * certificate. It looks like testPinnedDomainSuccess() currently only tests pinning to a root CA.
- *
- * REVIEW(bj): Are there any decent sites for testing things like valid-but-expired certificates and other forms of
- * not-quite-valid certificates/chains? This would provide even stronger confidence that a mistake is not made regarding
- * the standard verification of the certificate chain.
+ * The general testing strategy used here is to connect to live websites. This provides a variety of
+ * valid certificate chains that can then have different pins applied to each. This requires no
+ * special mock servers or mock CA setup, but it is dependent on the domains being live and having
+ * valid certificate chains.
  */
 @SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
