@@ -11,9 +11,9 @@ import javax.net.ssl.TrustManager;
 
 public class TrustKitSSLSocketFactory extends SSLCertificateSocketFactory {
 
-    // TODO(ad): Figure this out
-    // REVIEW(bj): resolve this TODO or remove it. ;P
     public TrustKitSSLSocketFactory() {
+        // Inheritance is the only way to customize the SSLCertificateSocketFactory but it requires
+        // calling this deprecated method
         super(0);
     }
 
