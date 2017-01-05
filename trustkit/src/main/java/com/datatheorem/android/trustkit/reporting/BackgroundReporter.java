@@ -47,6 +47,14 @@ public class BackgroundReporter {
         return certificateAsPem;
     }
 
+    /**
+     * Try to send a pin validation failure report to the reporting servers configured for the
+     * hostname that triggered the failure.
+     *
+     * Reports are rate-limited to one identical (same host, error and certificate chain) report
+     * every 24 hours. Also and before Android N, only the default SSL validation is performed when
+     * connecting to the reporting server (ie. no pinning validation).
+     */
     public void pinValidationFailed(@NonNull String serverHostname,
                                     @NonNull Integer serverPort,
                                     @NonNull List<X509Certificate> servedCertificateChain,

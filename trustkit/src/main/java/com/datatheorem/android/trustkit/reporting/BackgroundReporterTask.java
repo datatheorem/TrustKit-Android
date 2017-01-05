@@ -18,17 +18,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 
-// REVIEW(bj): documentation, especially when it will fail to send a report, whether it can retry sending a report, rate
-// limiting, etc. (assuming I did not miss these docs somewhere else). Also might be useful to document how the
-// reporting functionality differs from the TrustKit-iOS implementation.
-//
-// Eg, this looks like it behaves different from how Alban had previously described TrustKit-iOS's reporting to me (it
-// needs a valid certificate chain, although maybe iOS also only skipped the pinning check; and it looks like it does
-// not attempt to perform future retries?)
-//
-//
-// REVIEW(bj): Just to verify, the Async in AsyncTask just means that this class could perform certain events on the UI
-// thread (as opposed to a background thread handled by doInBackground()?)
 class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
 
     private static final SSLSocketFactory systemSocketFactory = getSystemSSLSocketFactory();
@@ -41,7 +30,7 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
         PinningFailureReport report = (PinningFailureReport) params[0];
 
         // Remaining parameters are report URLs - send the report to each of them
-        for (int i=1;i<params.length;i++) {
+        for (int i=1; i<params.length; i++) {
             URL reportUri = (URL) params[i];
             HttpsURLConnection connection = null;
             try {
@@ -51,14 +40,10 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
                 connection.setDoOutput(true);
                 connection.setChunkedStreamingMode(0);
 
-                // Use the default system factory to ensure we are not doing pinning validation
-                // TODO(ad): Test this
-                //
-                // REVIEW(bj): Is this different from how TrustKit-iOS does its reporting? I thought TK-iOS disabled
-                // certificate validation for reporting on the assumption that it is better to report even if the attack
-                // sees the report (assuming the attacker isn't sophisticated enough to block the report). Admittedly,
-                // requiring a valid certificate combined with retry attempts would eventually allow the report through
-                // if it refuses to send to an invalid certificate.
+                // Use the default system factory - this will avoid an infinite loop of report
+                // uploads if the reporting server triggers SSL failures
+                // This also means that no pinning validation will be done before Android N, but
+                // for reports this is fine
                 connection.setSSLSocketFactory(systemSocketFactory);
 
                 connection.connect();
