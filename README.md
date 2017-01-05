@@ -1,6 +1,8 @@
 TrustKit Android
 ============
+
 [![API](https://img.shields.io/badge/API-17%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=17)
+
 **TrustKit Android** is an open source library that makes it easy to deploy SSL public key pinning in any Android App.
 
 
@@ -20,14 +22,11 @@ Getting Started
 * Check out the [API documentation](https://datatheorem.github.io/TrustKit-Android/documentation/).
 * The [iOS version of TrustKit](https://github.com/datatheorem/TrustKit) was initially released at the Black Hat USA 2015 conference.
 
+
 Sample Usage
 ---------------
 
-
-Then, deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html):
-
-<!-- REVIEW(bj): What if I specify both a security config file in my android manifest and also use trustkit? Will that
-just work, could there be some really subtle conflicts, or will things usually fail in an obvious way? -->
+Deploying SSL pinning in the App requires setting up a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html):
 
 ```xml
 <!-- res/xml/network_security_config.xml -->
@@ -53,18 +52,31 @@ just work, could there be some really subtle conflicts, or will things usually f
       <!-- For debugging purposes, add a debug CA and override pins -->
       <certificates overridePins="true" src="@raw/debugca" />
     </trust-anchors>
-  <debug-overrides>
+  </debug-overrides>
 </network-security-config>
 ```
 
-TrustKit Android can then be initialized using the default path for the  [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html) (_res/xml/network_security_config.xml_) or with a custom resource:
+The path to the XML policy should then be specified [in the App's manifest](https://developer.android.com/training/articles/security-config.html#manifest) in order to enable it as the App's [Network Security Configuration](https://developer.android.com/training/articles/security-config.html) on Android N:
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<manifest ... >
+    <application android:networkSecurityConfig="@xml/network_security_config"
+                    ... >
+        ...
+    </application>
+</manifest>
+
+```
+
+Then, TrustKit Android should be initialized with the same path:
 
 ```java
 @Override
 protected void onCreate(Bundle savedInstanceState) {
   super.OnCreate(savedInstanceState);
   
-  // Using the default path
+  // Using the default path - res/xml/network_security_config.xml
   TrustKit.initializeWithNetworkSecurityConfiguration(this);
 
   // OR using a custom resource (TrustKit can't be initialized twice)
@@ -91,19 +103,11 @@ Once TrustKit Android has been initialized and the client or connection's `SSLSo
 Limitations
 ----------
 
-<!-- REVIEW(bj): Will TrustKit-Android apply its pinning policy to all SSL connections, or just those that explicitly
-use the TrustKitSSLSocketFactory? in other words, will it replace the default SSLSocketFactory in other code (Eg, SDKs,
-legac code, etc.)?
-
-I think it is important to clarify when TrustKit applies to network connections because I assume the Android network
-security policy file would normally apply to all Java SSLSocket* code in API level 24+, even code that is not explicitly
-configured to use it.
--->
-
 On Android N devices, TrustKit uses the OS's implementation of pinning, and it is not affected by the following limitations.
 
 On Android M and earlier devices, TrustKit provides uses its own implementation of pinning that is mostly-compatible with Android N's pinning behavior. However, in order to keep the code base as simple as possible, it has the following limitations:
 
+* The pinning policy will only be applied to connections that were configured to use a TrustKit-provided `SSLSocketFactory` or `X509TrustManager`.
 * The `SSLSocketFactory` or `X509TrustManager` provided by TrustKit for SSL pinning validation do not support redirections to a different domain. The implementations keep the pinning policy for the specified domain and will likely reject the other domain if it does not match the original domain's pins. In practice, this should not be a problem because pinning validation is only meant to be used on the few specific domains on which the App's server API is hosted --- redirections should not happen in this scenario.
 * The `<trust-anchors>` setting is only applied when used within the global `<debug-overrides>` tag. Hence, custom trust anchors for specific domains cannot be set. 
 * Within the `<trust-anchors>` tag, only `<certificate>` tags pointing to a raw certificate file are supported (the `user` or `system` values for the `src` attribute will be ignored).

@@ -128,22 +128,32 @@ was to be enforced.
 
 ### Initializing TrustKit with the Pinning Policy
 
-TrustKit Android can then be initialized using the default path for the  [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html) (_res/xml/network_security_config.xml_) or with a custom resource:
+The path to the XML policy should then be specified [in the App's manifest](https://developer.android.com/training/articles/security-config.html#manifest) in order to enable it as the App's [Network Security Configuration](https://developer.android.com/training/articles/security-config.html) on Android N:
 
-<!-- REVIEW(bj): same question as in the README: what if I also have a network security configuration set up in my
-Android manifest? -->
+```
+<?xml version="1.0" encoding="utf-8"?>
+<manifest ... >
+    <application android:networkSecurityConfig="@xml/network_security_config"
+                    ... >
+        ...
+    </application>
+</manifest>
+
+```
+
+Then, TrustKit Android should be initialized with the same path:
 
 ```java
 @Override
 protected void onCreate(Bundle savedInstanceState) {
   super.OnCreate(savedInstanceState);
-  
-  // Using the default path
+
+  // Using the default path - res/xml/network_security_config.xml
   TrustKit.initializeWithNetworkSecurityConfiguration(this);
 
   // OR using a custom resource (TrustKit can't be initialized twice)
   TrustKit.initializeWithNetworkSecurityConfiguration(this, R.id.my_custom_network_security_config);
-  
+
   URL url = new URL("https://www.datatheorem.com");
 
   // HttpsUrlConnection
@@ -151,7 +161,7 @@ protected void onCreate(Bundle savedInstanceState) {
   connection.setSSLSocketFactory(new TrustKitSSLSocketFactory());
 
   // OkHttp 3
-  OkHttpClient client = 
+  OkHttpClient client =
     new OkHttpClient().newBuilder()
     .sslSocketFactory(new TrustKitSSLSocketFactory(),
                       TrustKit.getInstance().getTrustManager("www.datatheorem.com"))
@@ -159,4 +169,5 @@ protected void onCreate(Bundle savedInstanceState) {
 }
 ```
 
-Once TrustKit has been initialized and the client or connection's `SSLSocketFactory` has been set, it will verify the server's certificate chain against the configured pinning policy whenever an HTTPS connection is initiated. If a report URI has been configured, the App will also send reports to the specified URI whenever a pin validation failure occurred.
+Once TrustKit Android has been initialized and the client or connection's `SSLSocketFactory` has been set, it will verify the server's certificate chain against the configured pinning policy whenever an HTTPS connection is initiated. If a report URI has been configured, the App will also send reports to the specified URI whenever a pin validation failure occurred.
+

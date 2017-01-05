@@ -159,7 +159,7 @@ import javax.net.ssl.X509TrustManager;
  *         <!-- For debugging purposes, add a debug CA and override pins -->
  *         <certificates overridePins="true" src="@raw/debugca" />
  *         </trust-anchors>
- *         <debug-overrides>
+ *         </debug-overrides>
  *         </network-security-config>
  *     }
  * </pre>
@@ -218,7 +218,9 @@ public class TrustKit {
     }
 
     /** Initialize TrustKit with the Network Security Configuration file at the default location
-     * res/xml/network_security_config.xml.
+     * res/xml/network_security_config.xml. The Network Security Configuration file must also have
+     * been <a href="https://developer.android.com/training/articles/security-config.html#manifest" target="_blank">
+     *     added to the App's manifest</a>.
      *
      * @param context the application's context.
      * @throws ConfigurationException if the policy could not be parsed or contained errors.
@@ -233,7 +235,9 @@ public class TrustKit {
     }
 
     /** Initialize TrustKit with the Network Security Configuration file with the specified
-     * resource ID.
+     * resource ID. The Network Security Configuration file must also have
+     * been <a href="https://developer.android.com/training/articles/security-config.html#manifest" target="_blank">
+     *     added to the App's manifest</a>.
      *
      * @param context the application's context.
      * @param configurationResourceId the resource ID for the Network Security Configuration file to
