@@ -17,7 +17,7 @@ import java.util.Set;
 import javax.net.ssl.X509TrustManager;
 
 
-// REVIEW(bj): docstring?
+
 class PinningTrustManager implements X509TrustManager {
 
 
@@ -28,6 +28,19 @@ class PinningTrustManager implements X509TrustManager {
     private final DomainPinningPolicy serverConfig;
 
 
+    /**
+     * A trust manager which implements path, hostname and pinning validation for a given hostname
+     * and sends pinning failure reports if validation failed.
+     *
+     * Before Android N, the PinningTrustManager implements pinning validation itself. On Android
+     * N and later the OS' implementation is used instead for pinning validation.
+     *
+     * @param serverHostname: The hostname of the server whose identity is being validated. It will
+     *                      be validated against the name(s) the leaf certificate was issued for
+     *                      when performing hostname validation.
+     * @param serverConfig: The pinning policy to be enforced when doing pinning validation.
+     * @param baselineTrustManager: The trust manager to use for path validation.
+     */
     public PinningTrustManager(@NonNull String serverHostname,
                                @NonNull DomainPinningPolicy serverConfig,
                                @NonNull X509TrustManager baselineTrustManager) {
