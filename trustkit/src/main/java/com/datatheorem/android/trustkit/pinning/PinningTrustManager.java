@@ -56,6 +56,22 @@ class PinningTrustManager implements X509TrustManager {
         this.baselineTrustManager = new X509TrustManagerExtensions(baselineTrustManager);
     }
 
+    /**
+     * This methods gets called on Android N instead of the 2-parameter checkServerTrusted().
+     *
+     * If we ever drop support for versions before Android N (unlikely), we can use this method
+     * to automatically get the hostname when the certificate chain needs to be validated, instead
+     * of having to ask for the hostname a lot earlier when the trust manager (or socket factory)
+     * gets created, making the API a lot nicer.
+     *
+     * For now this is here only for documentation.
+     *
+     */
+    /*
+    public List<X509Certificate> checkServerTrusted(X509Certificate[] chain, String authType,
+                                                    String host) throws CertificateException {
+    }*/
+
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException {
