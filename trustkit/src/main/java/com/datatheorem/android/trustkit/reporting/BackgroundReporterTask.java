@@ -8,6 +8,7 @@ import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -32,19 +33,23 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
         // Remaining parameters are report URLs - send the report to each of them
         for (int i=1; i<params.length; i++) {
             URL reportUri = (URL) params[i];
-            HttpsURLConnection connection = null;
+            HttpURLConnection connection = null;
             try {
-                connection = (HttpsURLConnection) reportUri.openConnection();
+                connection = (HttpURLConnection) reportUri.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setDoOutput(true);
                 connection.setChunkedStreamingMode(0);
 
-                // Use the default system factory - this will avoid an infinite loop of report
-                // uploads if the reporting server triggers SSL failures
-                // This also means that no pinning validation will be done before Android N, but
-                // for reports this is fine
-                connection.setSSLSocketFactory(systemSocketFactory);
+                if (connection instanceof HttpsURLConnection) {
+                    // HTTPS URL
+                    HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
+                    // Use the default system factory - this will avoid an infinite loop of report
+                    // uploads if the reporting server triggers SSL failures
+                    // This also means that no pinning validation will be done before Android N, but
+                    // for reports this is fine
+                    httpsConnection.setSSLSocketFactory(systemSocketFactory);
+                }
 
                 connection.connect();
 
