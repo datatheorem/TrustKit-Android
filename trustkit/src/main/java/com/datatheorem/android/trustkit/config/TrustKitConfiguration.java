@@ -104,7 +104,7 @@ public class TrustKitConfiguration {
     }
 
     /**
-     * This returns true for all subdomains, including subdomains of subdomains, similar to how
+     * Return true for all subdomains, including subdomains of subdomains, similar to how
      * Android N handles includeSubdomains
      */
     private static boolean isSubdomain(@NonNull String domain, @NonNull String subdomain) {
