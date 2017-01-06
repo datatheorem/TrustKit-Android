@@ -29,7 +29,7 @@ public class TrustKitTest {
         assertNotNull(trustkit);
         assertNotNull(TrustKit.getInstance());
         assertNotNull(trustkit.getConfiguration());
-        assertNotNull(trustkit.getSSLSocketFactory());
+        assertNotNull(trustkit.getSSLSocketFactory("www.datatheorem.com"));
         assertNotNull(trustkit.getTrustManager("www.datatheorem.com"));
 
         // Initialize again and ensure it fails

@@ -3,9 +3,7 @@ package com.datatheorem.android.trustkit;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
-import com.datatheorem.android.trustkit.pinning.TrustKitSSLSocketFactory;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import org.junit.Before;
@@ -21,11 +19,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -67,7 +63,9 @@ public class HttpLibrariesTest {
         boolean didReceiveHandshakeError = false;
         try {
             connection = (HttpsURLConnection) testUrl.openConnection();
-            connection.setSSLSocketFactory(new TrustKitSSLSocketFactory());
+            connection.setSSLSocketFactory(
+                    TestableTrustKit.getInstance().getSSLSocketFactory(testUrl.getHost())
+            );
 
             InputStream inputStream = connection.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -109,7 +107,8 @@ public class HttpLibrariesTest {
         // Test a connection
         boolean didReceiveHandshakeError = false;
         OkHttpClient client = new OkHttpClient().newBuilder()
-                .sslSocketFactory(new TrustKitSSLSocketFactory(),
+                .sslSocketFactory(
+                        TestableTrustKit.getInstance().getSSLSocketFactory(testUrl.getHost()),
                         TestableTrustKit.getInstance().getTrustManager(testUrl.getHost()))
                 .build();
         try {

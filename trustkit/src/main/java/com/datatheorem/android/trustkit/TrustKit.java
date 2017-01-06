@@ -3,13 +3,13 @@ package com.datatheorem.android.trustkit;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.SSLCertificateSocketFactory;
 import android.os.Build;
 import android.security.NetworkSecurityPolicy;
 import android.support.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
-import com.datatheorem.android.trustkit.pinning.TrustKitSSLSocketFactory;
 import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -27,6 +27,7 @@ import java.security.cert.CertificateException;
 import java.util.Set;
 
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 
@@ -308,11 +309,22 @@ public class TrustKit {
      *     to other domains should not happen in this use case.
      * </p>
      */
+    // TODO(AD): Update documentation
     @NonNull
-    public SSLSocketFactory getSSLSocketFactory() {
-        return new TrustKitSSLSocketFactory();
+    public SSLSocketFactory getSSLSocketFactory(@NonNull String serverHostname) {
+        return getSSLSocketFactory(serverHostname, 0);
     }
 
+    @NonNull
+    public SSLSocketFactory getSSLSocketFactory(@NonNull String serverHostname,
+                                                int handshakeTimeoutMillis) {
+        SSLCertificateSocketFactory sslSocketFactory =
+                (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(
+                        handshakeTimeoutMillis
+                );
+        sslSocketFactory.setTrustManagers(new TrustManager[]{getTrustManager(serverHostname)});
+        return sslSocketFactory;
+    }
     /** Retrieve an {@code X509TrustManager} that implements SSL pinning validation based on the
      * current TrustKit configuration for the supplied hostname. It can be used with some network
      * APIs that let developers supply a trust manager to customize SSL validation.
