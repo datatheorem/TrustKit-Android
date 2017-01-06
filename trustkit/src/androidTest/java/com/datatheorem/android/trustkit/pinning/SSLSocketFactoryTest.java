@@ -35,7 +35,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-// TODO(AD): Rename this file
+
 /**
  * Tests TrustKit's SSLSocketFactory.
  *
@@ -46,7 +46,7 @@ import static org.mockito.Mockito.verify;
  */
 @SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
-public class TrustKitSSLSocketFactoryTest {
+public class SSLSocketFactoryTest {
 
     @Mock
     private BackgroundReporter mockReporter;
