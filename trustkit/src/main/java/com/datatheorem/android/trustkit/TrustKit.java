@@ -7,6 +7,7 @@ import android.net.SSLCertificateSocketFactory;
 import android.os.Build;
 import android.security.NetworkSecurityPolicy;
 import android.support.annotation.NonNull;
+import android.util.Printer;
 
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
@@ -218,6 +219,40 @@ public class TrustKit {
         }
     }
 
+    /** Try to retrieve the Network Security Policy resource ID configured in the App's manifest.
+     *
+     * Somewhat convoluted as other means of getting the resource ID involve using private APIs.
+     *
+     * @param context
+     * @return The resource ID for the XML file containing the configured Network Security Policy or
+     * -1 if no policy was configured in the App's manifest or if we are not running on Android N.
+     */
+    static private int getNetSecConfigResourceId(@NonNull Context context) {
+        ApplicationInfo info = context.getApplicationInfo();
+
+        // Dump the content of the ApplicationInfo, which contains the resource ID on Android N
+        class NetSecConfigResIdRetriever implements Printer {
+            private int netSecConfigResourceId = -1;
+            private final String NETSEC_LINE_FORMAT = "networkSecurityConfigRes=0x";
+
+            public void println(String x) {
+                if (netSecConfigResourceId == -1) {
+                    // Attempt at parsing "networkSecurityConfigRes=0x1234"
+                    if (x.contains(NETSEC_LINE_FORMAT)) {
+                        netSecConfigResourceId =
+                                Integer.parseInt(x.substring(NETSEC_LINE_FORMAT.length()), 16);
+                    }
+                }
+            }
+
+            private int getNetworkSecurityConfigResId() { return netSecConfigResourceId; }
+        }
+
+        NetSecConfigResIdRetriever retriever = new NetSecConfigResIdRetriever();
+        info.dump(retriever, "");
+        return retriever.getNetworkSecurityConfigResId();
+    }
+
     /** Initialize TrustKit with the Network Security Configuration file at the default location
      * res/xml/network_security_config.xml. The Network Security Configuration file must also have
      * been <a href="https://developer.android.com/training/articles/security-config.html#manifest" target="_blank">
@@ -253,12 +288,20 @@ public class TrustKit {
         }
 
         // On Android N, ensure that the system was also able to load the policy
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M &&
-                NetworkSecurityPolicy.getInstance() == null) {
-            // Android did not find a policy because the supplied resource ID is wrong or the policy
-            // file is not properly setup in the manifest, or contains bad data
-            throw new ConfigurationException("TrustKit was initialized with a network policy that" +
-                    "was not properly configured for Android N ");
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.N) {
+            // This will need to be updated/double-checked for subsequent versions of Android
+            int systemConfigResId = getNetSecConfigResourceId(context);
+            if (systemConfigResId == -1) {
+                // Android did not find a policy because the supplied resource ID is wrong or the
+                // policy file is not properly setup in the manifest, or contains bad data
+                throw new ConfigurationException("TrustKit was initialized with a network policy " +
+                        "that was not properly configured for Android N - make sure it is in the " +
+                        "App's Manifest.");
+            }
+            else if (systemConfigResId != configurationResourceId) {
+                throw new ConfigurationException("TrustKit was initialized with a different " +
+                        "network policy than the one configured in the App's manifest.");
+            }
         }
 
         // Then try to load the supplied policy

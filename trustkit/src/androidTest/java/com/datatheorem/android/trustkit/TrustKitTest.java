@@ -2,6 +2,7 @@ package com.datatheorem.android.trustkit;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -74,6 +75,11 @@ public class TrustKitTest {
         boolean didInitFail = false;
         try {
             TrustKit.initializeWithNetworkSecurityConfiguration(context, 0);
+        } catch (ConfigurationException e) {
+            // Specific error on Android N because the res ID will not match the App's manifest
+            if (Build.VERSION.SDK_INT >= 24) {
+                didInitFail = true;
+            }
         } catch (Resources.NotFoundException e) {
             didInitFail = true;
         }
@@ -89,6 +95,13 @@ public class TrustKitTest {
         boolean didInitFail = false;
         try {
             TrustKit.initializeWithNetworkSecurityConfiguration(context, pemFileId);
+        } catch (ConfigurationException e) {
+            if (e.getMessage().contains("different network policy")) {
+                // Specific error on Android N because the res ID will not match the App's manifest
+                if (Build.VERSION.SDK_INT >= 24) {
+                    didInitFail = true;
+                }
+            }
         } catch (Resources.NotFoundException e) {
             didInitFail = true;
         }
