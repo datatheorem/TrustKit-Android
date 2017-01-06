@@ -2,12 +2,23 @@
 <network-security-config>
     <!-- This XML file is needed for running the unit tests on Android N+ -->
     <domain-config>
-        <!-- testPinnedDomainSuccess() -->
+        <!-- testPinnedDomainSuccessAnchor() -->
         <domain>www.datatheorem.com</domain>
         <pin-set>
             <!-- Pin the CA/Anchor key -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
             <pin digest="SHA-256">cGuxAXyFXFkWm61cF4HPWX8S0srS9j0aSqN0k4AP+4A=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="true">
+        </trustkit-config>
+    </domain-config>
+    <domain-config>
+        <!-- testPinnedDomainSuccessLeaf() -->
+        <domain>datatheorem.com</domain>
+        <pin-set>
+            <!-- Pin the Leaf key -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">2kOi4HdYYsvTR1sTIR7RHwlf2SescTrpza9ZrWy7poQ=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>

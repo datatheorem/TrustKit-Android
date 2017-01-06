@@ -165,7 +165,7 @@ public class TrustKitSSLSocketFactoryTest {
     }
 
     @Test
-    public void testPinnedDomainSuccess() throws IOException {
+    public void testPinnedDomainSuccessAnchor() throws IOException {
         String serverHostname = "www.datatheorem.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
@@ -173,7 +173,31 @@ public class TrustKitSSLSocketFactoryTest {
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
         Socket socket = test.createSocket(serverHostname, 443);
-        
+
+        assertTrue(socket.isConnected());
+        socket.close();
+
+        // Ensure the background reporter was NOT called
+        verify(mockReporter, never()).pinValidationFailed(
+                eq(serverHostname),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(TestableTrustKit.getInstance().getConfiguration().getPolicyForHostname(serverHostname)),
+                eq(PinningValidationResult.FAILED)
+        );
+    }
+
+    @Test
+    public void testPinnedDomainSuccessLeaf() throws IOException {
+        String serverHostname = "datatheorem.com";
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
+
+        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        Socket socket = test.createSocket(serverHostname, 443);
+
         assertTrue(socket.isConnected());
         socket.close();
 
