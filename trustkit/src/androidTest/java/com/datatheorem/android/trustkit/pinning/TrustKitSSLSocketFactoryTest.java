@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -171,7 +172,10 @@ public class TrustKitSSLSocketFactoryTest {
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        Socket socket = test.createSocket(serverHostname, 443);
+        
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -222,7 +226,10 @@ public class TrustKitSSLSocketFactoryTest {
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        Socket socket = test.createSocket(serverHostname, 443);
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -243,7 +250,10 @@ public class TrustKitSSLSocketFactoryTest {
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        Socket socket = test.createSocket(serverHostname, 443);
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -318,7 +328,10 @@ public class TrustKitSSLSocketFactoryTest {
         // This means that debug-overrides properly enables the supplied debug CA cert and
         // disables pinning when overridePins is true
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        Socket socket = test.createSocket(serverHostname, 443);
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -486,7 +499,10 @@ public class TrustKitSSLSocketFactoryTest {
 
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        Socket socket = test.createSocket(serverHostname, 443);
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -529,7 +545,10 @@ public class TrustKitSSLSocketFactoryTest {
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        Socket socket = test.createSocket(serverHostname, 443);
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -572,7 +591,10 @@ public class TrustKitSSLSocketFactoryTest {
         // Create an TrustKitSSLSocketFactory and ensure connection succeeds
         // This means that debug-overrides does not disable the System CAs
         SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        Socket socket = test.createSocket(serverHostname, 443);
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
