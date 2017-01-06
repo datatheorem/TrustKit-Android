@@ -136,7 +136,7 @@ class PinningTrustManager implements X509TrustManager {
                 errorBuilder.append("\n    ")
                         .append(new PublicKeyPin(certificate))
                         .append(" - ")
-                        .append(((X509Certificate) certificate).getIssuerDN());
+                        .append(((X509Certificate) certificate).getSubjectDN());
             }
             throw new CertificateException(errorBuilder.toString());
         }
