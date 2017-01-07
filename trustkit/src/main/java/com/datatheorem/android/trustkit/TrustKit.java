@@ -50,8 +50,7 @@ import javax.net.ssl.X509TrustManager;
  *         <li>It provides support for the SSL pinning functionality of the Android N Network
  *             Security Configuration to earlier versions of Android, down to API level 17. This
  *             allows Apps supporting versions of Android that earlier than N to implement SSL
- *             pinning in a way that is future-proof. For better compatibility, TrustKit will also
- *             run on API levels 15 and 16 but the pinning functionality will be disabled.</li>
+ *             pinning in a way that is future-proof.</li>
  *
  *         <li>It adds the ability to send reports when pinning validation failed for a specific
  *             connection. Reports have a format that is similar to the report-uri feature of
