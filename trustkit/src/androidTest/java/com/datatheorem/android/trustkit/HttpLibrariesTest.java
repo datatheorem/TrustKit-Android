@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit;
 
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -54,6 +55,10 @@ public class HttpLibrariesTest {
 
     @Test
     public void testHttpsUrlConnectionWithTrustKit() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // No pinning validation at all for API level < 17
+            return;
+        }
         // Initialize TrustKit
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), reporter);
@@ -98,8 +103,49 @@ public class HttpLibrariesTest {
                 eq(PinningValidationResult.FAILED));
     }
 
+
+    @Test
+    public void testHttpsUrlConnectionWithTrustKitApiLevelUnder17() throws IOException {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // This test is only useful for API level < 17
+            return;
+        }
+        // Initialize TrustKit
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), reporter);
+
+        // Test a connection
+        // Although the pins are invalid, the connection should succeed because TrustKit's pinning
+        // functionality is not enabled on API level < 17
+        HttpsURLConnection connection = null;
+        try {
+            connection = (HttpsURLConnection) testUrl.openConnection();
+            connection.setSSLSocketFactory(
+                    TestableTrustKit.getInstance().getSSLSocketFactory(testUrl.getHost())
+            );
+
+            InputStream inputStream = connection.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+
+            int data = inputStreamReader.read();
+            while (data != -1) {
+                data = inputStreamReader.read();
+            }
+
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+
     @Test
     public void testOkhttp3WithTrustKit() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // No pinning validation at all for API level < 17
+            return;
+        }
         // Initialize TrustKit
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), reporter);

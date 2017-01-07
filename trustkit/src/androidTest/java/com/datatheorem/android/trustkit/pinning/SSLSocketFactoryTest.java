@@ -122,6 +122,11 @@ public class SSLSocketFactoryTest {
         }
         assertTrue(didReceiveHandshakeError);
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
                 eq(serverHostname),
@@ -152,6 +157,11 @@ public class SSLSocketFactoryTest {
             }
         }
         assertTrue(didReceiveHandshakeError);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -214,6 +224,11 @@ public class SSLSocketFactoryTest {
 
     @Test
     public void testPinnedDomainInvalidPin() throws IOException {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
+            return;
+        }
+
         String serverHostname = "www.yahoo.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
@@ -254,6 +269,11 @@ public class SSLSocketFactoryTest {
 
         assertTrue(socket.isConnected());
         socket.close();
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -310,6 +330,11 @@ public class SSLSocketFactoryTest {
 
         // Ensure the SSL handshake failed (but not because of a pinning error)
         assertTrue(didReceiveHandshakeError);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -376,6 +401,11 @@ public class SSLSocketFactoryTest {
             // when running the test suite)
             return;
         }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
+            return;
+        }
+
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname(serverHostname)
@@ -427,6 +457,11 @@ public class SSLSocketFactoryTest {
             // dynamically switch overridePins to false (as it is true in the XML policy)
             return;
         }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
+            return;
+        }
+
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname(serverHostname)
@@ -545,6 +580,10 @@ public class SSLSocketFactoryTest {
             // This test will not work when using the Android N XML network policy because we can't
             // dynamically add/remove a debug-override tag defined in the XML policy which adds the
             // cacert.org CA cert as a trusted CA
+            return;
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
             return;
         }
 

@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.reporting;
 
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -43,6 +44,11 @@ public class BackgroundReporterTaskTest {
 
     @Test
     public void testExecuteSucceedHttps() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
         BackgroundReporterTask testTask = new BackgroundReporterTask();
 
         // Prepare the AsyncTask's arguments
@@ -61,6 +67,11 @@ public class BackgroundReporterTaskTest {
 
     @Test
     public void testExecuteSucceedHttp() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
         BackgroundReporterTask testTask = new BackgroundReporterTask();
 
         // Prepare the AsyncTask's arguments
@@ -79,6 +90,11 @@ public class BackgroundReporterTaskTest {
 
     @Test
     public void testExecuteFailedHttpError() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
         BackgroundReporterTask testTask = new BackgroundReporterTask();
 
         // Prepare the AsyncTask's arguments
@@ -97,6 +113,11 @@ public class BackgroundReporterTaskTest {
 
     @Test
     public void testExecuteFailedNoConnection() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
         BackgroundReporterTask testTask = new BackgroundReporterTask();
 
         // Prepare the AsyncTask's arguments

@@ -48,12 +48,19 @@ class PinningTrustManager implements X509TrustManager {
         this.serverHostname = serverHostname;
         this.serverConfig = serverConfig;
 
-        // We use the default trust manager so we can perform regular SSL validation and we wrap it
-        // in the Android-specific X509TrustManagerExtensions, which provides an API to compute the
-        // cleaned/verified server certificate chain that we eventually need for pinning validation.
-        // Also the X509TrustManagerExtensions provides a checkServerTrusted() where the hostname
-        // can be supplied, allowing it to call the (system) RootTrustManager on Android N
-        this.baselineTrustManager = new X509TrustManagerExtensions(baselineTrustManager);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // No pinning validation at all for API level < 17
+            // Because X509TrustManagerExtensions is not available
+            this.baselineTrustManager = null;
+        } else {
+            // We use the default trust manager so we can perform regular SSL validation and we wrap
+            // it in the Android-specific X509TrustManagerExtensions, which provides an API to
+            // compute the cleaned/verified server certificate chain that we eventually need for
+            // pinning validation. Also the X509TrustManagerExtensions provides a
+            // checkServerTrusted() where the hostname can be supplied, allowing it to call the
+            // (system) RootTrustManager on Android N
+            this.baselineTrustManager = new X509TrustManagerExtensions(baselineTrustManager);
+        }
     }
 
     /**

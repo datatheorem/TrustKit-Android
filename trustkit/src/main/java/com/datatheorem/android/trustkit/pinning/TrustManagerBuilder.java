@@ -52,9 +52,15 @@ public class TrustManagerBuilder {
         if (baselineTrustManager == null) {
             throw new IllegalStateException("TrustManagerBuilder has not been initialized");
         }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // No pinning validation at all for API level before 17
+            // Because X509TrustManagerExtensions is not available
+            return baselineTrustManager;
+        }
+
+        // Get the pinning policy for this hostname
         DomainPinningPolicy serverConfig =
                 TrustKit.getInstance().getConfiguration().getPolicyForHostname(serverHostname);
-
         if ((serverConfig == null) || (shouldOverridePins)) {
             // Domain is NOT pinned or there is a debug override - only do baseline validation
             return baselineTrustManager;
