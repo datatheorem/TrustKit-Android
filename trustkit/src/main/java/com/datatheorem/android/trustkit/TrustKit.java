@@ -58,6 +58,9 @@ import javax.net.ssl.X509TrustManager;
  *             Public Key Pinning</a> and <a href="https://github.com/datatheorem/trustkit" target="_blank">TrustKit
  *             iOS</a>.</li>
  *     </ul>
+ *
+ *     For better compatibility, TrustKit will also run on API levels 15 and 16 but its
+ *     functionality will be disabled.
  * </p>
  *
  * <h3>Supported Android N Network Security Settings</h3>
