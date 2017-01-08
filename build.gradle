@@ -44,7 +44,7 @@ ext{
                 ],
         dexmaker : '1.4',
         android : [
-            appCompat : '24.2.1',
+            appCompat : '25.1.0',
             testRunner: '0.5'
         ],
         testing: [

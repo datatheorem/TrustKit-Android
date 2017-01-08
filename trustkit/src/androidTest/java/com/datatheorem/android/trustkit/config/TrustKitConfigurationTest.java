@@ -21,6 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -189,7 +190,7 @@ public class TrustKitConfigurationTest {
                 "</network-security-config>";
         TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(context,
                 parseXmlString(xml));
-        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         Date expectedDate = parser.parse("2018-01-01");
 
         DomainPinningPolicy serverConfig = config.getPolicyForHostname("www.datatheorem.com");

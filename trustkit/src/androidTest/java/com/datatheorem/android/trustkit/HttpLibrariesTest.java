@@ -106,7 +106,7 @@ public class HttpLibrariesTest {
 
     @Test
     public void testHttpsUrlConnectionWithTrustKitApiLevelUnder17() throws IOException {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             // This test is only useful for API level < 17
             return;
         }

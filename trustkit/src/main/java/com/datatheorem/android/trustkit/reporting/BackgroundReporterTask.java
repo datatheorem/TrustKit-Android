@@ -1,6 +1,8 @@
 package com.datatheorem.android.trustkit.reporting;
 
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import com.datatheorem.android.trustkit.pinning.SystemTrustManager;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -19,6 +21,8 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 
+// This returns an obscure threading error on API level < 16
+@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
 
     private static final SSLSocketFactory systemSocketFactory = getSystemSSLSocketFactory();

@@ -3,6 +3,7 @@ package com.datatheorem.android.trustkit.pinning;
 import android.net.http.X509TrustManagerExtensions;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
@@ -18,8 +19,8 @@ import javax.net.ssl.X509TrustManager;
 
 
 
+@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
 class PinningTrustManager implements X509TrustManager {
-
 
     // The trust manager we use to do the default SSL validation
     private final X509TrustManagerExtensions baselineTrustManager;
