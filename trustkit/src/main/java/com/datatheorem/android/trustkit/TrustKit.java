@@ -5,7 +5,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.SSLCertificateSocketFactory;
 import android.os.Build;
-import android.security.NetworkSecurityPolicy;
 import android.support.annotation.NonNull;
 import android.util.Printer;
 
@@ -341,29 +340,34 @@ public class TrustKit {
      */
     @NonNull
     public TrustKitConfiguration getConfiguration() { return trustKitConfiguration; }
-
+    
     /** Retrieve an {@code SSLSSocketFactory} that implements SSL pinning validation based on the
-     * current TrustKit configuration. It can be used with most network APIs (such as
-     * {@code HttpsUrlConnection}) to add SSL pinning validation to the connections.
+     * current TrustKit configuration for the specified serverHostname. It can be used with most
+     * network APIs (such as {@code HttpsUrlConnection}) to add SSL pinning validation to the
+     * connections.
      *
      * <p>
-     *     The {@code SSLSocketFactory} is configured for the specific domain the socket will
-     *     connect to first, and will keep this domain's pinning policy even if there is a
-     *     redirection to a different domain during the connection. Hence validation will always
-     *     fail in the case of a redirection to a different domain.
-     *     Pinning validation is only meant to be used on the App's API server(s), and redirections
-     *     to other domains should not happen in this use case.
+     *     The {@code SSLSocketFactory} is configured for the supplied serverHostname, and will
+     *     enforce this domain's pinning policy even if a redirection to a different domain occurs
+     *     during the connection. Hence validation will always fail in the case of a redirection to
+     *     a different domain.
+     *     However, pinning validation is only meant to be used on the App's API server(s), and
+     *     redirections to other domains should not happen in this scenario.
      * </p>
+     *
+     * @param serverHostname the server's hostname that the {@code SSLSocketFactory} will be used to
+     *                       connect to. This hostname will be used to retrieve the pinning policy
+     *                       from the current TrustKit configuration.
      */
-    // TODO(AD): Update documentation
     @NonNull
     public SSLSocketFactory getSSLSocketFactory(@NonNull String serverHostname) {
         return getSSLSocketFactory(serverHostname, 0);
     }
 
     @NonNull
-    public SSLSocketFactory getSSLSocketFactory(@NonNull String serverHostname,
+    private SSLSocketFactory getSSLSocketFactory(@NonNull String serverHostname,
                                                 int handshakeTimeoutMillis) {
+        // AD: If there's a need for it, we could later make this method public
         SSLCertificateSocketFactory sslSocketFactory =
                 (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(
                         handshakeTimeoutMillis
@@ -371,17 +375,18 @@ public class TrustKit {
         sslSocketFactory.setTrustManagers(new TrustManager[]{getTrustManager(serverHostname)});
         return sslSocketFactory;
     }
+
     /** Retrieve an {@code X509TrustManager} that implements SSL pinning validation based on the
      * current TrustKit configuration for the supplied hostname. It can be used with some network
      * APIs that let developers supply a trust manager to customize SSL validation.
      *
      * <p>
-     *     The {@code X509TrustManager} is configured for the supplied hostname, and will keep this
-     *     domain's pinning policy even if there is a redirection to a different domain during the
-     *     connection. Hence validation will always fail in the case of a redirection to a different
-     *     domain.
-     *     Pinning validation is only meant to be used on the App's API server(s), and redirections
-     *     to other domains should not happen in this use case.
+     *     The {@code X509TrustManager} is configured for the supplied serverHostname, and will
+     *     enforce this domain's pinning policy even if a redirection to a different domain occurs
+     *     during the connection. Hence validation will always fail in the case of a redirection to
+     *     a different domain.
+     *     However, pinning validation is only meant to be used on the App's API server(s), and
+     *     redirections to other domains should not happen in this scenario.
      * </p>
      *
      * @param serverHostname the server's hostname that the {@code X509TrustManager} will be used to

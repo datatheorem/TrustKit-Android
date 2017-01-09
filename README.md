@@ -85,16 +85,17 @@ protected void onCreate(Bundle savedInstanceState) {
   TrustKit.initializeWithNetworkSecurityConfiguration(this, R.id.my_custom_network_security_config);
   
   URL url = new URL("https://www.datatheorem.com");
+  String serverHostname = url.getHost();
 
   // HttpsUrlConnection
   HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-  connection.setSSLSocketFactory(new TrustKitSSLSocketFactory());
+  connection.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname));
 
   // OkHttp 3
   OkHttpClient client = 
     new OkHttpClient().newBuilder()
-    .sslSocketFactory(new TrustKitSSLSocketFactory(),
-                      TrustKit.getInstance().getTrustManager("www.datatheorem.com"))
+    .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname),
+                      TrustKit.getInstance().getTrustManager(serverHostname))
     .build();
 }
 ```
@@ -110,7 +111,7 @@ On Android N devices, TrustKit uses the OS's implementation of pinning, and it i
 On Android M and earlier devices, TrustKit provides uses its own implementation of pinning that is mostly-compatible with Android N's pinning behavior. However, in order to keep the code base as simple as possible, it has the following limitations:
 
 * The pinning policy will only be applied to connections that were configured to use a TrustKit-provided `SSLSocketFactory` or `X509TrustManager`.
-* The `SSLSocketFactory` or `X509TrustManager` provided by TrustKit for SSL pinning validation do not support redirections to a different domain. The implementations keep the pinning policy for the specified domain and will likely reject the other domain if it does not match the original domain's pins. In practice, this should not be a problem because pinning validation is only meant to be used on the few specific domains on which the App's server API is hosted --- redirections should not happen in this scenario.
+* The `SSLSocketFactory` or `X509TrustManager` provided by TrustKit can only be used for connections to the domain that was passed to the `getTrustManager()` and `getSSLSocketFactory()` methods. Hence, if a redirection to a different domain occurs, the new domain will fail SSL validation and the connection will fail. In practice, this should not be a problem because pinning validation is only meant to be used on the few specific domains on which the App's main server API is hosted --- redirections should not happen in this scenario.
 * The `<trust-anchors>` setting is only applied when used within the global `<debug-overrides>` tag. Hence, custom trust anchors for specific domains cannot be set. 
 * Within the `<trust-anchors>` tag, only `<certificate>` tags pointing to a raw certificate file are supported (the `user` or `system` values for the `src` attribute will be ignored).
 

@@ -155,16 +155,17 @@ protected void onCreate(Bundle savedInstanceState) {
   TrustKit.initializeWithNetworkSecurityConfiguration(this, R.id.my_custom_network_security_config);
 
   URL url = new URL("https://www.datatheorem.com");
+  String serverHostname = url.getHost();
 
   // HttpsUrlConnection
   HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-  connection.setSSLSocketFactory(new TrustKitSSLSocketFactory());
+  connection.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname));
 
   // OkHttp 3
   OkHttpClient client =
     new OkHttpClient().newBuilder()
-    .sslSocketFactory(new TrustKitSSLSocketFactory(),
-                      TrustKit.getInstance().getTrustManager("www.datatheorem.com"))
+    .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname),
+                      TrustKit.getInstance().getTrustManager(serverHostname))
     .build();
 }
 ```
