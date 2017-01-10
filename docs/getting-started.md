@@ -39,8 +39,8 @@ the [HTTP Public Key Pinning
 specification](https://developer.mozilla.org/en-US/docs/Web/Security/Public_Key_Pinning).
 
 To generate such values, a Python helper script is available within the [iOS project's 
-repository](https://github.com/datatheorem/TrustKit); it can be used to generate the pin configuration from a PEM or DER 
-certificate:
+repository](https://github.com/datatheorem/TrustKit); it can be used to generate the pin
+configuration from a PEM or DER certificate:
 
     $ python get_pin_from_certificate.py ca.pem
     $ python get_pin_from_certificate.py --type DER ca.der
@@ -56,7 +56,9 @@ TrustKit Android can be deployed using Gradle, by adding this line to your _buil
 
 ### Configuring a Pinning Policy
 
-Deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html) i.e :
+Deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy
+(domains, pins, and additional settings). The policy is wrapped in the official
+[Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html) i.e :
 
 ```xml
 <!-- res/xml/network_security_config.xml -->
@@ -128,7 +130,11 @@ was to be enforced.
 
 ### Initializing TrustKit with the Pinning Policy
 
-The path to the XML policy should then be specified [in the App's manifest](https://developer.android.com/training/articles/security-config.html#manifest) in order to enable it as the App's [Network Security Configuration](https://developer.android.com/training/articles/security-config.html) on Android N:
+The path to the XML policy should then be specified
+[in the App's manifest](https://developer.android.com/training/articles/security-config.html#manifest)
+in order to enable it as the App's
+[Network Security Configuration](https://developer.android.com/training/articles/security-config.html)
+on Android N:
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
@@ -170,5 +176,17 @@ protected void onCreate(Bundle savedInstanceState) {
 }
 ```
 
-Once TrustKit Android has been initialized and the client or connection's `SSLSocketFactory` has been set, it will verify the server's certificate chain against the configured pinning policy whenever an HTTPS connection is initiated. If a report URI has been configured, the App will also send reports to the specified URI whenever a pin validation failure occurred.
+Once TrustKit Android has been initialized and the client or connection's
+`SSLSocketFactory` has been set, it will verify the server's certificate
+chain against the configured pinning policy whenever an HTTPS connection is
+initiated. If a report URI has been configured, the App will also send reports
+to the specified URI whenever a pin validation failure occurred.
 
+
+### Testing the integration
+
+After enabling TrustKit in your App, make sure to validate that the App is able
+to connect to any endpoint that has pinning enabled. This should be tested on
+at least two different API levels: 24 or later (Android N+) and 23 or earlier
+(Android M-), in order to cover the two possible code paths implemented in
+TrustKit for pinning validation.
