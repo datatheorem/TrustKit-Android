@@ -40,8 +40,14 @@ public class TrustManagerBuilder {
             throw new IllegalStateException("TrustManagerBuilder has already been initialized");
         }
         baselineTrustManager = SystemTrustManager.getInstance();
-        shouldOverridePins = debugOverridePins;
 
+
+        if (Build.VERSION.SDK_INT < 17) {
+            // No pinning validation or debug overrides
+            return;
+        }
+
+        shouldOverridePins = debugOverridePins;
         if ((debugCaCerts != null) && (debugCaCerts.size() > 0) && (Build.VERSION.SDK_INT < 24)) {
             // Debug overrides is enabled and we are on a pre-N device; we need to do it manually
             baselineTrustManager = DebugOverridesTrustManager.getInstance(debugCaCerts);

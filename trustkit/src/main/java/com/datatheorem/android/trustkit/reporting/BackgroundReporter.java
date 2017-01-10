@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Set;
 
 
-// The BackgroundReporterTask returns an obscure threading error on API level < 16
-@RequiresApi(api = 16)
 public class BackgroundReporter {
 
     // App meta-data to be sent with the reports
@@ -58,6 +56,7 @@ public class BackgroundReporter {
      * every 24 hours. Also and before Android N, only the default SSL validation is performed when
      * connecting to the reporting server (ie. no pinning validation).
      */
+    @RequiresApi(api = 16)
     public void pinValidationFailed(@NonNull String serverHostname,
                                     @NonNull Integer serverPort,
                                     @NonNull List<X509Certificate> servedCertificateChain,
@@ -93,6 +92,7 @@ public class BackgroundReporter {
         }
     }
 
+    @RequiresApi(api = 16)
     protected void sendReport(@NonNull PinningFailureReport report,
                               @NonNull Set<URL> reportUriSet) {
         // Prepare the AsyncTask's arguments
