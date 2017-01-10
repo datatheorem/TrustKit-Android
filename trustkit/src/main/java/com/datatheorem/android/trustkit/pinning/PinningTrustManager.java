@@ -73,6 +73,8 @@ class PinningTrustManager implements X509TrustManager {
      * gets created, making the API a lot nicer.
      *
      * For now this is here only for documentation.
+     * See also: https://developer.android.com/reference/javax/net/ssl/X509ExtendedTrustManager.html
+     * not to be confused with X509TrustManagerExtensions!
      *
      */
     /*
