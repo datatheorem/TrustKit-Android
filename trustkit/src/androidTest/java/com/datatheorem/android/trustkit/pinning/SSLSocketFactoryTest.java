@@ -122,7 +122,7 @@ public class SSLSocketFactoryTest {
         }
         assertTrue(didReceiveHandshakeError);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // TrustKit does not do anything for API level < 17 hence there is no reporting
             return;
         }
@@ -158,7 +158,7 @@ public class SSLSocketFactoryTest {
         }
         assertTrue(didReceiveHandshakeError);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // TrustKit does not do anything for API level < 17 hence there is no reporting
             return;
         }
@@ -226,7 +226,7 @@ public class SSLSocketFactoryTest {
 
     @Test
     public void testPinnedDomainInvalidPin() throws IOException {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // TrustKit does not do anything for API level < 17 hence the connection will succeed
             return;
         }
@@ -273,7 +273,7 @@ public class SSLSocketFactoryTest {
         assertTrue(socket.isConnected());
         socket.close();
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // TrustKit does not do anything for API level < 17 hence there is no reporting
             return;
         }
@@ -335,7 +335,7 @@ public class SSLSocketFactoryTest {
         // Ensure the SSL handshake failed (but not because of a pinning error)
         assertTrue(didReceiveHandshakeError);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // TrustKit does not do anything for API level < 17 hence there is no reporting
             return;
         }
@@ -406,7 +406,7 @@ public class SSLSocketFactoryTest {
             // when running the test suite)
             return;
         }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // TrustKit does not do anything for API level < 17 hence the connection will succeed
             return;
         }
@@ -462,7 +462,7 @@ public class SSLSocketFactoryTest {
             // dynamically switch overridePins to false (as it is true in the XML policy)
             return;
         }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // TrustKit does not do anything for API level < 17 hence the connection will succeed
             return;
         }
@@ -588,7 +588,7 @@ public class SSLSocketFactoryTest {
             // cacert.org CA cert as a trusted CA
             return;
         }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // TrustKit does not do anything for API level < 17 hence the connection will succeed
             return;
         }

@@ -55,7 +55,7 @@ public class HttpLibrariesTest {
 
     @Test
     public void testHttpsUrlConnectionWithTrustKit() throws MalformedURLException {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // No pinning validation at all for API level < 17
             return;
         }
@@ -106,7 +106,7 @@ public class HttpLibrariesTest {
 
     @Test
     public void testHttpsUrlConnectionWithTrustKitApiLevelUnder17() throws IOException {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT >= 17) {
             // This test is only useful for API level < 17
             return;
         }
@@ -142,7 +142,7 @@ public class HttpLibrariesTest {
 
     @Test
     public void testOkhttp3WithTrustKit() throws MalformedURLException {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // No pinning validation at all for API level < 17
             return;
         }

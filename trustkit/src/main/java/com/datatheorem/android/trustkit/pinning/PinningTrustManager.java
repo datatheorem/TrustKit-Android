@@ -19,7 +19,7 @@ import javax.net.ssl.X509TrustManager;
 
 
 
-@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+@RequiresApi(api = 17)
 class PinningTrustManager implements X509TrustManager {
 
     // The trust manager we use to do the default SSL validation
@@ -49,7 +49,7 @@ class PinningTrustManager implements X509TrustManager {
         this.serverHostname = serverHostname;
         this.serverConfig = serverConfig;
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // No pinning validation at all for API level < 17
             // Because X509TrustManagerExtensions is not available
             this.baselineTrustManager = null;

@@ -3,6 +3,7 @@ package com.datatheorem.android.trustkit.pinning;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 
 import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
@@ -16,6 +17,7 @@ import java.security.cert.CertificateException;
 import java.util.Set;
 
 import javax.net.ssl.X509TrustManager;
+
 
 
 public class TrustManagerBuilder {
@@ -52,7 +54,7 @@ public class TrustManagerBuilder {
         if (baselineTrustManager == null) {
             throw new IllegalStateException("TrustManagerBuilder has not been initialized");
         }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // No pinning validation at all for API level before 17
             // Because X509TrustManagerExtensions is not available
             return baselineTrustManager;

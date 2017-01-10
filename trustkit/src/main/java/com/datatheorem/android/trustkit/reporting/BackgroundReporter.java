@@ -2,6 +2,7 @@ package com.datatheorem.android.trustkit.reporting;
 
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Base64;
 
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 
+// The BackgroundReporterTask returns an obscure threading error on API level < 16
+@RequiresApi(api = 16)
 public class BackgroundReporter {
 
     // App meta-data to be sent with the reports

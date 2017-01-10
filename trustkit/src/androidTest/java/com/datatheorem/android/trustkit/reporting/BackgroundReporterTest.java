@@ -42,7 +42,7 @@ public class BackgroundReporterTest {
 
     @Test
     public void testPinValidationFailed() throws MalformedURLException, JSONException {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < 17) {
             // TrustKit does not do anything for API level < 17 hence there is no reporting
             return;
         }
