@@ -19,6 +19,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
+import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
@@ -26,6 +27,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Set;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -361,20 +363,17 @@ public class TrustKit {
      */
     @NonNull
     public SSLSocketFactory getSSLSocketFactory(@NonNull String serverHostname) {
-        return getSSLSocketFactory(serverHostname, 0);
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[]{getTrustManager(serverHostname)}, null);
+
+            return sslContext.getSocketFactory();
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("Should not happen");
+        }
     }
 
-    @NonNull
-    private SSLSocketFactory getSSLSocketFactory(@NonNull String serverHostname,
-                                                int handshakeTimeoutMillis) {
-        // AD: If there's a need for it, we could later make this method public
-        SSLCertificateSocketFactory sslSocketFactory =
-                (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(
-                        handshakeTimeoutMillis
-                );
-        sslSocketFactory.setTrustManagers(new TrustManager[]{getTrustManager(serverHostname)});
-        return sslSocketFactory;
-    }
 
     /** Retrieve an {@code X509TrustManager} that implements SSL pinning validation based on the
      * current TrustKit configuration for the supplied hostname. It can be used with some network
