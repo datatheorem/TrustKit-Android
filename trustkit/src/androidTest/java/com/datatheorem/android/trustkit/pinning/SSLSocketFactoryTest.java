@@ -359,6 +359,11 @@ public class SSLSocketFactoryTest {
             // cacert.org CA cert as a trusted CA
             return;
         }
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
+            return;
+        }
+
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname(serverHostname)

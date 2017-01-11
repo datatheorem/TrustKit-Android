@@ -189,6 +189,10 @@ public class HttpLibrariesTest {
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void testOkhttp3WithTrustKitOldBuilder() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
+            return;
+        }
         // Initialize TrustKit
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
           InstrumentationRegistry.getContext(), reporter);
