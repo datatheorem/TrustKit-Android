@@ -50,13 +50,13 @@ configuration from a PEM or DER certificate:
 
 ### Adding TrustKit as a Dependency
 
-TrustKit Android can be deployed using Gradle, by adding this line to your _build.gradle_:
+Add TrustKit to your project's _build.gradle_:
 
 `compile 'com.datatheorem.truskit:trustkit-android:'`
 
 ### Configuring a Pinning Policy
 
-Deploying SSL pinning in the App requires initializing TrustKit Android with a pinning policy
+Deploying SSL pinning in the App requires initializing TrustKit with a pinning policy
 (domains, pins, and additional settings). The policy is wrapped in the official
 [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html) i.e :
 
@@ -147,7 +147,7 @@ on Android N:
 
 ```
 
-Then, TrustKit Android should be initialized with the same path:
+Then, TrustKit should be initialized with the same path:
 
 ```java
 @Override
@@ -176,7 +176,7 @@ protected void onCreate(Bundle savedInstanceState) {
 }
 ```
 
-Once TrustKit Android has been initialized and the client or connection's
+Once TrustKit has been initialized and the client or connection's
 `SSLSocketFactory` has been set, it will verify the server's certificate
 chain against the configured pinning policy whenever an HTTPS connection is
 initiated. If a report URI has been configured, the App will also send reports
