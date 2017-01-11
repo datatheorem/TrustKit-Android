@@ -2,6 +2,7 @@ package com.datatheorem.android.trustkit.reporting;
 
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Base64;
 
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
@@ -47,6 +48,15 @@ public class BackgroundReporter {
         return certificateAsPem;
     }
 
+    /**
+     * Try to send a pin validation failure report to the reporting servers configured for the
+     * hostname that triggered the failure.
+     *
+     * Reports are rate-limited to one identical (same host, error and certificate chain) report
+     * every 24 hours. Also and before Android N, only the default SSL validation is performed when
+     * connecting to the reporting server (ie. no pinning validation).
+     */
+    @RequiresApi(api = 16)
     public void pinValidationFailed(@NonNull String serverHostname,
                                     @NonNull Integer serverPort,
                                     @NonNull List<X509Certificate> servedCertificateChain,
@@ -82,6 +92,7 @@ public class BackgroundReporter {
         }
     }
 
+    @RequiresApi(api = 16)
     protected void sendReport(@NonNull PinningFailureReport report,
                               @NonNull Set<URL> reportUriSet) {
         // Prepare the AsyncTask's arguments

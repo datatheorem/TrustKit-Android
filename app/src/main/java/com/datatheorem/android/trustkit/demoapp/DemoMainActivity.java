@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.demoapp;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -7,21 +8,20 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.datatheorem.android.trustkit.TrustKit;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.CertificateException;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import javax.net.ssl.HttpsURLConnection;
+
 
 public class DemoMainActivity extends AppCompatActivity {
+
+    private static final String DEBUG_TAG = "TrustKit-Demo";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,34 +29,43 @@ public class DemoMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_demo_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         TextView textView = (TextView) findViewById(R.id.textview);
 
+        // Initialize TrustKit with the default path for the Network Security Configuration which is
+        // res/xml/network_security_config.xml
         TrustKit.initializeWithNetworkSecurityConfiguration(this);
-        textView.setText(TrustKit.getInstance().getConfiguration().getDebugCaCertificates().toString());
-        OkHttpClient client = new OkHttpClient().newBuilder().sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory()).build();
+        // Connect to the URL with valid pins - this connection will succeed
+        new DownloadWebpageTask().execute("https://www.datatheorem.com");
 
-        try {
-            Request request = new Request.Builder().url(new URL("https://www.yahoo.com")).build();
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    if ((e.getCause() instanceof CertificateException
-                      && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
-                        Toast.makeText(DemoMainActivity.this, "Pin verification failed", Toast.LENGTH_LONG ).show();
-                    }
-                }
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-//                    Toast.makeText(DemoMainActivity.this, "w00t", Toast.LENGTH_LONG ).show();
-                    Log.d("TrustKit", "w00t");
+        // Connect to the URL with invalid pins - this connection will fail
+        new DownloadWebpageTask().execute("https://www.google.com");
 
-                }
-            });
-        } catch (IOException e) {
+        textView.setText("Connection results are in the logs");
+    }
 
-                Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG ).show();
+    private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
 
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                URL url = new URL(params[0]);
+                HttpsURLConnection connection = null;
+                connection = (HttpsURLConnection) url.openConnection();
+                connection.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
+                InputStream inputStream = connection.getInputStream();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "Failed to connect to: " + params[0];
+            }
+            return "Successfully connected to: " + params[0];
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // Log the response
+            Log.i(DEBUG_TAG, result);
         }
     }
 

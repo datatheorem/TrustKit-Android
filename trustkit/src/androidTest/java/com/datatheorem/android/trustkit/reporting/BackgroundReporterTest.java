@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.reporting;
 
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -41,6 +42,11 @@ public class BackgroundReporterTest {
 
     @Test
     public void testPinValidationFailed() throws MalformedURLException, JSONException {
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
         // Initialize TrustKit
         String serverHostname = "mail.google.com";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()

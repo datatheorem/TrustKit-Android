@@ -1,6 +1,7 @@
 package com.datatheorem.android.trustkit.reporting;
 
 import android.os.AsyncTask;
+import android.support.annotation.RequiresApi;
 
 import com.datatheorem.android.trustkit.pinning.SystemTrustManager;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -8,6 +9,7 @@ import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -18,6 +20,8 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 
+// This returns an obscure threading error on API level < 16
+@RequiresApi(api = 16)
 class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
 
     private static final SSLSocketFactory systemSocketFactory = getSystemSSLSocketFactory();
@@ -30,19 +34,25 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
         PinningFailureReport report = (PinningFailureReport) params[0];
 
         // Remaining parameters are report URLs - send the report to each of them
-        for (int i=1;i<params.length;i++) {
+        for (int i=1; i<params.length; i++) {
             URL reportUri = (URL) params[i];
-            HttpsURLConnection connection = null;
+            HttpURLConnection connection = null;
             try {
-                connection = (HttpsURLConnection) reportUri.openConnection();
+                connection = (HttpURLConnection) reportUri.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setDoOutput(true);
                 connection.setChunkedStreamingMode(0);
 
-                // Use the default system factory to ensure we are not doing pinning validation
-                // TODO(ad): Test this
-                connection.setSSLSocketFactory(systemSocketFactory);
+                if (connection instanceof HttpsURLConnection) {
+                    // HTTPS URL
+                    HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
+                    // Use the default system factory - this will avoid an infinite loop of report
+                    // uploads if the reporting server triggers SSL failures
+                    // This also means that no pinning validation will be done before Android N, but
+                    // for reports this is fine
+                    httpsConnection.setSSLSocketFactory(systemSocketFactory);
+                }
 
                 connection.connect();
 

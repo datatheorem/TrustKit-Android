@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.reporting;
 
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -42,7 +43,12 @@ public class BackgroundReporterTaskTest {
     }
 
     @Test
-    public void testExecuteSucceed() throws MalformedURLException {
+    public void testExecuteSucceedHttps() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
         BackgroundReporterTask testTask = new BackgroundReporterTask();
 
         // Prepare the AsyncTask's arguments
@@ -60,7 +66,35 @@ public class BackgroundReporterTaskTest {
     }
 
     @Test
+    public void testExecuteSucceedHttp() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
+        BackgroundReporterTask testTask = new BackgroundReporterTask();
+
+        // Prepare the AsyncTask's arguments
+        ArrayList<Object> taskParameters = new ArrayList<>();
+        taskParameters.add(report);
+
+        // Add two report URIs with the first one failing, to ensure both are called and last one
+        // succeeded
+        taskParameters.add(new URL("http://www.google.com/fake"));
+        taskParameters.add(new URL("http://overmind.datatheorem.com/trustkit/report"));
+
+        // Run the task synchronously and ensure it succeeded
+        Integer lastResponseCode = testTask.doInBackground(taskParameters.toArray());
+        assertEquals(Integer.valueOf(302), lastResponseCode);
+    }
+
+    @Test
     public void testExecuteFailedHttpError() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
         BackgroundReporterTask testTask = new BackgroundReporterTask();
 
         // Prepare the AsyncTask's arguments
@@ -79,6 +113,11 @@ public class BackgroundReporterTaskTest {
 
     @Test
     public void testExecuteFailedNoConnection() throws MalformedURLException {
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
+
         BackgroundReporterTask testTask = new BackgroundReporterTask();
 
         // Prepare the AsyncTask's arguments

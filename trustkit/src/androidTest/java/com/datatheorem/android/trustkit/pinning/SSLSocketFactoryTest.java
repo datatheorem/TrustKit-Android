@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -35,9 +36,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 
+/**
+ * Tests TrustKit's SSLSocketFactory.
+ *
+ * The general testing strategy used here is to connect to live websites. This provides a variety of
+ * valid certificate chains that can then have different pins applied to each. This requires no
+ * special mock servers or mock CA setup, but it is dependent on the domains being live and having
+ * valid certificate chains.
+ */
 @SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
-public class TrustKitSSLSocketFactoryTest {
+public class SSLSocketFactoryTest {
 
     @Mock
     private BackgroundReporter mockReporter;
@@ -100,11 +109,11 @@ public class TrustKitSSLSocketFactoryTest {
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection fails
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        // Create a TrustKit SocketFactory and ensure the connection fails
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443);
+            test.createSocket(serverHostname, 443).getInputStream();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -112,6 +121,11 @@ public class TrustKitSSLSocketFactoryTest {
             }
         }
         assertTrue(didReceiveHandshakeError);
+
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -131,11 +145,11 @@ public class TrustKitSSLSocketFactoryTest {
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection fails
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        // Create a TrustKit SocketFactory and ensure the connection fails
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443);
+            test.createSocket(serverHostname, 443).getInputStream();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -143,6 +157,11 @@ public class TrustKitSSLSocketFactoryTest {
             }
         }
         assertTrue(didReceiveHandshakeError);
+
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -156,14 +175,43 @@ public class TrustKitSSLSocketFactoryTest {
     }
 
     @Test
-    public void testPinnedDomainSuccess() throws IOException {
+    public void testPinnedDomainSuccessAnchor() throws IOException {
         String serverHostname = "www.datatheorem.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
-        javax.net.ssl.SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        // Create a TrustKit SocketFactory and ensure the connection succeeds
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        Socket socket = test.createSocket(serverHostname, 443);
+        socket.getInputStream();
+
+        assertTrue(socket.isConnected());
+        socket.close();
+
+        // Ensure the background reporter was NOT called
+        verify(mockReporter, never()).pinValidationFailed(
+                eq(serverHostname),
+                eq(0),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                eq(TestableTrustKit.getInstance().getConfiguration().getPolicyForHostname(serverHostname)),
+                eq(PinningValidationResult.FAILED)
+        );
+    }
+
+    @Test
+    public void testPinnedDomainSuccessLeaf() throws IOException {
+        String serverHostname = "datatheorem.com";
+        TestableTrustKit.initializeWithNetworkSecurityConfiguration(
+                InstrumentationRegistry.getContext(), mockReporter);
+
+        // Create a TrustKit SocketFactory and ensure the connection succeeds
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        Socket socket = test.createSocket(serverHostname, 443);
+        socket.getInputStream();
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -178,15 +226,20 @@ public class TrustKitSSLSocketFactoryTest {
 
     @Test
     public void testPinnedDomainInvalidPin() throws IOException {
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
+            return;
+        }
+
         String serverHostname = "www.yahoo.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection fails
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        // Create a TrustKit SocketFactory and ensure the connection fails
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceivePinningError = false;
         try {
-            test.createSocket(serverHostname, 443);
+            test.createSocket(serverHostname, 443).getInputStream();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -212,9 +265,18 @@ public class TrustKitSSLSocketFactoryTest {
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        // Create a TrustKit SocketFactory and ensure the connection succeeds
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        Socket socket = test.createSocket(serverHostname, 443);
+        socket.getInputStream();
+
+        assertTrue(socket.isConnected());
+        socket.close();
+
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -233,9 +295,13 @@ public class TrustKitSSLSocketFactoryTest {
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        // Create a TrustKit SocketFactory and ensure the connection succeeds
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        Socket socket = test.createSocket(serverHostname, 443);
+        socket.getInputStream();
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -254,11 +320,11 @@ public class TrustKitSSLSocketFactoryTest {
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection fails
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        // Create a TrustKit SocketFactory and ensure the connection fails
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443);
+            test.createSocket(serverHostname, 443).getInputStream();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -268,6 +334,11 @@ public class TrustKitSSLSocketFactoryTest {
 
         // Ensure the SSL handshake failed (but not because of a pinning error)
         assertTrue(didReceiveHandshakeError);
+
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence there is no reporting
+            return;
+        }
 
         // Ensure the background reporter was called
         verify(mockReporter).pinValidationFailed(
@@ -306,11 +377,15 @@ public class TrustKitSSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        // Create a TrustKit SocketFactory and ensure the connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert and
         // disables pinning when overridePins is true
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        Socket socket = test.createSocket(serverHostname, 443);
+        socket.getInputStream();
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -331,6 +406,11 @@ public class TrustKitSSLSocketFactoryTest {
             // when running the test suite)
             return;
         }
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
+            return;
+        }
+
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname(serverHostname)
@@ -353,12 +433,12 @@ public class TrustKitSSLSocketFactoryTest {
                 mockReporter);
         mockContext.getApplicationInfo().flags = originalAppFlags;
 
-        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        // Create a TrustKit SocketFactory and ensure the connection fails
         // This means that debug-overrides property was ignored because the App is not debuggable
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443);
+            test.createSocket(serverHostname, 443).getInputStream();
         } catch (SSLHandshakeException e) {
             didReceiveHandshakeError = true;
         }
@@ -382,6 +462,11 @@ public class TrustKitSSLSocketFactoryTest {
             // dynamically switch overridePins to false (as it is true in the XML policy)
             return;
         }
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
+            return;
+        }
+
         String serverHostname = "www.cacert.org";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
                 .setHostname(serverHostname)
@@ -400,13 +485,13 @@ public class TrustKitSSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        // Create a TrustKit SocketFactory and ensure the connection fails
         // This means that debug-overrides properly enables the supplied debug CA cert but does not
         // disable pinning when overridePins is false
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceivePinningError = false;
         try {
-            test.createSocket(serverHostname, 443);
+            test.createSocket(serverHostname, 443).getInputStream();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -444,12 +529,12 @@ public class TrustKitSSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection fails
+        // Create a TrustKit SocketFactory and ensure the connection fails
         // This means that TrustKit does not interfere with default certificate validation
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443);
+            test.createSocket(serverHostname, 443).getInputStream();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -476,9 +561,13 @@ public class TrustKitSSLSocketFactoryTest {
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getContext(), mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        // Create a TrustKit SocketFactory and ensure the connection succeeds
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        Socket socket = test.createSocket(serverHostname, 443);
+        socket.getInputStream();
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -497,6 +586,10 @@ public class TrustKitSSLSocketFactoryTest {
             // This test will not work when using the Android N XML network policy because we can't
             // dynamically add/remove a debug-override tag defined in the XML policy which adds the
             // cacert.org CA cert as a trusted CA
+            return;
+        }
+        if (Build.VERSION.SDK_INT < 17) {
+            // TrustKit does not do anything for API level < 17 hence the connection will succeed
             return;
         }
 
@@ -518,10 +611,14 @@ public class TrustKitSSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        // Create a TrustKit SocketFactory and ensure the connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        Socket socket = test.createSocket(serverHostname, 443);
+        socket.getInputStream();
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(
@@ -561,10 +658,14 @@ public class TrustKitSSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(),
                 mockReporter);
 
-        // Create an TrustKitSSLSocketFactory and ensure connection succeeds
+        // Create a TrustKit SocketFactory and ensure the connection succeeds
         // This means that debug-overrides does not disable the System CAs
-        SSLSocketFactory test = new TrustKitSSLSocketFactory();
-        test.createSocket(serverHostname, 443);
+        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        Socket socket = test.createSocket(serverHostname, 443);
+        socket.getInputStream();
+
+        assertTrue(socket.isConnected());
+        socket.close();
 
         // Ensure the background reporter was NOT called
         verify(mockReporter, never()).pinValidationFailed(

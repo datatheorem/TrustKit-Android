@@ -5,62 +5,21 @@
         <!-- Valid pins -->
         <pin-set expiration="2018-01-01">
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>
+            <pin digest="SHA-256">cGuxAXyFXFkWm61cF4HPWX8S0srS9j0aSqN0k4AP+4A=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true" disableDefaultReportUri="true">
             <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
         </trustkit-config>
     </domain-config>
     <domain-config enforcePinning="true">
-        <domain>www.yahoo.com</domain>
+        <domain>www.google.com</domain>
         <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
-        <trustkit-config enforcePinnign="true" disableDefaultReportUri="true">
+        <trustkit-config enforcePinning="true" disableDefaultReportUri="true">
             <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
         </trustkit-config>
     </domain-config>
-    <domain-config enforcePinning="false">
-        <domain>www.github.com</domain>
-        <pin-set>
-            <!-- Invalid pins -->
-            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
-        </pin-set>
-        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
-    </domain-config>
-    <domain-config enforcePinning="true">
-        <domain>expired.badssl.com</domain>
-        <pin-set>
-            <!-- Invalid pins -->
-            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
-        </pin-set>
-        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
-    </domain-config>
-    <domain-config enforcePinning="false">
-        <domain>untrusted-root.badssl.com</domain>
-        <pin-set>
-            <!-- Invalid pins -->
-            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
-        </pin-set>
-        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
-    </domain-config>
-    <domain-config enforcePinning="true">
-        <domain>wrong.host.badssl.com</domain>
-        <pin-set>
-            <!-- Invalid pins -->
-            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">0SDf3cRToyZJaMsoS17oF72VMavLxj/N7WBNasNuiR8=</pin>
-        </pin-set>
-        <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
-    </domain-config>
-    <debug-overrides>
-        <trust-anchors>
-            <certificates src="@raw/good"/>
-        </trust-anchors>
-    </debug-overrides>
 </network-security-config>
