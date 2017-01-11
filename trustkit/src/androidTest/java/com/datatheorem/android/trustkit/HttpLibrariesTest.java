@@ -6,7 +6,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
-import com.datatheorem.android.trustkit.pinning.TrustKitSSLSocketFactory;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 import org.junit.Before;
