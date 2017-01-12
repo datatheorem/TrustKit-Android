@@ -5,7 +5,9 @@ TrustKit Android
 [![Build Status](https://travis-ci.org/datatheorem/TrustKit-Android.svg?branch=master)](https://travis-ci.org/datatheorem/TrustKit-Android)
 [![API](https://img.shields.io/badge/API-15%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=15)
 
-**TrustKit Android** is an open source library that makes it easy to deploy SSL public key pinning in any Android App.
+**TrustKit Android** is an open source library that makes it easy to deploy SSL public key pinning and reporting in any Android App.
+
+If you need SSL pinning/reporting in your iOS App. we have also released **TrustKit for iOS and macOS** at [https://github.com/datatheorem/TrustKit](https://github.com/datatheorem/TrustKit).
 
 
 Overview
