@@ -132,7 +132,6 @@ On Android M and earlier devices, TrustKit provides uses its own implementation 
 * Within the `<trust-anchors>` tag, only `<certificate>` tags pointing to a raw certificate file are supported (the `user` or `system` values for the `src` attribute will be ignored).
 
 
-
 License
 -------
 
