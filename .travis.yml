@@ -23,3 +23,5 @@ before_install:
 
 install: true
 
+after_success:
+  - ./deploy.sh
