@@ -100,7 +100,7 @@ protected void onCreate(Bundle savedInstanceState) {
   TrustKit.initializeWithNetworkSecurityConfiguration(this);
 
   // OR using a custom resource (TrustKit can't be initialized twice)
-  TrustKit.initializeWithNetworkSecurityConfiguration(this, R.id.my_custom_network_security_config);
+  TrustKit.initializeWithNetworkSecurityConfiguration(this, R.xml.my_custom_network_security_config);
 
   URL url = new URL("https://www.datatheorem.com");
   String serverHostname = url.getHost();
