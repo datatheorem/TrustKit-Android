@@ -88,6 +88,12 @@ public class DomainPinningPolicyTest {
     }
 
     @Test
+    public void testNoPinsButPinningEnforceDisabledShouldBeValid() throws MalformedURLException {
+        Set<String> emptyPins = new HashSet<>();
+        new DomainPinningPolicy("www.test.com", true, emptyPins, false, date, reportUris, false);
+    }
+
+    @Test
     public void testBadPolicyPinTld() throws MalformedURLException {
         boolean didReceiveConfigError = false;
         try {
