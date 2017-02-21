@@ -48,10 +48,18 @@ public final class DomainPinningPolicy {
         }
         this.hostname = hostname.trim();
 
+        // Check if the configuration has a empty pin-set and still would enforce pinning
+        // TrustKit should not work if the configuration contains both (opposite behaviors)
+        if (publicKeyHashStrList.isEmpty() && shouldEnforcePinning) {
+            throw new ConfigurationException("An empty pin-set was supplied "+
+              "for domain " + this.hostname + " with the enforcePinning set to true. " +
+              "An empty pin-set disables pinning and can't be use with enforcePinning set to true.");
+        }
+
         // Check if the configuration has at least two pins (including a backup pin)
         // TrustKit should not work if the configuration contains only one pin
         // more info (https://tools.ietf.org/html/rfc7469#page-21)
-        if (publicKeyHashStrList.size() < 2) {
+        if (publicKeyHashStrList.size() < 2 && shouldEnforcePinning) {
             throw new ConfigurationException("Less than two pins were supplied "+
                     "for domain " + this.hostname + ". This might " +
                     "brick your App; please review the Getting Started guide in " +
