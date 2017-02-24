@@ -76,8 +76,7 @@ public class DomainPinningPolicyTest {
         boolean didReceiveConfigError = false;
         try {
             new DomainPinningPolicy("www.test.com", true, badPins, true, date, reportUris, false);
-        }
-        catch (ConfigurationException e) {
+        } catch (ConfigurationException e) {
             if (e.getMessage().startsWith("Less than two pins")) {
                 didReceiveConfigError = true;
             } else {
@@ -85,6 +84,25 @@ public class DomainPinningPolicyTest {
             }
         }
         assertTrue(didReceiveConfigError);
+    }
+
+    
+    @Test
+    public void testNoPinsButPinningEnforceDisabledShouldBeValid() throws MalformedURLException {
+        Set<String> emptyPins = new HashSet<>();
+        boolean didReceivedConfigError = false;
+
+        try {
+            new DomainPinningPolicy("www.test.com", true, emptyPins, true, date, reportUris, false);
+        } catch (ConfigurationException e) {
+            if (e.getMessage().startsWith("An empty pin-set")) {
+                didReceivedConfigError = true;
+            } else {
+                throw e;
+            }
+        }
+        
+        assertTrue(didReceivedConfigError);
     }
 
     @Test
