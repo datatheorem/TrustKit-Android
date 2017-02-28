@@ -124,18 +124,12 @@ class PinningTrustManager implements X509TrustManager {
         // validation succeeded. On Android N this was already taken care of by the netsec policy
         if ((Build.VERSION.SDK_INT < 24) && (!didChainValidationFail)) {
 
-            boolean hasPinningPolicyExpired = (serverConfig.getExpirationDate() != null)
-                    && (serverConfig.getExpirationDate().compareTo(new Date()) < 0);
-
-            // Only do pinning validation if the policy has not expired
-            if (!hasPinningPolicyExpired) {
-                didPinningValidationFail = !isPinInChain(validatedServerChain,
-                        serverConfig.getPublicKeyPins());
-            }
+            PinningValidationResult pinningValidationResult = PinningValidator.evaluateTrust(validatedServerChain.toArray(new X509Certificate[validatedServerChain.size()]), serverHostname);
+            didChainValidationFail = pinningValidationResult == PinningValidationResult.FAILED;
         }
 
         // Send a pinning failure report if needed
-        if (didChainValidationFail || didPinningValidationFail) {
+        if (didChainValidationFail || didPinningValidationFail && (Build.VERSION.SDK_INT >= 24)) {
             PinningValidationResult validationResult = PinningValidationResult.FAILED;
             if (didChainValidationFail) {
                 // Hostname or path validation failed - not a pinning error
