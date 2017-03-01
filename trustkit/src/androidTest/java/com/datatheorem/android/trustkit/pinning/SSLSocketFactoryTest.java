@@ -2,6 +2,7 @@ package com.datatheorem.android.trustkit.pinning;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -110,7 +111,7 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443).getInputStream();
@@ -146,7 +147,7 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443).getInputStream();
@@ -181,7 +182,7 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         Socket socket = test.createSocket(serverHostname, 443);
         socket.getInputStream();
 
@@ -206,7 +207,7 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         Socket socket = test.createSocket(serverHostname, 443);
         socket.getInputStream();
 
@@ -236,7 +237,7 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         boolean didReceivePinningError = false;
         try {
             test.createSocket(serverHostname, 443).getInputStream();
@@ -266,7 +267,7 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         Socket socket = test.createSocket(serverHostname, 443);
         socket.getInputStream();
 
@@ -296,7 +297,7 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         Socket socket = test.createSocket(serverHostname, 443);
         socket.getInputStream();
 
@@ -321,7 +322,7 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443).getInputStream();
@@ -385,7 +386,7 @@ public class SSLSocketFactoryTest {
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert and
         // disables pinning when overridePins is true
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         Socket socket = test.createSocket(serverHostname, 443);
         socket.getInputStream();
 
@@ -440,7 +441,7 @@ public class SSLSocketFactoryTest {
 
         // Create a TrustKit SocketFactory and ensure the connection fails
         // This means that debug-overrides property was ignored because the App is not debuggable
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443).getInputStream();
@@ -493,7 +494,7 @@ public class SSLSocketFactoryTest {
         // Create a TrustKit SocketFactory and ensure the connection fails
         // This means that debug-overrides properly enables the supplied debug CA cert but does not
         // disable pinning when overridePins is false
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         boolean didReceivePinningError = false;
         try {
             test.createSocket(serverHostname, 443).getInputStream();
@@ -536,7 +537,7 @@ public class SSLSocketFactoryTest {
 
         // Create a TrustKit SocketFactory and ensure the connection fails
         // This means that TrustKit does not interfere with default certificate validation
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
             test.createSocket(serverHostname, 443).getInputStream();
@@ -567,7 +568,7 @@ public class SSLSocketFactoryTest {
                 InstrumentationRegistry.getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         Socket socket = test.createSocket(serverHostname, 443);
         socket.getInputStream();
 
@@ -618,7 +619,7 @@ public class SSLSocketFactoryTest {
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         Socket socket = test.createSocket(serverHostname, 443);
         socket.getInputStream();
 
@@ -665,7 +666,7 @@ public class SSLSocketFactoryTest {
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         // This means that debug-overrides does not disable the System CAs
-        SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+        SSLSocketFactory test = getSslSocketFactory(serverHostname);
         Socket socket = test.createSocket(serverHostname, 443);
         socket.getInputStream();
 
@@ -683,4 +684,14 @@ public class SSLSocketFactoryTest {
         );
     }
     //endregion
+
+
+    @NonNull
+    private SSLSocketFactory getSslSocketFactory(String serverHostname) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return TestableTrustKit.getInstance().getSSLSocketFactory();
+        }
+
+        return TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
+    }
 }

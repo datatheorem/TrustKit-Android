@@ -73,7 +73,21 @@ public class TrustManagerBuilder {
             // Domain is NOT pinned or there is a debug override - only do baseline validation
             return baselineTrustManager;
         } else {
-            return new PinningTrustManager(serverHostname, serverConfig, baselineTrustManager);
+            return new PinningTrustManager(serverHostname, baselineTrustManager);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static X509TrustManager getTrustManager() {
+        if (baselineTrustManager == null) {
+            throw new IllegalStateException("TrustManagerBuilder has not been initialized");
+        }
+
+        if (shouldOverridePins) {
+            // Domain is NOT pinned or there is a debug override - only do baseline validation
+            return baselineTrustManager;
+        } else {
+            return new PinningTrustManager(baselineTrustManager);
         }
     }
 
