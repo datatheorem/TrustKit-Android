@@ -2,6 +2,7 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.os.AsyncTask;
 import android.support.annotation.RequiresApi;
+import android.util.Base64;
 
 import com.datatheorem.android.trustkit.pinning.SystemTrustManager;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -43,6 +44,12 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setDoOutput(true);
                 connection.setChunkedStreamingMode(0);
+
+                // If basic authentication was specified in the URL, set it up on the connection
+                if (reportUri.getUserInfo() != null) {
+                    String basicAuth = "Basic " + new String(Base64.encode(reportUri.getUserInfo().getBytes(), Base64.DEFAULT));
+                    connection.setRequestProperty("Authorization", basicAuth);
+                }
 
                 if (connection instanceof HttpsURLConnection) {
                     // HTTPS URL
