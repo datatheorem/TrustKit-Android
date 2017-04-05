@@ -44,7 +44,7 @@ class PinningTrustManager implements X509TrustManager {
     public PinningTrustManager(@NonNull String serverHostname,
                                @NonNull X509TrustManager baselineTrustManager) {
         // Store server's information
-        this.serverHostname = null;
+        this.serverHostname = serverHostname;
 
         if (Build.VERSION.SDK_INT < 17) {
             // No pinning validation at all for API level < 17
@@ -74,7 +74,7 @@ class PinningTrustManager implements X509TrustManager {
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public PinningTrustManager(@NonNull X509TrustManager baselineTrustManager) {
-        serverHostname = "";
+        serverHostname = null;
         this.baselineTrustManager = new X509TrustManagerExtensions(baselineTrustManager);
     }
 
