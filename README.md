@@ -39,7 +39,7 @@ Sample Usage
 
 Add TrustKit to your project's _build.gradle_:
 
-`compile 'com.datatheorem.android.trustkit:trustkit:1.0.0'`
+`compile 'com.datatheorem.android.trustkit:trustkit:<last_version>'`
 
 ### Configuring a Pinning Policy
 
