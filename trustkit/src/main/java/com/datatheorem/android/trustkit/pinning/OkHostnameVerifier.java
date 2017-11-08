@@ -57,9 +57,9 @@ final class OkHostnameVerifier implements HostnameVerifier {
     }
 
     public boolean verify(String host, X509Certificate certificate) {
-        // TrustKit: Removed support here for IP addresses so we don't need to import more files
-        // from OkHttp
-        return verifyHostname(host, certificate);
+        return Utils.verifyAsIpAddress(host)
+            ? verifyIpAddress(host, certificate)
+            : verifyHostname(host, certificate);
     }
 
     /** Returns true if {@code certificate} matches {@code ipAddress}. */
