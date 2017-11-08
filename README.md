@@ -109,10 +109,20 @@ protected void onCreate(Bundle savedInstanceState) {
   HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
   connection.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname));
 
-  // OkHttp 3
+  // OkHttp 2.x
+  OkHttpClient client =
+    new OkHttpClient()
+        .setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname));
+
+  // OkHttp 3.0.x, 3.1.x and 3.2.x
+  OkHttpClient client =
+    new OkHttpClient.Builder()
+        .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname))
+
+  // OkHttp 3.3.x and higher
   OkHttpClient client =
     new OkHttpClient().newBuilder()
-    .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname),
+        .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname),
                       TrustKit.getInstance().getTrustManager(serverHostname))
     .build();
 }
