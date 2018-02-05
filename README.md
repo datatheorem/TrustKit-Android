@@ -2,7 +2,7 @@ TrustKit Android
 ============
 
 
-[![Build Status](https://travis-ci.org/datatheorem/TrustKit-Android.svg?branch=master)](https://travis-ci.org/datatheorem/TrustKit-Android)
+[![Build Status](https://www.bitrise.io/app/944c8a34e1f4de40/status.svg?token=0Y55c_Hygoif6oDBpgvEmA&branch=master)](https://www.bitrise.io/app/944c8a34e1f4de40)
 [![API](https://img.shields.io/badge/API-15%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=15)
 [![Version](https://img.shields.io/bintray/v/datatheoremoss/TrustKit-Android/trustkit.svg)](https://bintray.com/datatheoremoss/TrustKit-Android/trustkit)
 [![MIT License](https://img.shields.io/github/license/datatheorem/trustkit-android.svg)](https://en.wikipedia.org/wiki/MIT_License)
