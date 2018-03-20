@@ -22,4 +22,10 @@
             <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
         </trustkit-config>
     </domain-config>
+    <domain-config enforcePinning="false">
+        <domain includeSubdomains="true">localhost</domain>
+        <trustkit-config
+          enforcePinning="false"
+          disableDefaultReportUri="true" />
+    </domain-config>
 </network-security-config>

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import android.util.Log;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -160,8 +161,8 @@ class TrustKitConfigurationParser {
     }
 
     private static class TrustkitConfigTag {
-        Boolean enforcePinning = null;
-        Boolean disableDefaultReportUri = null;
+        Boolean enforcePinning = false;
+        Boolean disableDefaultReportUri;
         Set<String> reportUris;
     }
 
@@ -172,6 +173,7 @@ class TrustKitConfigurationParser {
 
         TrustkitConfigTag result = new TrustkitConfigTag();
         Set<String> reportUris = new HashSet<>();
+
 
         // Look for the enforcePinning attribute
         String enforcePinning = parser.getAttributeValue(null, "enforcePinning");

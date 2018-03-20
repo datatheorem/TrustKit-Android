@@ -280,7 +280,7 @@ public class TrustKitConfigurationTest {
                 "<network-security-config>\n" +
                 "    <domain-config>\n" +
                 // A more specific domain-config for a subdomain is nested here
-                "        <domain-config>\n" +
+                "        <domain-config enforcePinning=\"true\" >\n" +
                 "            <domain>other.datatheorem.com</domain>\n" +
                 "            <pin-set>\n" +
                 "                <pin digest=\"SHA-256\">CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=</pin>\n" +
@@ -297,7 +297,7 @@ public class TrustKitConfigurationTest {
                 "        <trustkit-config disableDefaultReportUri=\"true\">\n" +
                 "        </trustkit-config>\n" +
                 // A more specific domain-config for an unrelated domain is nested here
-                "        <domain-config>\n" +
+                "        <domain-config enforcePinning=\"true\">\n" +
                 "            <domain>unrelated.domain.com</domain>\n" +
                 "            <trustkit-config>\n" +
                 "                <report-uri>https://some.reportdomain.com/</report-uri>\n" +
