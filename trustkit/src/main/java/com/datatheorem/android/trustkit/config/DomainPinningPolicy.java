@@ -43,12 +43,7 @@ public final class DomainPinningPolicy {
             throws MalformedURLException {
         // Run some sanity checks on the configuration
         // Check if the hostname seems valid
-        DomainValidator domainValidator;
-        if (hostname.equals("127.0.0.1") || hostname.equals("localhost")) {
-            domainValidator = DomainValidator.getInstance(true);
-        } else {
-            domainValidator = DomainValidator.getInstance(false);
-        }
+        DomainValidator domainValidator = DomainValidator.getInstance(true);
         if (!domainValidator.isValid(hostname)) {
             throw new ConfigurationException("Tried to pin an invalid domain: " + hostname);
         }
@@ -153,7 +148,7 @@ public final class DomainPinningPolicy {
 
         // The remaining settings can be inherited from a parent domain-config
         private Boolean shouldIncludeSubdomains = null;
-        private Set<String> publicKeyHashes = null;
+        private Set<String> publicKeyHashes = new HashSet<>();
         private Date expirationDate = null;
         private Boolean shouldEnforcePinning = null;
         private Set<String> reportUris = null;
