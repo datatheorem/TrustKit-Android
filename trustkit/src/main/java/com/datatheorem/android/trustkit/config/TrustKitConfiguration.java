@@ -77,12 +77,7 @@ public class TrustKitConfiguration {
     @Nullable
     public DomainPinningPolicy getPolicyForHostname(@NonNull String serverHostname) {
         // Check if the hostname seems valid
-        DomainValidator domainValidator;
-        if (serverHostname.equals("127.0.0.1") || serverHostname.equals("localhost")) {
-            domainValidator = DomainValidator.getInstance(true);
-        } else {
-            domainValidator = DomainValidator.getInstance(false);
-        }
+        DomainValidator domainValidator = DomainValidator.getInstance(true);
 
         if (!domainValidator.isValid(serverHostname)) {
             throw new IllegalArgumentException("Invalid domain supplied: " + serverHostname);
