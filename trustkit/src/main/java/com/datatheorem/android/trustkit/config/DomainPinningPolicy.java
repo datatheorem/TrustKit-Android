@@ -43,6 +43,8 @@ public final class DomainPinningPolicy {
             throws MalformedURLException {
         // Run some sanity checks on the configuration
         // Check if the hostname seems valid
+        // DomainValidator.getInstance(true) allows TrustKit to include localhost in the valid domains
+        // see https://github.com/datatheorem/TrustKit-Android/issues/25
         DomainValidator domainValidator = DomainValidator.getInstance(true);
         if (!domainValidator.isValid(hostname)) {
             throw new ConfigurationException("Tried to pin an invalid domain: " + hostname);
