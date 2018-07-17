@@ -6,6 +6,7 @@ TrustKit Android
 [![API](https://img.shields.io/badge/API-15%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=15)
 [![Version](https://img.shields.io/bintray/v/datatheoremoss/TrustKit-Android/trustkit.svg)](https://bintray.com/datatheoremoss/TrustKit-Android/trustkit)
 [![MIT License](https://img.shields.io/github/license/datatheorem/trustkit-android.svg)](https://en.wikipedia.org/wiki/MIT_License)
+[![Gitter chat](https://badges.gitter.im/datatheorem/gitter.png)](https://gitter.im/TrustKit/Lobby)
 
 **TrustKit Android** is an open source library that makes it easy to deploy SSL public key pinning and reporting in any Android App.
 
