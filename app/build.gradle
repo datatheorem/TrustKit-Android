@@ -20,12 +20,12 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile project(':trustkit')
-    compile "com.android.support:appcompat-v7:$rootProject.libVersions.android.appCompat"
-    compile "com.android.support:design:$rootProject.libVersions.android.appCompat"
+    implementation project(':trustkit')
+    implementation "com.android.support:appcompat-v7:$rootProject.libVersions.android.appCompat"
+    implementation "com.android.support:design:$rootProject.libVersions.android.appCompat"
 
-    testCompile "junit:junit:$rootProject.libVersions.junit"
+    androidTestApi "junit:junit:$rootProject.libVersions.junit"
 
 }
