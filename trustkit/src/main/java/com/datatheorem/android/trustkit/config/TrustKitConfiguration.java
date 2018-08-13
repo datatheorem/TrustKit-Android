@@ -66,6 +66,15 @@ public class TrustKitConfiguration {
     }
 
     /**
+     * Get the Set of {@link DomainPinningPolicy}.
+     *
+     * @return Set<DomainPinningPolicy> the set of domain's policy
+     */
+    public Set<DomainPinningPolicy> getAllPolicies() {
+        return this.domainPolicies;
+    }
+
+    /**
      * Get the {@link DomainPinningPolicy} corresponding to the provided hostname.
      * When matching the most specific matching domain rule will be used, if no match exists
      * then null will be returned.
