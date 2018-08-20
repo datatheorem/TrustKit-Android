@@ -1,32 +1,5 @@
 package com.datatheorem.android.trustkit.pinning;
 
-import android.content.Context;
-import android.os.Build;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-
-import com.datatheorem.android.trustkit.CertificateUtils;
-import com.datatheorem.android.trustkit.TestableTrustKit;
-import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
-import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.HashSet;
-import java.util.List;
-
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSocketFactory;
-
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -34,6 +7,29 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+
+import android.content.Context;
+import android.os.Build;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+import com.datatheorem.android.trustkit.CertificateUtils;
+import com.datatheorem.android.trustkit.TestableTrustKit;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
+import java.io.IOException;
+import java.net.Socket;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.HashSet;
+import java.util.List;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSocketFactory;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 
 /**

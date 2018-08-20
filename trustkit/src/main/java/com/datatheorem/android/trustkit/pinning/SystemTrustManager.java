@@ -2,11 +2,9 @@ package com.datatheorem.android.trustkit.pinning;
 
 
 import android.support.annotation.NonNull;
-
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;

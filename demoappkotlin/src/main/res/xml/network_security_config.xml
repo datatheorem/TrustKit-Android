@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config>
+        <domain includeSubdomains="true">www.datatheorem.com</domain>
+        <!-- Valid pins -->
+        <pin-set expiration="2018-01-01">
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">58qRu/uxh4gFezqAcERupSkRYBlBAvfcw7mEjGPLnNU=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="true" disableDefaultReportUri="true">
+            <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
+        </trustkit-config>
+    </domain-config>
+    <domain-config enforcePinning="true">
+        <domain includeSubdomains="true">www.google.com</domain>
+        <pin-set>
+            <!-- Invalid pins -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
+        </pin-set>
+        <trustkit-config enforcePinning="true" disableDefaultReportUri="true">
+            <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
+        </trustkit-config>
+    </domain-config>
+    <domain-config enforcePinning="false">
+        <domain includeSubdomains="true">localhost</domain>
+        <trustkit-config
+          enforcePinning="false"
+          disableDefaultReportUri="true" />
+    </domain-config>
+</network-security-config>

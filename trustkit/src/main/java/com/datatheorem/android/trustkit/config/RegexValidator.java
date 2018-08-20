@@ -19,8 +19,8 @@ package com.datatheorem.android.trustkit.config;
  */
 
 import java.io.Serializable;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 /**
  * <b>Regular Expression</b> validation (using JDK 1.4+ regex support).
  * <p>

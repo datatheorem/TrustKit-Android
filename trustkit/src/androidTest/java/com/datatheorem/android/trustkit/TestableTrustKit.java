@@ -4,13 +4,11 @@ package com.datatheorem.android.trustkit;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.config.TestableTrustKitConfiguration;
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.pinning.TestableTrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
-
 import java.security.cert.Certificate;
 import java.util.Set;
 

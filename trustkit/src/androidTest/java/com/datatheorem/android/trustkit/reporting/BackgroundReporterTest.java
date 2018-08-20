@@ -1,27 +1,5 @@
 package com.datatheorem.android.trustkit.reporting;
 
-import android.os.Build;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-
-import com.datatheorem.android.trustkit.TestableTrustKit;
-import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
-import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
-import com.datatheorem.android.trustkit.utils.VendorIdentifier;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashSet;
-
 import static com.datatheorem.android.trustkit.CertificateUtils.testCertChain;
 import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
 import static junit.framework.Assert.assertEquals;
@@ -30,6 +8,26 @@ import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import android.os.Build;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+import com.datatheorem.android.trustkit.TestableTrustKit;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
+import com.datatheorem.android.trustkit.utils.VendorIdentifier;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -116,11 +114,16 @@ public class BackgroundReporterTest {
                 servedChain.getString(1).replace("\n", ""));
 
         JSONArray knownPins = reportSentJson.getJSONArray("known-pins");
+        ArrayList<String> pinsTestable = new ArrayList<>();
+        for (int i = 0; i < knownPins.length(); i++) {
+            pinsTestable.add(knownPins.getString(i));
+        }
         assertEquals(2, knownPins.length());
-        assertEquals("pin-sha256=\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"",
-                knownPins.getString(0));
-        assertEquals("pin-sha256=\"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=\"",
-                knownPins.getString(1));
+        assertTrue(pinsTestable
+            .contains("pin-sha256=\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\""));
+        assertTrue(pinsTestable
+            .contains("pin-sha256=\"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=\""));
+
     }
 }
 

@@ -1,10 +1,8 @@
 package com.datatheorem.android.trustkit.reporting;
 
 
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-
 import java.net.URL;
 import java.util.Set;
 

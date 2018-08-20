@@ -2,19 +2,16 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
-
 import com.datatheorem.android.trustkit.BuildConfig;
-import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A pinning validation failure report.

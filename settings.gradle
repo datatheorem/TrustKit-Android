@@ -1,1 +1,1 @@
-include ':app', ':trustkit'
+include ':app', ':trustkit', ':demoappkotlin'

@@ -1,26 +1,23 @@
 package com.datatheorem.android.trustkit.reporting;
 
+import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
+import static junit.framework.Assert.assertEquals;
+
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-
 import com.datatheorem.android.trustkit.TestableTrustKit;
-import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
+import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.utils.VendorIdentifier;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
-
-import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
-import static junit.framework.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 @RunWith(AndroidJUnit4.class)

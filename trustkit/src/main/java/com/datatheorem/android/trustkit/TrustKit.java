@@ -3,34 +3,27 @@ package com.datatheorem.android.trustkit;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.net.SSLCertificateSocketFactory;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Printer;
-
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import com.datatheorem.android.trustkit.utils.VendorIdentifier;
-
-import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.IOException;
-
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Set;
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import org.xmlpull.v1.XmlPullParserException;
 
 
 /**
@@ -292,7 +285,7 @@ public class TrustKit {
         }
 
         // On Android N, ensure that the system was also able to load the policy
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             // This will need to be updated/double-checked for subsequent versions of Android
             int systemConfigResId = getNetSecConfigResourceId(context);
             if (systemConfigResId == -1) {

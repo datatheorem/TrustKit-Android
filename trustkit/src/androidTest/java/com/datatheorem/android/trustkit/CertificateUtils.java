@@ -1,7 +1,6 @@
 package com.datatheorem.android.trustkit;
 
 import android.util.Base64;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.cert.Certificate;

@@ -4,11 +4,9 @@ package com.datatheorem.android.trustkit.reporting;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Base64;
-
-import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
-
 import java.net.URL;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;

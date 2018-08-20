@@ -4,13 +4,7 @@ package com.datatheorem.android.trustkit.config;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-
-import android.util.Log;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.Certificate;
@@ -24,6 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 
 class TrustKitConfigurationParser {

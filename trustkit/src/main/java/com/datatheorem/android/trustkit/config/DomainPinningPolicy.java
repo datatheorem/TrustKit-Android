@@ -2,8 +2,6 @@ package com.datatheorem.android.trustkit.config;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import android.util.Log;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -35,7 +33,7 @@ public final class DomainPinningPolicy {
 
     DomainPinningPolicy(@NonNull String hostname,
                         Boolean shouldIncludeSubdomains,
-                        @NonNull Set<String> publicKeyHashStrList,
+                        Set<String> publicKeyHashStrList,
                         Boolean shouldEnforcePinning,
                         @Nullable Date expirationDate,
                         @Nullable Set<String> reportUriStrList,
@@ -50,6 +48,13 @@ public final class DomainPinningPolicy {
             throw new ConfigurationException("Tried to pin an invalid domain: " + hostname);
         }
         this.hostname = hostname.trim();
+
+        // Due to the fact some configurations could be added without any pin (e.g. localhost)
+        // the publicKeyHashStrList would be null.
+        // Thus we're managing these cases as an empty set of pins.
+        if (publicKeyHashStrList == null)
+            publicKeyHashStrList = new HashSet<>();
+
 
         // Check if the configuration has a empty pin-set and still would enforce pinning
         // TrustKit should not work if the configuration contains both (opposite behaviors)
@@ -149,12 +154,12 @@ public final class DomainPinningPolicy {
         private String hostname;
 
         // The remaining settings can be inherited from a parent domain-config
-        private Boolean shouldIncludeSubdomains = null;
-        private Set<String> publicKeyHashes = new HashSet<>();
-        private Date expirationDate = null;
-        private Boolean shouldEnforcePinning = null;
-        private Set<String> reportUris = null;
-        private Boolean shouldDisableDefaultReportUri = null;
+        private Boolean shouldIncludeSubdomains;
+        private Set<String> publicKeyHashes;
+        private Date expirationDate;
+        private Boolean shouldEnforcePinning;
+        private Set<String> reportUris;
+        private Boolean shouldDisableDefaultReportUri;
 
         // The parent domain-config
         private Builder parentBuilder = null;
