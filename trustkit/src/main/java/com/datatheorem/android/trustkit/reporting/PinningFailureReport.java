@@ -113,12 +113,12 @@ public class PinningFailureReport implements Serializable {
     }
 
     @NonNull
-    String getNotedHostname() {
+    public String getNotedHostname() {
         return notedHostname;
     }
 
     @NonNull
-    String getServerHostname() {
+    public String getServerHostname() {
         return serverHostname;
     }
 
@@ -128,7 +128,7 @@ public class PinningFailureReport implements Serializable {
     }
 
     @NonNull
-    PinningValidationResult getValidationResult() {
+    public PinningValidationResult getValidationResult() {
         return validationResult;
     }
 
