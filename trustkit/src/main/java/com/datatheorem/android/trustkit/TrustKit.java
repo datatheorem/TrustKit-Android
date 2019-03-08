@@ -6,12 +6,16 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Printer;
+
 import com.datatheorem.android.trustkit.config.ConfigurationException;
 import com.datatheorem.android.trustkit.config.TrustKitConfiguration;
 import com.datatheorem.android.trustkit.pinning.TrustManagerBuilder;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import com.datatheorem.android.trustkit.utils.VendorIdentifier;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -19,11 +23,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Set;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import org.xmlpull.v1.XmlPullParserException;
 
 
 /**
@@ -203,7 +207,7 @@ public class TrustKit {
         }
 
         String appVendorId = VendorIdentifier.getOrCreate(context);
-        BackgroundReporter reporter = new BackgroundReporter(appPackageName, appVersion,
+        BackgroundReporter reporter = new BackgroundReporter(context, appPackageName, appVersion,
                 appVendorId);
 
         // Initialize the trust manager builder

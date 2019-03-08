@@ -1,14 +1,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript { 
-    ext.kotlin_version = '1.2.50'
+    ext.kotlin_version = '1.3.21'
 
     repositories {
         jcenter()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:3.3.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
         // NOTE: Do not place your application dependencies here; they belong
@@ -27,22 +27,22 @@ allprojects {
 
 
 ext{
-    trustkitVersionCode = 6
-    trustkitVersionName = "1.1.0"
+    trustkitVersionCode = 7
+    trustkitVersionName = "1.1.1"
 
-    demoAppTrustKitVersionCode = 1
-    demoAppTrustKitVersionName = "1.0"
+    demoAppTrustKitVersionCode = 2
+    demoAppTrustKitVersionName = "1.1"
 
-    demoAppKotlinTrustKitVersionCode = 1
-    demoAppKotlinTrustKitVersionName = "1.0"
+    demoAppKotlinTrustKitVersionCode = 2
+    demoAppKotlinTrustKitVersionName = "1.1"
     javaSourceCompatibilty = '1.6'
     toolVersions = [
             android : [
-                    compileSdk : 27,
+                    compileSdk : 28,
                     gradlePlugin : '2.1.0',
-                    buildTools  : '27.0.3',
+                    buildTools  : '28.0.3',
                     minSdk : 15,
-                    targetSdk: 27
+                    targetSdk: 28
             ]
     ]
 
@@ -53,7 +53,7 @@ ext{
                 ],
         dexmaker : '1.4',
         android : [
-            appCompat : '27.1.1',
+            appCompat : '28.0.0',
             testRunner: '0.5'
         ],
         testing: [
