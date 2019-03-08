@@ -33,6 +33,7 @@ dependencies {
     androidTestImplementation "com.android.support.test:runner:$rootProject.libVersions.android.testRunner"
     androidTestImplementation "com.android.support.test:rules:$rootProject.libVersions.android.testRunner"
     androidTestImplementation "org.mockito:mockito-core:$rootProject.libVersions.mockito.android"
+    androidTestImplementation "org.awaitility:awaitility:3.1.6"
     androidTestImplementation "com.crittercism.dexmaker:dexmaker:$rootProject.libVersions.dexmaker"
     androidTestImplementation "com.crittercism.dexmaker:dexmaker-dx:$rootProject.libVersions.dexmaker"
     androidTestImplementation "com.crittercism.dexmaker:dexmaker-mockito:$rootProject.libVersions.dexmaker"

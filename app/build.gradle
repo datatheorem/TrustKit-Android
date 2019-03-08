@@ -25,7 +25,4 @@ dependencies {
     implementation project(':trustkit')
     implementation "com.android.support:appcompat-v7:$rootProject.libVersions.android.appCompat"
     implementation "com.android.support:design:$rootProject.libVersions.android.appCompat"
-
-    androidTestApi "junit:junit:$rootProject.libVersions.junit"
-
 }

@@ -1,25 +1,20 @@
 package com.datatheorem.android.trustkit.reporting;
 
-import static com.datatheorem.android.trustkit.CertificateUtils.testCertChain;
-import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.content.LocalBroadcastManager;
+
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.utils.VendorIdentifier;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
+
+import org.awaitility.Awaitility;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +23,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.datatheorem.android.trustkit.CertificateUtils.testCertChain;
+import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -44,7 +56,7 @@ public class BackgroundReporterTest {
             // TrustKit does not do anything for API level < 17 hence there is no reporting
             return;
         }
-
+        Context context = InstrumentationRegistry.getContext();
         // Initialize TrustKit
         String serverHostname = "mail.google.com";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()
@@ -60,9 +72,14 @@ public class BackgroundReporterTest {
                 .setReportUris(new HashSet<String>() {{ add("https://overmind.datatheorem.com"); }})
                 .build();
 
-        TestableBackgroundReporter reporter = new TestableBackgroundReporter("com.unit.tests",
+        final PinningValidationReportTestBroadcastReceiver receiver = new PinningValidationReportTestBroadcastReceiver();
+        LocalBroadcastManager.getInstance(context)
+                .registerReceiver(receiver, new IntentFilter(BackgroundReporter.REPORT_VALIDATION_EVENT));
+
+        TestableBackgroundReporter reporter = new TestableBackgroundReporter( context,
+                "com.unit.tests",
                 "1.2",
-                VendorIdentifier.getOrCreate(InstrumentationRegistry.getContext()));
+                VendorIdentifier.getOrCreate(context));
         TestableBackgroundReporter reporterSpy = Mockito.spy(reporter);
 
         // Call the method twice to also test the report rate limiter
@@ -81,8 +98,17 @@ public class BackgroundReporterTest {
                 eq(new HashSet<URL>() {{ add(new URL("https://overmind.datatheorem.com")); }} )
         );
 
+        validateSentReport(reportSent.getValue());
+
+        Awaitility.await().atMost(2, TimeUnit.SECONDS).untilTrue(receiver.broadcastReceived);
+        assertTrue(receiver.broadcastReceived.get());
+        assertTrue(receiver.containedReport instanceof PinningFailureReport);
+        validateSentReport((PinningFailureReport) receiver.containedReport);
+    }
+
+    private void validateSentReport(PinningFailureReport reportSent) throws JSONException {
         // Validate the content of the generated report
-        JSONObject reportSentJson = reportSent.getValue().toJson();
+        JSONObject reportSentJson = reportSent.toJson();
         assertEquals("com.unit.tests", reportSentJson.getString("app-bundle-id"));
         assertEquals("1.2", reportSentJson.getString("app-version"));
         assertEquals("ANDROID", reportSentJson.getString("app-platform"));
@@ -123,7 +149,17 @@ public class BackgroundReporterTest {
             .contains("pin-sha256=\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\""));
         assertTrue(pinsTestable
             .contains("pin-sha256=\"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=\""));
+    }
 
+    private class PinningValidationReportTestBroadcastReceiver extends BroadcastReceiver{
+        public AtomicBoolean broadcastReceived = new AtomicBoolean(false);
+        public Serializable containedReport;
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            broadcastReceived.set(true);
+            containedReport = intent.getSerializableExtra(BackgroundReporter.EXTRA_REPORT);
+        }
     }
 }
 

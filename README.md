@@ -105,6 +105,11 @@ protected void onCreate(Bundle savedInstanceState) {
 
   URL url = new URL("https://www.datatheorem.com");
   String serverHostname = url.getHost();
+  
+  //Optionally add a local broadcast receiver to receive PinningFailureReports
+  PinningValidationReportTestBroadcastReceiver receiver = new PinningValidationReportTestBroadcastReceiver();
+          LocalBroadcastManager.getInstance(context)
+                  .registerReceiver(receiver, new IntentFilter(BackgroundReporter.REPORT_VALIDATION_EVENT));
 
   // HttpsUrlConnection
   HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
@@ -127,9 +132,20 @@ protected void onCreate(Bundle savedInstanceState) {
                       TrustKit.getInstance().getTrustManager(serverHostname))
     .build();
 }
+
+class PinningFailureReportBroadcastReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        PinningFailureReport report = (PinningFailureReport) intent.getSerializableExtra(BackgroundReporter.EXTRA_REPORT);
+    }
+}
 ```
 
 Once TrustKit has been initialized and the client or connection's `SSLSocketFactory` has been set, it will verify the server's certificate chain against the configured pinning policy whenever an HTTPS connection is initiated. If a report URI has been configured, the App will also send reports to the specified URI whenever a pin validation failure occurred.
+
+You can also create and register local broadcast receivers to receive the same certificate pinning error reports that would be sent to the report_uris. 
+
 
 
 Limitations
