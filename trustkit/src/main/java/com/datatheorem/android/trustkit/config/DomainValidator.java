@@ -71,6 +71,7 @@ class DomainValidator implements Serializable {
     // RFC2396: domainlabel   = alphanum | alphanum *( alphanum | "-" ) alphanum
     // Max 63 characters
     private static final String DOMAIN_LABEL_REGEX = "\\p{Alnum}(?>[\\p{Alnum}-]{0,61}\\p{Alnum})?";
+    private static final String HOSTNAME_LABEL_REGEX = "\\p{Alnum}(?>[\\p{Alnum}-]{0,61}\\p{Alnum})?|127.0.0.1|localhost";
     // RFC2396 toplabel = alpha | alpha *( alphanum | "-" ) alphanum
     // Max 63 characters
     private static final String TOP_LABEL_REGEX = "\\p{Alpha}(?>[\\p{Alnum}-]{0,61}\\p{Alnum})?";
@@ -80,7 +81,7 @@ class DomainValidator implements Serializable {
     // If the match fails, input is checked against DOMAIN_LABEL_REGEX (hostnameRegex)
     // RFC1123 sec 2.1 allows hostnames to start with a digit
     private static final String DOMAIN_NAME_REGEX =
-            "^(?:" + DOMAIN_LABEL_REGEX + "\\.)+" + "(" + TOP_LABEL_REGEX + ")\\.?$";
+            "^(?:" + DOMAIN_LABEL_REGEX + "\\.)+" + "(" + TOP_LABEL_REGEX + ")\\.?$|127.0.0.1|localhost";
     private final boolean allowLocal;
     /**
      * Singleton instance of this validator, which
@@ -102,7 +103,7 @@ class DomainValidator implements Serializable {
      */
     // RFC1123 sec 2.1 allows hostnames to start with a digit
     private final RegexValidator hostnameRegex =
-            new RegexValidator(DOMAIN_LABEL_REGEX);
+            new RegexValidator(HOSTNAME_LABEL_REGEX);
     /**
      * Returns the singleton instance of this validator. It
      *  will not consider local addresses as valid.
@@ -149,7 +150,7 @@ class DomainValidator implements Serializable {
             return false;
         }
         String[] groups = domainRegex.match(domain);
-        if (groups != null && groups.length > 0) {
+        if (groups != null && groups.length > 0 && groups[0] != null) {
             return isValidTld(groups[0]);
         }
         return allowLocal && hostnameRegex.isValid(domain);

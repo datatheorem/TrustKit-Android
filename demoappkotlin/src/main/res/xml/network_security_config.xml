@@ -28,4 +28,10 @@
           enforcePinning="false"
           disableDefaultReportUri="true" />
     </domain-config>
+    <domain-config enforcePinning="false">
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <trustkit-config
+            enforcePinning="false"
+            disableDefaultReportUri="true" />
+    </domain-config>
 </network-security-config>
