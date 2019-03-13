@@ -55,12 +55,18 @@ class TrustKitConfigurationParser {
         TrustKitConfiguration config;
         HashSet<DomainPinningPolicy> domainConfigSet = new HashSet<>();
         for (DomainPinningPolicy.Builder builder : builderList) {
-            domainConfigSet.add(builder.build());
+            DomainPinningPolicy policy = builder.build();
+            if (policy != null) {
+                domainConfigSet.add(policy);
+            }
         }
 
         if (debugOverridesTag != null) {
-            config = new TrustKitConfiguration(domainConfigSet, debugOverridesTag.overridePins,
-                    debugOverridesTag.debugCaCertificates);
+            config = new TrustKitConfiguration(
+                domainConfigSet,
+                debugOverridesTag.overridePins,
+                debugOverridesTag.debugCaCertificates
+            );
         } else {
             config = new TrustKitConfiguration(domainConfigSet);
         }
