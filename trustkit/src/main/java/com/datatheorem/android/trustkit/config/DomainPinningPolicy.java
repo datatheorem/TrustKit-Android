@@ -41,9 +41,7 @@ public final class DomainPinningPolicy {
             throws MalformedURLException {
         // Run some sanity checks on the configuration
         // Check if the hostname seems valid
-        // DomainValidator.getInstance(true) allows TrustKit to include localhost in the valid domains
-        // see https://github.com/datatheorem/TrustKit-Android/issues/25
-        DomainValidator domainValidator = DomainValidator.getInstance(true);
+        DomainValidator domainValidator = DomainValidator.getInstance();
         if (!domainValidator.isValid(hostname)) {
             throw new ConfigurationException("Tried to pin an invalid domain: " + hostname);
         }
@@ -164,8 +162,8 @@ public final class DomainPinningPolicy {
         // The parent domain-config
         private Builder parentBuilder = null;
 
+        @Nullable
         public DomainPinningPolicy build() throws MalformedURLException {
-
             if (parentBuilder != null) {
                 // Get missing values from the parent as some entries can be inherited
                 // build() should already have been called on it so it has its parent's values
@@ -195,9 +193,19 @@ public final class DomainPinningPolicy {
                 }
             }
 
-            return new DomainPinningPolicy(hostname, shouldIncludeSubdomains, publicKeyHashes,
-                    shouldEnforcePinning, expirationDate, reportUris,
-                    shouldDisableDefaultReportUri);
+            if (publicKeyHashes == null) {
+                // This configuration entry is not for pinning but something else; skip it
+                return null;
+            }
+            return new DomainPinningPolicy(
+                    hostname,
+                    shouldIncludeSubdomains,
+                    publicKeyHashes,
+                    shouldEnforcePinning,
+                    expirationDate,
+                    reportUris,
+                    shouldDisableDefaultReportUri
+            );
         }
 
         public Builder setParent(Builder parent) {

@@ -350,4 +350,41 @@ public class TrustKitConfigurationTest {
         }};
         assertEquals(expectedUnrelatedUri, domainConfig.getReportUris());
     }
+
+    @Test
+    public void testIgnoreDomainWithNoPins(
+    ) throws XmlPullParserException, IOException, CertificateException {
+        Context context = InstrumentationRegistry.getContext();
+        // Given a valid network security config
+        String xml = "" +
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<network-security-config>\n" +
+                "    <domain-config>\n" +
+                "        <domain>www.datatheorem.com</domain>\n" +
+                "        <pin-set>\n" +
+                "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n" +
+                "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n" +
+                "        </pin-set>\n" +
+                "    </domain-config>\n" +
+
+                // That has a domain-config entry with no pin-set
+                "    <domain-config cleartextTrafficPermitted=\"true\">\n" +
+                "        <domain includeSubdomains=\"false\">localhost</domain>\n" +
+                "        <domain includeSubdomains=\"false\">10.0.2.2</domain>\n" +
+                "    </domain-config>\n" +
+                "</network-security-config>";
+
+        // When parsing the config
+        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(
+                context, parseXmlString(xml)
+        );
+
+        // It succeeds
+        DomainPinningPolicy datathDomainConfig = config.getPolicyForHostname("www.datatheorem.com");
+        assertNotNull(datathDomainConfig);
+
+        // And the domain-config entry with no pin-set was ignored
+        DomainPinningPolicy noPinSetDomainConfig = config.getPolicyForHostname("localhost");
+        assertNull(noPinSetDomainConfig);
+    }
 }

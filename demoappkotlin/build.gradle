@@ -27,17 +27,11 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "com.android.support:appcompat-v7:$libVersions.android.appCompat"
     implementation "com.android.support:design:$libVersions.android.appCompat"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
     implementation project(path: ':trustkit')
-
-    androidTestImplementation "junit:junit:$rootProject.libVersions.junit"
-    androidTestImplementation "com.android.support.test:runner:$rootProject.libVersions.android.testRunner"
-
 }
 repositories {
     mavenCentral()
