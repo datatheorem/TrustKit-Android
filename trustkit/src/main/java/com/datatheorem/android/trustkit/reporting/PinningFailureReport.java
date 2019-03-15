@@ -2,21 +2,24 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
+
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 /**
  * A pinning validation failure report.
  */
-class PinningFailureReport implements Serializable {
+public class PinningFailureReport implements Serializable {
     // Fields specific to TrustKit reports
     private static final String APP_PLATFORM = "ANDROID";
     private static final String trustKitVersion = BuildConfig.VERSION_NAME;
@@ -110,12 +113,12 @@ class PinningFailureReport implements Serializable {
     }
 
     @NonNull
-    String getNotedHostname() {
+    public String getNotedHostname() {
         return notedHostname;
     }
 
     @NonNull
-    String getServerHostname() {
+    public String getServerHostname() {
         return serverHostname;
     }
 
@@ -125,7 +128,7 @@ class PinningFailureReport implements Serializable {
     }
 
     @NonNull
-    PinningValidationResult getValidationResult() {
+    public PinningValidationResult getValidationResult() {
         return validationResult;
     }
 

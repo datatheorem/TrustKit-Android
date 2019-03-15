@@ -1,24 +1,31 @@
 package com.datatheorem.android.trustkit.demoapp;
 
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
 import com.datatheorem.android.trustkit.TrustKit;
+import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.net.ssl.HttpsURLConnection;
 
 
 public class DemoMainActivity extends AppCompatActivity {
 
-    private static final String DEBUG_TAG = "TrustKit-Demo";
+    protected static final String DEBUG_TAG = "TrustKit-Demo";
+    private static final PinningFailureReportBroadcastReceiver pinningFailureReportBroadcastReceiver = new PinningFailureReportBroadcastReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +45,17 @@ public class DemoMainActivity extends AppCompatActivity {
         new DownloadWebpageTask().execute("https://www.google.com");
 
         textView.setText("Connection results are in the logs");
+
+        IntentFilter intentFilter = new IntentFilter(BackgroundReporter.REPORT_VALIDATION_EVENT);
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .registerReceiver(pinningFailureReportBroadcastReceiver,intentFilter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .unregisterReceiver(pinningFailureReportBroadcastReceiver);
+        super.onDestroy();
     }
 
     private class DownloadWebpageTask extends AsyncTask<String, Void, String> {

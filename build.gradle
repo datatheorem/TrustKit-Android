@@ -26,14 +26,14 @@ allprojects {
 
 
 ext{
-    trustkitVersionCode = 6
-    trustkitVersionName = "1.1.0"
+    trustkitVersionCode = 7
+    trustkitVersionName = "1.1.1"
 
-    demoAppTrustKitVersionCode = 1
-    demoAppTrustKitVersionName = "1.0"
+    demoAppTrustKitVersionCode = 2
+    demoAppTrustKitVersionName = "1.1"
 
-    demoAppKotlinTrustKitVersionCode = 1
-    demoAppKotlinTrustKitVersionName = "1.0"
+    demoAppKotlinTrustKitVersionCode = 2
+    demoAppKotlinTrustKitVersionName = "1.1"
     javaSourceCompatibilty = '1.6'
     toolVersions = [
             android : [
