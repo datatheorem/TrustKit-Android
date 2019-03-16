@@ -12,9 +12,6 @@ android {
         targetSdkVersion toolVersions.android.targetSdk
         versionCode demoAppKotlinTrustKitVersionCode
         versionName demoAppKotlinTrustKitVersionName
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
