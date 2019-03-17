@@ -64,9 +64,14 @@ public class DomainPinningPolicyTest {
     @Test
     public void testValidPolicyInternationalizeHostname() throws MalformedURLException {
         // Given a valid policy for a domain name with international characters
+        String internationalDomain = "českárepublika.icom.museum";
+
         // When parsing it, it succeeds
         DomainPinningPolicy policy = new DomainPinningPolicy(
-                "českárepublika.icom.museum", true, pins, true, date, reportUris, false
+                internationalDomain, true, pins, true, date, reportUris, false
+        );
+        assertEquals(policy.getHostname(), internationalDomain);
+    }
         );
         assertEquals(policy.getHostname(), "českárepublika.icom.museum");
     }
