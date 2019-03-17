@@ -72,9 +72,19 @@ public class DomainPinningPolicyTest {
         );
         assertEquals(policy.getHostname(), internationalDomain);
     }
+
+    @Test
+    public void testValidPolicyHostnameUnderNewTld() throws MalformedURLException {
+        // Given a valid policy for a domain name under a new TLD
+        String domainUnderNewTld = "blog.blog";
+
+        // When parsing it, it succeeds
+        DomainPinningPolicy policy = new DomainPinningPolicy(
+                domainUnderNewTld, true, pins, true, date, reportUris, false
         );
-        assertEquals(policy.getHostname(), "českárepublika.icom.museum");
+        assertEquals(policy.getHostname(), domainUnderNewTld);
     }
+
 
     @Test
     public void testBadPolicyOnlyOnePin() throws MalformedURLException {
