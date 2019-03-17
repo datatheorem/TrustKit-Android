@@ -57,6 +57,7 @@ ext{
         ],
         testing: [
                 okhttp3: '3.11.0',
+                'playServicesBase': '11.0.0',
         ]
     ]
 

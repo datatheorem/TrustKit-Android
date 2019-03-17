@@ -38,6 +38,7 @@ dependencies {
     androidTestImplementation "com.crittercism.dexmaker:dexmaker-dx:$rootProject.libVersions.dexmaker"
     androidTestImplementation "com.crittercism.dexmaker:dexmaker-mockito:$rootProject.libVersions.dexmaker"
     androidTestImplementation "com.squareup.okhttp3:okhttp:$rootProject.libVersions.testing.okhttp3"
+    androidTestImplementation "com.google.android.gms:play-services-base:$rootProject.libVersions.testing.playServicesBase"
 }
 
 android {

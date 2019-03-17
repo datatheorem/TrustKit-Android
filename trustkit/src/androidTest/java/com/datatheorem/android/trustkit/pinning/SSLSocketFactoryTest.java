@@ -8,6 +8,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import android.content.Context;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
@@ -26,6 +29,7 @@ import java.util.List;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -90,6 +94,21 @@ public class SSLSocketFactoryTest {
                     "omTxJBzcoTWcFbLUvFUufQb1nA5V9FrWk9p2rSVzTMVD\n";
     private final Certificate caCertDotOrgRoot
             = CertificateUtils.certificateFromPem(caCertDotOrgRootPem);
+
+    @BeforeClass
+    public static void runOnceBeforeClass() {
+        // Before API level 20, we need to update the security provider so that TLS 1.2 is enabled
+        // in the SSLSocketFactory; otherwise some tests fail because the server requires TLS 1.2
+        if (Build.VERSION.SDK_INT < 20) {
+            try {
+                ProviderInstaller.installIfNeeded(InstrumentationRegistry.getContext());
+            } catch (GooglePlayServicesRepairableException e) {
+                e.printStackTrace();
+            } catch (GooglePlayServicesNotAvailableException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Before
     public void setUp() {
