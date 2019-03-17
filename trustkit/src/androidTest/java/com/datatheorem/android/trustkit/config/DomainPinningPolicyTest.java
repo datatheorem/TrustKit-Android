@@ -71,8 +71,6 @@ public class DomainPinningPolicyTest {
                 internationalDomain, true, pins, true, date, reportUris, false
         );
         assertEquals(policy.getHostname(), internationalDomain);
-    }
-        );
         assertEquals(policy.getHostname(), "českárepublika.icom.museum");
     }
 
