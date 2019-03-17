@@ -29,9 +29,9 @@ class TrustKitConfigurationParser {
      * {@link TrustKitConfiguration}.
      */
     @NonNull
-    public static TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
-                                                      @NonNull XmlPullParser parser)
-            throws XmlPullParserException, IOException, CertificateException {
+    public static TrustKitConfiguration fromXmlPolicy(
+        @NonNull Context context, @NonNull XmlPullParser parser
+    ) throws XmlPullParserException, IOException, CertificateException {
         // Handle nested domain config tags
         // https://developer.android.com/training/articles/security-config.html#ConfigInheritance
         List<DomainPinningPolicy.Builder> builderList = new ArrayList<>();
@@ -44,7 +44,7 @@ class TrustKitConfigurationParser {
                 if ("domain-config".equals(parser.getName())) {
                     builderList.addAll(readDomainConfig(parser, null));
                 } else if ("debug-overrides".equals(parser.getName())) {
-                    // The Debug-overrides option is global and not tied to a specific domain
+                    // The debug-overrides option is global and not tied to a specific domain
                     debugOverridesTag = readDebugOverrides(context, parser);
                 }
             }
@@ -76,8 +76,8 @@ class TrustKitConfigurationParser {
     // Heavily inspired from
     // https://github.com/android/platform_frameworks_base/blob/master/core/java/android/security/net/config/XmlConfigSource.java
     private static List<DomainPinningPolicy.Builder> readDomainConfig(
-            XmlPullParser parser, DomainPinningPolicy.Builder parentBuilder)
-            throws XmlPullParserException, IOException {
+            XmlPullParser parser, DomainPinningPolicy.Builder parentBuilder
+    ) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "domain-config");
 
         DomainPinningPolicy.Builder builder = new DomainPinningPolicy.Builder()

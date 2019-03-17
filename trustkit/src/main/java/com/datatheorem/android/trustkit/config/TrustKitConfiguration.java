@@ -22,9 +22,9 @@ public class TrustKitConfiguration {
     @Nullable private final Set<Certificate> debugCaCertificates;
 
 
-    public static TrustKitConfiguration fromXmlPolicy(@NonNull Context context,
-                                                      @NonNull XmlPullParser parser)
-            throws CertificateException, XmlPullParserException, IOException {
+    public static TrustKitConfiguration fromXmlPolicy(
+            @NonNull Context context, @NonNull XmlPullParser parser
+    ) throws CertificateException, XmlPullParserException, IOException {
         return TrustKitConfigurationParser.fromXmlPolicy(context, parser);
     }
 
@@ -33,10 +33,11 @@ public class TrustKitConfiguration {
         this(domainConfigSet, false, null);
     }
 
-    protected TrustKitConfiguration(@NonNull Set<DomainPinningPolicy> domainConfigSet,
-                                  boolean shouldOverridePins,
-                                  @Nullable Set<Certificate> debugCaCerts) {
-
+    protected TrustKitConfiguration(
+            @NonNull Set<DomainPinningPolicy> domainConfigSet,
+            boolean shouldOverridePins,
+            @Nullable Set<Certificate> debugCaCerts
+    ) {
         if (domainConfigSet.size() < 1) {
             throw new ConfigurationException("Policy contains 0 domains to pin");
         }
