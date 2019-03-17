@@ -33,12 +33,18 @@ public class DomainPinningPolicyTest {
 
     @Test
     public void testValidPolicy() throws MalformedURLException {
-        DomainPinningPolicy policy = new DomainPinningPolicy("www.test.com", true, pins, true,
-                date, reportUris, false);
-
+        // Given a valid policy for a domain
+        // When parsing it, it succeeds
+        DomainPinningPolicy policy = new DomainPinningPolicy(
+                "www.test.com", true, pins, true, date, reportUris, false
+        );
+        // And the right configuration was saved
         assertEquals("www.test.com", policy.getHostname());
         assertEquals(date, policy.getExpirationDate());
+        assertTrue(policy.shouldEnforcePinning());
+        assertTrue(policy.shouldIncludeSubdomains());
 
+        // And right pins were saved
         Set<PublicKeyPin> expectedPins = new HashSet<>();
         for (String pinStr : pins) {
             expectedPins.add(new PublicKeyPin(pinStr));
@@ -46,31 +52,32 @@ public class DomainPinningPolicyTest {
         }
         assertEquals(expectedPins, policy.getPublicKeyPins());
 
-        // Ensure the default report URI was added as shouldDisableDefaultReportUri is false
+        // And the default report URI was added as shouldDisableDefaultReportUri is false
         Set<URL> expectedReportUris = new HashSet<>();
         for (String uriStr : reportUris) {
             expectedReportUris.add(new URL(uriStr));
         }
         expectedReportUris.add(new URL("https://overmind.datatheorem.com/trustkit/report"));
         assertEquals(expectedReportUris, policy.getReportUris());
-
-        assertTrue(policy.shouldEnforcePinning());
-        assertTrue(policy.shouldIncludeSubdomains());
     }
 
     @Test
     public void testValidPolicyInternationalizeHostname() throws MalformedURLException {
-        DomainPinningPolicy policy = new DomainPinningPolicy("českárepublika.icom.museum", true,
-                pins, true, date, reportUris, false);
-
+        // Given a valid policy for a domain name with international characters
+        // When parsing it, it succeeds
+        DomainPinningPolicy policy = new DomainPinningPolicy(
+                "českárepublika.icom.museum", true, pins, true, date, reportUris, false
+        );
         assertEquals(policy.getHostname(), "českárepublika.icom.museum");
     }
 
     @Test
     public void testBadPolicyOnlyOnePin() throws MalformedURLException {
+        // Given a bad policy for a domain that only has one pin
         Set<String> badPins = new HashSet<>();
         badPins.add("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
 
+        // When parsing it, it fails
         boolean didReceiveConfigError = false;
         try {
             new DomainPinningPolicy("www.test.com", true, badPins, true, date, reportUris, false);
@@ -87,9 +94,11 @@ public class DomainPinningPolicyTest {
     
     @Test
     public void testNoPinsButPinningEnforceDisabledShouldBeValid() throws MalformedURLException {
+        // Given a bad policy for a domain that has one pins at all
         Set<String> emptyPins = new HashSet<>();
         boolean didReceivedConfigError = false;
 
+        // When parsing it, it fails
         try {
             new DomainPinningPolicy("www.test.com", true, emptyPins, true, date, reportUris, false);
         } catch (ConfigurationException e) {
@@ -99,15 +108,18 @@ public class DomainPinningPolicyTest {
                 throw e;
             }
         }
-        
         assertTrue(didReceivedConfigError);
     }
 
     @Test
     public void testBadPolicyPinTld() throws MalformedURLException {
+        // Given a policy for an invalid domain
+        String badDomain = ".com";
+
+        // When parsing it, it fails
         boolean didReceiveConfigError = false;
         try {
-            new DomainPinningPolicy(".", true, pins, true, date, reportUris, false);
+            new DomainPinningPolicy(badDomain, true, pins, true, date, reportUris, false);
         }
         catch (ConfigurationException e) {
             if (e.getMessage().startsWith("Tried to pin an invalid domain")) {
