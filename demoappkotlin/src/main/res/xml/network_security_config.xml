@@ -5,7 +5,7 @@
         <!-- Valid pins -->
         <pin-set expiration="2018-01-01">
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">58qRu/uxh4gFezqAcERupSkRYBlBAvfcw7mEjGPLnNU=</pin>
+            <pin digest="SHA-256">YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true" disableDefaultReportUri="true">
             <report-uri>https://overmind.datatheorem.com/trustkit/report</report-uri>
