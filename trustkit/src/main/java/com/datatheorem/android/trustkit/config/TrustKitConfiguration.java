@@ -38,10 +38,6 @@ public class TrustKitConfiguration {
             boolean shouldOverridePins,
             @Nullable Set<Certificate> debugCaCerts
     ) {
-        if (domainConfigSet.size() < 1) {
-            throw new ConfigurationException("Policy contains 0 domains to pin");
-        }
-
         Set<String> hostnameSet = new HashSet<>();
         for (DomainPinningPolicy domainConfig : domainConfigSet) {
             if (hostnameSet.contains(domainConfig.getHostname())) {

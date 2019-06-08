@@ -387,4 +387,28 @@ public class TrustKitConfigurationTest {
         DomainPinningPolicy noPinSetDomainConfig = config.getPolicyForHostname("localhost");
         assertNull(noPinSetDomainConfig);
     }
+
+    @Test
+    public void testAllowsEmptyPinningConfig(
+    ) throws XmlPullParserException, IOException, CertificateException {
+        Context context = InstrumentationRegistry.getContext();
+        // Given a valid network security config that has no entries related to pinning
+        String xml = "" +
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<network-security-config>\n" +
+                "    <domain-config cleartextTrafficPermitted=\"true\">\n" +
+                "        <domain includeSubdomains=\"false\">localhost</domain>\n" +
+                "        <domain includeSubdomains=\"false\">10.0.2.2</domain>\n" +
+                "    </domain-config>\n" +
+                "</network-security-config>";
+
+        // When parsing the config
+        TrustKitConfiguration config = TrustKitConfiguration.fromXmlPolicy(
+                context, parseXmlString(xml)
+        );
+
+        // It succeeds and no domains have any pinning config
+        DomainPinningPolicy datathDomainConfig = config.getPolicyForHostname("www.datatheorem.com");
+        assertNull(datathDomainConfig);
+    }
 }
