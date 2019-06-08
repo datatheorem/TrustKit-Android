@@ -26,8 +26,8 @@ allprojects {
 
 
 ext{
-    trustkitVersionCode = 7
-    trustkitVersionName = "1.1.1"
+    trustkitVersionCode = 8
+    trustkitVersionName = "1.1.2"
 
     demoAppTrustKitVersionCode = 2
     demoAppTrustKitVersionName = "1.1"
