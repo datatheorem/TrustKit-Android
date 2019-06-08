@@ -52,21 +52,6 @@ public class TrustKitTest {
     }
 
     @Test
-    public void testInitializeWithBadXmlFile() {
-        Context context = InstrumentationRegistry.getContext();
-        int pemFileId = context.getResources().getIdentifier("bad_config", "xml",
-                context.getPackageName());
-
-        boolean didInitFail = false;
-        try {
-            TrustKit.initializeWithNetworkSecurityConfiguration(context, pemFileId);
-        } catch (ConfigurationException e) {
-            didInitFail = true;
-        }
-        assertTrue(didInitFail);
-    }
-
-    @Test
     public void testInitializeWithBadResourceId() {
         Context context = InstrumentationRegistry.getContext();
 
