@@ -28,6 +28,7 @@ repositories {
 dependencies {
     implementation "androidx.annotation:annotation:$rootProject.libVersions.androidx.annotation"
     implementation "androidx.legacy:legacy-support-v4:$rootProject.libVersions.androidx.legacySupport"
+    implementation "androidx.preference:preference:$rootProject.libVersions.androidx.preference"
 
     androidTestImplementation "junit:junit:$rootProject.libVersions.junit"
     androidTestImplementation "androidx.test:runner:$rootProject.libVersions.androidx.test"

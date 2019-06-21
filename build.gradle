@@ -56,6 +56,7 @@ ext{
             test: '1.1.0',
             legacySupport: '1.0.0',
             appcompat: '1.0.2',
+            preference: '1.0.0'
         ],
         testing: [
                 okhttp3: '3.11.0',
