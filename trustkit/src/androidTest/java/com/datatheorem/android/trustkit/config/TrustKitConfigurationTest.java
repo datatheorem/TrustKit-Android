@@ -1,14 +1,14 @@
 package com.datatheorem.android.trustkit.config;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+
+import androidx.test.platform.app.InstrumentationRegistry;
+
+import org.junit.Test;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -21,13 +21,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
-@RunWith(AndroidJUnit4.class)
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+
 public class TrustKitConfigurationTest {
 
     private XmlPullParser parseXmlString(String xmlString) throws XmlPullParserException {
@@ -42,7 +42,7 @@ public class TrustKitConfigurationTest {
 
     @Test
     public void testBadHostnameValidation() throws XmlPullParserException, IOException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
@@ -70,7 +70,7 @@ public class TrustKitConfigurationTest {
     @Test
     public void testDefaultValues() throws XmlPullParserException, IOException, ParseException,
             CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
@@ -114,7 +114,7 @@ public class TrustKitConfigurationTest {
     @Test
     public void testIncludeSubdomainsAndNoTrustkitTag() throws XmlPullParserException, IOException,
             ParseException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
@@ -148,7 +148,7 @@ public class TrustKitConfigurationTest {
     @Test
     public void testEnforcePinning() throws XmlPullParserException, IOException,
             ParseException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
@@ -174,7 +174,7 @@ public class TrustKitConfigurationTest {
     @Test
     public void testExpirationDate() throws XmlPullParserException, IOException,
             ParseException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
@@ -199,7 +199,7 @@ public class TrustKitConfigurationTest {
     @Test
     public void testDisableDefaultReportUri() throws XmlPullParserException, IOException,
             ParseException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
@@ -225,7 +225,7 @@ public class TrustKitConfigurationTest {
     @Test
     public void testDebugOverrides() throws XmlPullParserException, IOException,
             ParseException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
@@ -272,7 +272,7 @@ public class TrustKitConfigurationTest {
     @Test
     public void testNestedDomainConfig() throws XmlPullParserException, IOException,
             ParseException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<network-security-config>\n" +
@@ -354,7 +354,7 @@ public class TrustKitConfigurationTest {
     @Test
     public void testIgnoreDomainWithNoPins(
     ) throws XmlPullParserException, IOException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         // Given a valid network security config
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
@@ -391,7 +391,7 @@ public class TrustKitConfigurationTest {
     @Test
     public void testAllowsEmptyPinningConfig(
     ) throws XmlPullParserException, IOException, CertificateException {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         // Given a valid network security config that has no entries related to pinning
         String xml = "" +
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +

@@ -1,26 +1,27 @@
 package com.datatheorem.android.trustkit.reporting;
 
-import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
-import static junit.framework.Assert.assertEquals;
-
 import android.os.Build;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+
+import androidx.test.platform.app.InstrumentationRegistry;
+
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.utils.VendorIdentifier;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
+import static junit.framework.Assert.assertEquals;
 
 
-@RunWith(AndroidJUnit4.class)
 public class BackgroundReporterTaskTest {
 
     private final HashSet<PublicKeyPin> knownPins = new HashSet<PublicKeyPin>() {{
@@ -29,7 +30,7 @@ public class BackgroundReporterTaskTest {
     }};
 
     private final PinningFailureReport report = new PinningFailureReport("com.unit.test", "1.2",
-            VendorIdentifier.getOrCreate(InstrumentationRegistry.getContext()),
+            VendorIdentifier.getOrCreate(InstrumentationRegistry.getInstrumentation().getContext()),
             "www.datatheorem.com", 0, "datatheorem.com", true, true,
             testCertChainPem, testCertChainPem, new Date(System.currentTimeMillis()), knownPins,
             PinningValidationResult.FAILED);
