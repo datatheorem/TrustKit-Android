@@ -1,7 +1,8 @@
 package com.datatheorem.android.trustkit.reporting;
 
-import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
+
+import androidx.annotation.NonNull;
 
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;

@@ -1,7 +1,7 @@
 package com.datatheorem.android.trustkit.pinning;
 
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
