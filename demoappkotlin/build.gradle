@@ -25,8 +25,8 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "com.android.support:appcompat-v7:$libVersions.android.appCompat"
-    implementation "com.android.support:design:$libVersions.android.appCompat"
+    implementation "androidx.appcompat:appcompat:$rootProject.libVersions.androidx.appcompat"
+    implementation "com.google.android.material:material:$rootProject.libVersions.google.material"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation project(path: ':trustkit')
 }
