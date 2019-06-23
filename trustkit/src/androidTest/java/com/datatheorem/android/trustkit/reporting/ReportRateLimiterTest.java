@@ -4,7 +4,7 @@ package com.datatheorem.android.trustkit.reporting;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import java.util.ArrayList;
@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
-@RunWith(AndroidJUnit4.class)
 public class ReportRateLimiterTest {
 
     private final HashSet<PublicKeyPin> pinList = new HashSet<PublicKeyPin>() {{

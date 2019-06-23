@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
@@ -42,7 +42,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 
-@RunWith(AndroidJUnit4.class)
 public class BackgroundReporterTest {
 
     @Before
@@ -56,7 +55,7 @@ public class BackgroundReporterTest {
             // TrustKit does not do anything for API level < 17 hence there is no reporting
             return;
         }
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         // Initialize TrustKit
         String serverHostname = "mail.google.com";
         final DomainPinningPolicy domainPolicy = new DomainPinningPolicy.Builder()

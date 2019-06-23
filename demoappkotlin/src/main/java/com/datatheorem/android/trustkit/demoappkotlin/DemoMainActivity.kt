@@ -3,9 +3,9 @@ package com.datatheorem.android.trustkit.demoappkotlin
 import android.content.IntentFilter
 import android.os.AsyncTask
 import android.os.Bundle
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -44,7 +44,7 @@ class DemoMainActivity : AppCompatActivity() {
         pinningFailureReportBroadcastReceiver =  PinningFailureReportBroadcastReceiver()
         val intentFilter = IntentFilter(BackgroundReporter.REPORT_VALIDATION_EVENT)
         LocalBroadcastManager.getInstance(this.applicationContext)
-                .registerReceiver(pinningFailureReportBroadcastReceiver,intentFilter)
+            .registerReceiver(pinningFailureReportBroadcastReceiver,intentFilter)
     }
 
     override fun onDestroy() {

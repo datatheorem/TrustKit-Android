@@ -1,24 +1,24 @@
 package com.datatheorem.android.trustkit.pinning;
 
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.security.ProviderInstaller;
 import android.content.Context;
 import android.os.Build;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+
+import androidx.test.platform.app.InstrumentationRegistry;
+
 import com.datatheorem.android.trustkit.CertificateUtils;
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.security.cert.Certificate;
@@ -26,14 +26,17 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashSet;
 import java.util.List;
+
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 
 /**
@@ -45,7 +48,6 @@ import org.mockito.MockitoAnnotations;
  * valid certificate chains.
  */
 @SuppressWarnings("unchecked")
-@RunWith(AndroidJUnit4.class)
 public class SSLSocketFactoryTest {
 
     @Mock
@@ -101,7 +103,7 @@ public class SSLSocketFactoryTest {
         // in the SSLSocketFactory; otherwise some tests fail because the server requires TLS 1.2
         if (Build.VERSION.SDK_INT < 20) {
             try {
-                ProviderInstaller.installIfNeeded(InstrumentationRegistry.getContext());
+                ProviderInstaller.installIfNeeded(InstrumentationRegistry.getInstrumentation().getContext());
             } catch (GooglePlayServicesRepairableException e) {
                 e.printStackTrace();
             } catch (GooglePlayServicesNotAvailableException e) {
@@ -122,7 +124,7 @@ public class SSLSocketFactoryTest {
         // Initialize TrustKit
         String serverHostname = "expired.badssl.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), mockReporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
@@ -158,7 +160,7 @@ public class SSLSocketFactoryTest {
         // Initialize TrustKit
         String serverHostname = "wrong.host.badssl.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), mockReporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
@@ -193,7 +195,7 @@ public class SSLSocketFactoryTest {
     public void testPinnedDomainSuccessAnchor() throws IOException {
         String serverHostname = "www.datatheorem.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), mockReporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
@@ -218,7 +220,7 @@ public class SSLSocketFactoryTest {
     public void testPinnedDomainSuccessLeaf() throws IOException {
         String serverHostname = "datatheorem.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), mockReporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
@@ -248,7 +250,7 @@ public class SSLSocketFactoryTest {
 
         String serverHostname = "www.yahoo.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), mockReporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
@@ -278,7 +280,7 @@ public class SSLSocketFactoryTest {
     public void testPinnedDomainInvalidPinAndPinningNotEnforced() throws IOException {
         String serverHostname = "www.github.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), mockReporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
@@ -308,7 +310,7 @@ public class SSLSocketFactoryTest {
     public void testPinnedDomainInvalidPinAndPolicyExpired() throws IOException {
         String serverHostname = "www.microsoft.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), mockReporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
@@ -333,7 +335,7 @@ public class SSLSocketFactoryTest {
     public void testPinnedDomainUntrustedChainAndPinningNotEnforced() throws IOException {
         String serverHostname = "untrusted-root.badssl.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), mockReporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
@@ -394,7 +396,7 @@ public class SSLSocketFactoryTest {
         TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
                 true,
                 new HashSet<Certificate>(){{ add(caCertDotOrgRoot); }},
-                InstrumentationRegistry.getContext(),
+                InstrumentationRegistry.getInstrumentation().getContext(),
                 mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
@@ -443,7 +445,7 @@ public class SSLSocketFactoryTest {
 
         // Create a configuration with debug overrides enabled to add the cacert.org CA but
         // make the App's debuggable flag disabled to mock a production App
-        Context mockContext = InstrumentationRegistry.getContext();
+        Context mockContext = InstrumentationRegistry.getInstrumentation().getContext();
         int originalAppFlags = mockContext.getApplicationInfo().flags;
         mockContext.getApplicationInfo().flags = 0;
         TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
@@ -502,7 +504,7 @@ public class SSLSocketFactoryTest {
         TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
                 false,
                 new HashSet<Certificate>(){{ add(caCertDotOrgRoot); }},
-                InstrumentationRegistry.getContext(),
+                InstrumentationRegistry.getInstrumentation().getContext(),
                 mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
@@ -546,7 +548,7 @@ public class SSLSocketFactoryTest {
                 }}).build();
 
         TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
-                InstrumentationRegistry.getContext(),
+                InstrumentationRegistry.getInstrumentation().getContext(),
                 mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection fails
@@ -579,7 +581,7 @@ public class SSLSocketFactoryTest {
         // Initialize TrustKit
         String serverHostname = "www.google.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), mockReporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
@@ -628,7 +630,7 @@ public class SSLSocketFactoryTest {
         TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
                 false,
                 new HashSet<Certificate>(){{ add(caCertDotOrgRoot); }},
-                InstrumentationRegistry.getContext(),
+                InstrumentationRegistry.getInstrumentation().getContext(),
                 mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
@@ -675,7 +677,7 @@ public class SSLSocketFactoryTest {
         TestableTrustKit.init(new HashSet<DomainPinningPolicy>() {{ add(domainPolicy); }},
                 false,
                 new HashSet<Certificate>(){{ add(caCertDotOrgRoot); }},
-                InstrumentationRegistry.getContext(),
+                InstrumentationRegistry.getInstrumentation().getContext(),
                 mockReporter);
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds

@@ -1,7 +1,8 @@
 package com.datatheorem.android.trustkit.config;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.security.cert.Certificate;
 import java.util.Set;
 

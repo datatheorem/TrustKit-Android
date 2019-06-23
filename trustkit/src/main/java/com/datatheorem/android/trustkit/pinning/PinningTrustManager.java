@@ -2,8 +2,8 @@ package com.datatheorem.android.trustkit.pinning;
 
 import android.net.http.X509TrustManagerExtensions;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
 import java.security.cert.Certificate;

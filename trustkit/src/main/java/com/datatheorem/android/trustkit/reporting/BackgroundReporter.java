@@ -3,10 +3,11 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
@@ -107,9 +108,7 @@ public class BackgroundReporter {
         // Prepare the AsyncTask's arguments
         ArrayList<Object> taskParameters = new ArrayList<>();
         taskParameters.add(report);
-        for (URL reportUri : reportUriSet) {
-            taskParameters.add(reportUri);
-        }
+        taskParameters.addAll(reportUriSet);
         // Call the task
         new BackgroundReporterTask().execute(taskParameters.toArray());
     }
@@ -118,9 +117,5 @@ public class BackgroundReporter {
         Intent intent = new Intent(REPORT_VALIDATION_EVENT);
         intent.putExtra(EXTRA_REPORT, report);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-
-
-
-
     }
 }

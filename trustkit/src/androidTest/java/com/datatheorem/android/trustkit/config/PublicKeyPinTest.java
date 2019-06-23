@@ -1,18 +1,17 @@
 package com.datatheorem.android.trustkit.config;
 
 
+import com.datatheorem.android.trustkit.CertificateUtils;
+
+import org.junit.Test;
+
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
-import android.support.test.runner.AndroidJUnit4;
-import com.datatheorem.android.trustkit.CertificateUtils;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
-
-@RunWith(AndroidJUnit4.class)
 public class PublicKeyPinTest {
 
     @Test

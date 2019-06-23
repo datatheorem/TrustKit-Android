@@ -4,10 +4,10 @@ import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
+import androidx.test.platform.app.InstrumentationRegistry;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.annotation.RequiresApi;
+
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import java.io.IOException;
@@ -23,12 +23,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 @SuppressWarnings("unchecked")
-@RunWith(AndroidJUnit4.class)
 public class HttpLibrariesTest {
 
     @Mock
@@ -58,7 +56,7 @@ public class HttpLibrariesTest {
         }
         // Initialize TrustKit
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), reporter);
+            InstrumentationRegistry.getInstrumentation().getContext(), reporter);
 
         // Test a connection
         HttpsURLConnection connection = null;
@@ -109,7 +107,7 @@ public class HttpLibrariesTest {
         }
         // Initialize TrustKit
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), reporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), reporter);
 
         // Test a connection
         // Although the pins are invalid, the connection should succeed because TrustKit's pinning
@@ -145,7 +143,7 @@ public class HttpLibrariesTest {
         }
         // Initialize TrustKit
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-                InstrumentationRegistry.getContext(), reporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), reporter);
 
         // Test a connection
         boolean didReceiveHandshakeError = false;
@@ -191,7 +189,7 @@ public class HttpLibrariesTest {
         }
         // Initialize TrustKit
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-          InstrumentationRegistry.getContext(), reporter);
+            InstrumentationRegistry.getInstrumentation().getContext(), reporter);
 
         // Test a connection
         boolean didReceiveHandshakeError = false;

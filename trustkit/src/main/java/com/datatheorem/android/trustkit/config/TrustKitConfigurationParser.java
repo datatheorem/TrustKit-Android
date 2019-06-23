@@ -2,7 +2,7 @@ package com.datatheorem.android.trustkit.config;
 
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import java.io.IOException;

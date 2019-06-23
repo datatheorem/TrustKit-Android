@@ -26,12 +26,13 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    implementation "com.android.support:support-annotations:$rootProject.libVersions.android.appCompat"
-    implementation "com.android.support:support-v4:$rootProject.libVersions.android.appCompat"
+    implementation "androidx.annotation:annotation:$rootProject.libVersions.androidx.annotation"
+    implementation "androidx.legacy:legacy-support-v4:$rootProject.libVersions.androidx.legacySupport"
+    implementation "androidx.preference:preference:$rootProject.libVersions.androidx.preference"
 
     androidTestImplementation "junit:junit:$rootProject.libVersions.junit"
-    androidTestImplementation "com.android.support.test:runner:$rootProject.libVersions.android.testRunner"
-    androidTestImplementation "com.android.support.test:rules:$rootProject.libVersions.android.testRunner"
+    androidTestImplementation "androidx.test:runner:$rootProject.libVersions.androidx.test"
+    androidTestImplementation "androidx.test:rules:$rootProject.libVersions.androidx.test"
     androidTestImplementation "org.mockito:mockito-core:$rootProject.libVersions.mockito.android"
     androidTestImplementation "org.awaitility:awaitility:3.1.6"
     androidTestImplementation "com.crittercism.dexmaker:dexmaker:$rootProject.libVersions.dexmaker"
@@ -48,7 +49,7 @@ android {
         minSdkVersion toolVersions.android.minSdk
         versionCode trustkitVersionCode
         versionName trustkitVersionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 }
 

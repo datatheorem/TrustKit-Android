@@ -1,20 +1,18 @@
 package com.datatheorem.android.trustkit.config;
 
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import org.junit.Test;
 
-import android.support.test.runner.AndroidJUnit4;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 
-@RunWith(AndroidJUnit4.class)
 public class DomainPinningPolicyTest {
 
     private final static Set<String> pins = new HashSet<>();
