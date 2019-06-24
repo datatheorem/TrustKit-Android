@@ -53,10 +53,22 @@ public final class DomainPinningPolicy {
         if (publicKeyHashStrList == null)
             publicKeyHashStrList = new HashSet<>();
 
+        // Parse boolean settings and handle default values
+        if (shouldEnforcePinning == null) {
+            this.shouldEnforcePinning = false;
+        } else {
+            this.shouldEnforcePinning = shouldEnforcePinning;
+        }
+        if (shouldIncludeSubdomains == null) {
+            this.shouldIncludeSubdomains = false;
+        } else {
+            this.shouldIncludeSubdomains = shouldIncludeSubdomains;
+        }
+
 
         // Check if the configuration has a empty pin-set and still would enforce pinning
         // TrustKit should not work if the configuration contains both (opposite behaviors)
-        if (publicKeyHashStrList.isEmpty() && shouldEnforcePinning) {
+        if (publicKeyHashStrList.isEmpty() && this.shouldEnforcePinning) {
             throw new ConfigurationException("An empty pin-set was supplied "+
               "for domain " + this.hostname + " with the enforcePinning set to true. " +
               "An empty pin-set disables pinning and can't be use with enforcePinning set to true.");
@@ -65,7 +77,7 @@ public final class DomainPinningPolicy {
         // Check if the configuration has at least two pins (including a backup pin)
         // TrustKit should not work if the configuration contains only one pin
         // more info (https://tools.ietf.org/html/rfc7469#page-21)
-        if (publicKeyHashStrList.size() < 2 && shouldEnforcePinning) {
+        if (publicKeyHashStrList.size() < 2 && this.shouldEnforcePinning) {
             throw new ConfigurationException("Less than two pins were supplied "+
                     "for domain " + this.hostname + ". This might " +
                     "brick your App; please review the Getting Started guide in " +
@@ -89,18 +101,6 @@ public final class DomainPinningPolicy {
         // Add the default report URL
         if ((shouldDisableDefaultReportUri == null) || (!shouldDisableDefaultReportUri) ) {
             reportUris.add(DEFAULT_REPORTING_URL);
-        }
-
-        // Parse boolean settings and handle default values
-        if (shouldEnforcePinning == null) {
-            this.shouldEnforcePinning = false;
-        } else {
-            this.shouldEnforcePinning = shouldEnforcePinning;
-        }
-        if (shouldIncludeSubdomains == null) {
-            this.shouldIncludeSubdomains = false;
-        } else {
-            this.shouldIncludeSubdomains = shouldIncludeSubdomains;
         }
 
         this.expirationDate = expirationDate;
