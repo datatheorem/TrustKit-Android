@@ -4,6 +4,7 @@ package com.datatheorem.android.trustkit.config;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
+
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +46,7 @@ class TrustKitConfigurationParser {
                     builderList.addAll(readDomainConfig(parser, null));
                 } else if ("debug-overrides".equals(parser.getName())) {
                     // The debug-overrides option is global and not tied to a specific domain
+
                     debugOverridesTag = readDebugOverrides(context, parser);
                 }
             }
@@ -262,6 +264,8 @@ class TrustKitConfigurationParser {
                 // Parse the supplied certificate file
                 String caPathFromUser = parser.getAttributeValue(null, "src").trim();
 
+                caPathFromUser = formatCertPathResourceWhenId(context, caPathFromUser);
+
                 // Parse the path to the certificate bundle for src=@raw - we ignore system or user
                 // as the src
                 if (!TextUtils.isEmpty(caPathFromUser) && !caPathFromUser.equals("user")
@@ -292,5 +296,15 @@ class TrustKitConfigurationParser {
             result.debugCaCertificates = debugCaCertificates;
         }
         return result;
+    }
+
+    private static String formatCertPathResourceWhenId(@NonNull Context context, String caPathFromUser) {
+        if(TextUtils.isDigitsOnly(caPathFromUser.replace("@", ""))){
+            caPathFromUser = "@" + context.getResources()
+                .getResourceName(Integer.parseInt(caPathFromUser.replace("@", "")))
+                .replace(context.getPackageName()+":", "");
+        }
+
+        return caPathFromUser;
     }
 }
