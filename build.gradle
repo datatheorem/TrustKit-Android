@@ -64,6 +64,9 @@ ext{
         ],
         google: [
                 material: '1.0.0'
+        ],
+        squareup: [
+                okhttp3: '3.11.0'
         ]
     ]
 
