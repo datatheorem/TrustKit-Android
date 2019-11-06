@@ -30,6 +30,7 @@ dependencies {
     implementation "androidx.legacy:legacy-support-v4:$rootProject.libVersions.androidx.legacySupport"
     implementation "androidx.preference:preference:$rootProject.libVersions.androidx.preference"
     compileOnly "com.squareup.okhttp3:okhttp:$rootProject.libVersions.squareup.okhttp3"
+    compileOnly "com.squareup.okhttp:okhttp:$rootProject.libVersions.squareup.okhttp2"
 
     androidTestImplementation "junit:junit:$rootProject.libVersions.junit"
     androidTestImplementation "androidx.test:runner:$rootProject.libVersions.androidx.test"
