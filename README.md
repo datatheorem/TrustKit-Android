@@ -116,20 +116,25 @@ protected void onCreate(Bundle savedInstanceState) {
   connection.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname));
 
   // OkHttp 2.x
+  RootTrustManager trustManager = new RootTrustManager();
   OkHttpClient client =
     new OkHttpClient()
-        .setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname));
+        .setSslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(trustManager));
+  client.interceptors().add(new PinningInterceptor2(trustManager));
 
   // OkHttp 3.0.x, 3.1.x and 3.2.x
+  RootTrustManager trustManager = new RootTrustManager();
   OkHttpClient client =
     new OkHttpClient.Builder()
-        .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname))
+        .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(trustManager))
+        .addInterceptor(new PinningInterceptor(trustManager))
 
   // OkHttp 3.3.x and higher
+  RootTrustManager trustManager = new RootTrustManager();
   OkHttpClient client =
-    new OkHttpClient().newBuilder()
-        .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname),
-                      TrustKit.getInstance().getTrustManager(serverHostname))
+    new OkHttpClient.Builder()
+        .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(trustManager), trustManager)
+        .addInterceptor(new PinningInterceptor(trustManager))
     .build();
 }
 
