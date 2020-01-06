@@ -30,7 +30,7 @@ Getting Started
 * Read the [Getting Started guide](https://github.com/datatheorem/TrustKit-Android/blob/master/docs/getting-started.md).
 * Check out the [API documentation](https://datatheorem.github.io/TrustKit-Android/documentation/).
 * The [iOS version of TrustKit](https://github.com/datatheorem/TrustKit) was initially released at the Black Hat USA 2015 conference.
-* Data Theorem provides a free dashboard for displaying statistics about all the reports sent by your app due to TLS or pinning validation failures. Enable your dashboard at [https://analytics.datatheorem.com/](https://analytics.datatheorem.com/).
+
 
 Sample Usage
 ---------------
