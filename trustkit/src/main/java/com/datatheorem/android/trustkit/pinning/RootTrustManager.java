@@ -20,7 +20,7 @@ import javax.net.ssl.X509TrustManager;
  * hostname set by the {@link PinningInterceptor}.</p>
  */
 @RequiresApi(api = 17)
-public class RootTrustManager implements X509TrustManager {
+class RootTrustManager implements X509TrustManager {
     private final ThreadLocal<String> mServerHostname = new ThreadLocal<>();
 
     @Override

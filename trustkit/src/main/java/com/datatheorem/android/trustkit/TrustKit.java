@@ -371,29 +371,6 @@ public class TrustKit {
         }
     }
 
-    /**
-     * Retrieve an {@code SSLSSocketFactory} that implements SSL pinning validation based on the
-     * current TrustKit configuration. It can be used with an OkHttpClient to add SSL
-     * pinning validation to the connections.
-     *
-     * <p>
-     * The {@code SSLSocketFactory} is configured for the current TrustKit configuration and
-     * will enforce the configuration's pinning policy.
-     * </p>
-     */
-    @NonNull
-    public SSLSocketFactory getSSLSocketFactory(@NonNull RootTrustManager trustManager) {
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new X509TrustManager[]{trustManager}, null);
-
-            return sslContext.getSocketFactory();
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            e.printStackTrace();
-            throw new IllegalStateException("SSLSocketFactory creation failed");
-        }
-    }
-
 
     /** Retrieve an {@code X509TrustManager} that implements SSL pinning validation based on the
      * current TrustKit configuration for the supplied hostname. It can be used with some network
