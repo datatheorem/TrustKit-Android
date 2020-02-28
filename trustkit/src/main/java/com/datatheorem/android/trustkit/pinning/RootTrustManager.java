@@ -33,6 +33,10 @@ class RootTrustManager implements X509TrustManager {
         String host = mServerHostname.get();
         DomainPinningPolicy serverConfig =
                 TrustKit.getInstance().getConfiguration().getPolicyForHostname(host);
+        //This check is needed for compatibility with the Platform default's implementation of
+        //the Trust Manager. For APIs 24 and greater, the Platform's default TrustManager states
+        //that it requires usage of the hostname-aware version of checkServerTrusted for app's that
+        //implement Android's network_security_config file.
         if (serverConfig == null) {
             new X509TrustManagerExtensions(TrustKit.getInstance().getTrustManager(host)).checkServerTrusted(chain, authType, host);
         } else {
