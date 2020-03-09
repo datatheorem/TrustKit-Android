@@ -118,18 +118,25 @@ protected void onCreate(Bundle savedInstanceState) {
   // OkHttp 2.x
   OkHttpClient client =
     new OkHttpClient()
-        .setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname));
+        .setSslSocketFactory(OkHttp2Helper.getSSLSocketFactory());
+  client.interceptors().add(OkHttp2Helper.getPinningInterceptor());
+  client.setFollowRedirects(false);
 
   // OkHttp 3.0.x, 3.1.x and 3.2.x
   OkHttpClient client =
     new OkHttpClient.Builder()
-        .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname))
+        .sslSocketFactory(OkHttp3Helper.getSSLSocketFactory())
+        .addInterceptor(OkHttp3Helper.getPinningInterceptor())
+        .followRedirects(false)
+        .followSslRedirects(false)
 
   // OkHttp 3.3.x and higher
   OkHttpClient client =
-    new OkHttpClient().newBuilder()
-        .sslSocketFactory(TrustKit.getInstance().getSSLSocketFactory(serverHostname),
-                      TrustKit.getInstance().getTrustManager(serverHostname))
+    new OkHttpClient.Builder()
+        .sslSocketFactory(OkHttp3Helper.getSSLSocketFactory(), OkHttp3Helper.getTrustManager())
+        .addInterceptor(OkHttp3Helper.getPinningInterceptor())
+        .followRedirects(false)
+        .followSslRedirects(false)
     .build();
 }
 
@@ -160,6 +167,7 @@ On Android M and earlier devices, TrustKit provides uses its own implementation 
 * The `<trust-anchors>` setting is only applied when used within the global `<debug-overrides>` tag. Hence, custom trust anchors for specific domains cannot be set. 
 * Within the `<trust-anchors>` tag, only `<certificate>` tags pointing to a raw certificate file are supported (the `user` or `system` values for the `src` attribute will be ignored).
 
+For consumers of TrustKit's OkHttpHelper solutions, redirects must to be disabled as Pinning will currently only work properly on the initial request and not any redirects
 
 License
 -------
