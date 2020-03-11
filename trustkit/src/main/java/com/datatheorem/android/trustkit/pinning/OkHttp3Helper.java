@@ -1,5 +1,7 @@
 package com.datatheorem.android.trustkit.pinning;
 
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -13,9 +15,16 @@ import javax.net.ssl.X509TrustManager;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 
-@RequiresApi(api = 17)
 public class OkHttp3Helper {
-    private static OkHttpRootTrustManager trustManager = new OkHttpRootTrustManager();
+    private static X509TrustManager trustManager;
+
+    static {
+        if (Build.VERSION.SDK_INT < 17) {
+            trustManager = SystemTrustManager.getInstance();
+        } else {
+            trustManager = new OkHttpRootTrustManager();
+        }
+    }
 
     /**
      * Retrieve an {@code SSLSSocketFactory} that implements SSL pinning validation based on the
@@ -46,15 +55,16 @@ public class OkHttp3Helper {
      * Certificate Pinning.
      */
     @NonNull
+    @RequiresApi(api = 17)
     public static Interceptor getPinningInterceptor() {
-        return new OkHttp3PinningInterceptor(trustManager);
+        return new OkHttp3PinningInterceptor((OkHttpRootTrustManager)trustManager);
     }
 
     /**
      * Returns an instance of the {@link OkHttpRootTrustManager} used for Certificate Pinning.
      */
     @NonNull
-    public static OkHttpRootTrustManager getTrustManager() {
+    public static X509TrustManager getTrustManager() {
         return trustManager;
     }
 }
