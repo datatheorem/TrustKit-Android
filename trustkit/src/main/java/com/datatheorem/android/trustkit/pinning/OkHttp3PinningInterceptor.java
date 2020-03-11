@@ -10,12 +10,12 @@ import okhttp3.Response;
 
 /**
  * {@link Interceptor} used to parse the hostname of the {@link Request} URL and then save the
- * hostname in the {@link RootTrustManager} which will later be used for Certificate Pinning.
+ * hostname in the {@link OkHttpRootTrustManager} which will later be used for Certificate Pinning.
  */
-public class PinningInterceptor implements Interceptor {
-    private final RootTrustManager mTrustManager;
+public class OkHttp3PinningInterceptor implements Interceptor {
+    private final OkHttpRootTrustManager mTrustManager;
 
-    public PinningInterceptor(@NonNull RootTrustManager trustManager) {
+    public OkHttp3PinningInterceptor(@NonNull OkHttpRootTrustManager trustManager) {
         mTrustManager = trustManager;
     }
 

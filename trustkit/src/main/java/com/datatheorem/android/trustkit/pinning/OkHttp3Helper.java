@@ -15,7 +15,7 @@ import okhttp3.Request;
 
 @RequiresApi(api = 17)
 public class OkHttp3Helper {
-    private static RootTrustManager trustManager = new RootTrustManager();
+    private static OkHttpRootTrustManager trustManager = new OkHttpRootTrustManager();
 
     /**
      * Retrieve an {@code SSLSSocketFactory} that implements SSL pinning validation based on the
@@ -42,19 +42,19 @@ public class OkHttp3Helper {
 
     /**
      * Returns an {@link okhttp3.Interceptor} used to parse the hostname of the {@link Request} URL
-     * and then save the hostname in the {@link RootTrustManager} which will later be used for
+     * and then save the hostname in the {@link OkHttpRootTrustManager} which will later be used for
      * Certificate Pinning.
      */
     @NonNull
     public static Interceptor getPinningInterceptor() {
-        return new PinningInterceptor(trustManager);
+        return new OkHttp3PinningInterceptor(trustManager);
     }
 
     /**
-     * Returns an instance of the {@link RootTrustManager} used for Certificate Pinning.
+     * Returns an instance of the {@link OkHttpRootTrustManager} used for Certificate Pinning.
      */
     @NonNull
-    public static RootTrustManager getTrustManager() {
+    public static OkHttpRootTrustManager getTrustManager() {
         return trustManager;
     }
 }

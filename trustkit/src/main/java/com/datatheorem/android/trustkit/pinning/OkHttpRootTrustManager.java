@@ -17,10 +17,10 @@ import javax.net.ssl.X509TrustManager;
  * {@link X509TrustManager} used for Certificate Pinning.
  *
  * <p>This trust manager delegates to the appropriate {@link PinningTrustManager} decided by the
- * hostname set by the {@link PinningInterceptor}.</p>
+ * hostname set by the {@link OkHttp3PinningInterceptor}.</p>
  */
 @RequiresApi(api = 17)
-class RootTrustManager implements X509TrustManager {
+class OkHttpRootTrustManager implements X509TrustManager {
     private final ThreadLocal<String> mServerHostname = new ThreadLocal<>();
 
     @Override

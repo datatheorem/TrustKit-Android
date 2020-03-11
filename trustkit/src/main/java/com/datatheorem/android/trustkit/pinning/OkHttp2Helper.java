@@ -15,7 +15,7 @@ import javax.net.ssl.X509TrustManager;
 
 @RequiresApi(api = 17)
 public class OkHttp2Helper {
-    private static RootTrustManager trustManager = new RootTrustManager();
+    private static OkHttpRootTrustManager trustManager = new OkHttpRootTrustManager();
 
     /**
      * Retrieve an {@code SSLSSocketFactory} that implements SSL pinning validation based on the
@@ -42,11 +42,11 @@ public class OkHttp2Helper {
 
     /**
      * Returns an {@link com.squareup.okhttp.Interceptor} used to parse the hostname of the
-     * {@link Request} URL and then save the hostname in the {@link RootTrustManager} which will
+     * {@link Request} URL and then save the hostname in the {@link OkHttpRootTrustManager} which will
      * later be used for Certificate Pinning.
      */
     @NonNull
     public static Interceptor getPinningInterceptor() {
-        return new PinningInterceptor2(trustManager);
+        return new OkHttp2PinningInterceptor(trustManager);
     }
 }
