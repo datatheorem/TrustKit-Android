@@ -1,6 +1,7 @@
 package com.datatheorem.android.trustkit.pinning;
 
 import android.net.http.X509TrustManagerExtensions;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -19,7 +20,6 @@ import javax.net.ssl.X509TrustManager;
  * <p>This trust manager delegates to the appropriate {@link PinningTrustManager} decided by the
  * hostname set by the {@link OkHttp3PinningInterceptor}.</p>
  */
-@RequiresApi(api = 17)
 class OkHttpRootTrustManager implements X509TrustManager {
     private final ThreadLocal<String> mServerHostname = new ThreadLocal<>();
 
@@ -33,14 +33,17 @@ class OkHttpRootTrustManager implements X509TrustManager {
         String host = mServerHostname.get();
         DomainPinningPolicy serverConfig =
                 TrustKit.getInstance().getConfiguration().getPolicyForHostname(host);
-        //This check is needed for compatibility with the Platform default's implementation of
+        X509TrustManager trustManager = TrustKit.getInstance().getTrustManager(host);
+
+        //The first check is needed for compatibility with the Platform default's implementation of
         //the Trust Manager. For APIs 24 and greater, the Platform's default TrustManager states
         //that it requires usage of the hostname-aware version of checkServerTrusted for app's that
-        //implement Android's network_security_config file.
-        if (serverConfig == null) {
-            new X509TrustManagerExtensions(TrustKit.getInstance().getTrustManager(host)).checkServerTrusted(chain, authType, host);
+        //implement Android's network_security_config file. The 2nd check is to allow usage of the
+        //X509TrustManagerExtensions class. Any API below will default to the baseline trust manager.
+        if (serverConfig == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            new X509TrustManagerExtensions(trustManager).checkServerTrusted(chain, authType, host);
         } else {
-            TrustKit.getInstance().getTrustManager(host).checkServerTrusted(chain, authType);
+            trustManager.checkServerTrusted(chain, authType);
         }
     }
 
