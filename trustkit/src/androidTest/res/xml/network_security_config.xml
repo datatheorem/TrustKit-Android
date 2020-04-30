@@ -18,7 +18,7 @@
         <pin-set>
             <!-- Pin the Leaf key -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">Ca5gV6n7OVx4AxtEaIk8NI9qyKBTtKJjwqullb/v9hg=</pin>
+            <pin digest="SHA-256">u91x/rv9ivMrXO0du6N2ABI6BiiVfD0T99DTEzoqSv4=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
