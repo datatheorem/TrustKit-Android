@@ -52,7 +52,7 @@ configuration from a PEM or DER certificate:
 
 Add TrustKit to your project's _build.gradle_:
 
-`compile 'com.datatheorem.truskit:trustkit-android:'`
+`implementation 'com.datatheorem.android.trustkit:trustkit:<last_version>'`
 
 ### Configuring a Pinning Policy
 
