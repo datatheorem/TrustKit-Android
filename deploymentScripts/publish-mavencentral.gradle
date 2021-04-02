@@ -8,57 +8,63 @@ ext {
     DESCRIPTION = 'TrustKit Android is an open source library that makes it easy to deploy SSL public key pinning and reporting in any Android App.'
     LICENSE_NAME = 'The MIT License (MIT)'
     LICENSE_URL = 'https://github.com/datatheorem/TrustKit-Android/blob/master/LICENSE'
+    // Name of properties file stored in project root - contains signing key, auth details, etc.
     PROPERTIES_FILE_NAME = 'local.properties'
+    // Version control info
+    VERSION_CONTROL_CONNECTION = 'scm:git:github.com/datatheorem/TrustKit-Android.git'
+    VERSION_CONTROL_BROWSABLE_URL = 'https://github.com/datatheorem/TrustKit-Android'
 }
 
+// Gradle task to create a 'sources' jar
 task androidSourcesJar(type: Jar) {
     archiveClassifier.set('sources')
-    if (project.plugins.findPlugin("com.android.library")) {
-        // For Android libraries
-        from android.sourceSets.main.java.srcDirs
-    }
+    from android.sourceSets.main.java.srcDirs
 }
 
+// Specify 'androidSourcesJar' as an artifact
+// This artifact will get packaged along with the executable, compiled code.
 artifacts {
     archives androidSourcesJar
 }
 
+// 'group' = namespace for identifying the artifact (.aar file) produced by the build
 group = PUBLISH_GROUP_ID
+
+// 'version' = version of the artifact (.aar file) being published
 version = PUBLISH_VERSION
 
-ext["signing.keyId"] = ''
-ext["signing.password"] = ''
-ext["signing.secretKeyRingFile"] = ''
-ext["ossrhUsername"] = ''
-ext["ossrhPassword"] = ''
-ext["sonatypeStagingProfileId"] = ''
-
-// Read attributes from the local.properties file
+/*
+Read attributes from the 'local.properties' file placed inside project root (Not in version control)
+'local.properties' should contain the following attributes for the deployment to succeed:
+- ossrhPassword
+- signing.secretKeyRingFile
+- signing.password
+- ossrhUsername
+- signing.keyId
+*/
 File secretPropsFile = project.rootProject.file(PROPERTIES_FILE_NAME)
 Properties properties = new Properties()
 new FileInputStream(secretPropsFile).withCloseable { is -> properties.load(is)}
-properties.each { name, value -> ext[name] = value }
-
+// Create 'ext' key-value pairs accessible throughout the gradle file
+properties.each {
+    name, value -> ext[name] = value
+}
 
 publishing {
     publications {
         release(MavenPublication) {
-            // The coordinates of the library, being set from variables that we'll set up later
+            // 'groupId' = namespace, 'artifactId' = library name, 'version' = library version
             groupId PUBLISH_GROUP_ID
             artifactId PUBLISH_ARTIFACT_ID
             version PUBLISH_VERSION
-            // Two artifacts, the `aar` (or `jar`) and the sources
-            if (project.plugins.findPlugin("com.android.library")) {
-                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
-            } else {
-                artifact("$buildDir/libs/${project.getName()}-${version}.jar")
-            }
+            // Two artifacts, the truskit '.aar' and the sources '.jar'
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
             artifact androidSourcesJar
-            // Mostly self-explanatory metadata
+            // .pom file metadata
             pom {
                 name = PUBLISH_ARTIFACT_ID
                 description = DESCRIPTION
-                url = 'https://github.com/datatheorem/TrustKit-Android'
+                url = VERSION_CONTROL_BROWSABLE_URL
                 licenses {
                     license {
                         name = LICENSE_NAME
@@ -77,15 +83,15 @@ publishing {
                         email = 'jb@datatheorem.com'
                     }
                 }
-                // Version control info
+                // Version control metadata
                 scm {
-                    connection = 'scm:git:github.com/datatheorem/TrustKit-Android.git'
-                    developerConnection = 'scm:git:ssh://github.com/datatheorem/TrustKit-Android.git'
-                    url = 'https://github.com/datatheorem/TrustKit-Android/tree/master'
+                    connection = VERSION_CONTROL_CONNECTION
+                    developerConnection = VERSION_CONTROL_CONNECTION
+                    url = VERSION_CONTROL_BROWSABLE_URL
                 }
+                // Create and populate a 'dependencies' node in .pom file
                 withXml {
                     def dependenciesNode = asNode().appendNode('dependencies')
-
                     project.configurations.implementation.allDependencies.each {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode('groupId', it.group)
@@ -96,11 +102,16 @@ publishing {
             }
         }
     }
-    // The repository to publish to, Sonatype/MavenCentral
+
+    // Specify repositories where the library needs to be published
     repositories {
         maven {
-            // This is an arbitrary name, you may also use "mavencentral" or any other name that's descriptive for you
-            name = "sonatype"
+            /* The name field can be given an arbitrary value. However changing the name will change the name of the deployment gradle task.
+               For example,
+               if name = "mavencentral", task name will be "publishReleasePublicationToMavencentralRepository"
+               if name = "foo", task name will be "publishReleasePublicationToFooRepository"
+            */
+            name = "mavencentral"
             url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
                 username ossrhUsername
@@ -108,6 +119,7 @@ publishing {
             }
         }
     }
+
 }
 
 signing {

@@ -28,4 +28,5 @@ dependencies {
     androidTestImplementation "com.google.android.gms:play-services-base:$rootProject.libVersions.testing.playServicesBase"
 }
 
+// MavenCentral deployment gradle script
 apply from: "${rootProject.projectDir}/deploymentScripts/publish-mavencentral.gradle"
