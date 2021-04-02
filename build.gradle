@@ -24,12 +24,12 @@ allprojects {
     }
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
-}
+}:
 
 
 ext{
     trustkitVersionCode = 10
-    trustkitVersionName = "1.1.4"
+    trustkitVersionName = "1.1.5"
 
     demoAppTrustKitVersionCode = 2
     demoAppTrustKitVersionName = "1.1"
