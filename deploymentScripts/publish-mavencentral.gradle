@@ -4,7 +4,7 @@ apply plugin: 'signing'
 ext {
     PUBLISH_GROUP_ID = 'com.datatheorem.android.trustkit'
     PUBLISH_VERSION = trustkitVersionName
-    PUBLISH_ARTIFACT_ID = 'TrustKit-Android'
+    PUBLISH_ARTIFACT_ID = 'trustkit'
     DESCRIPTION = 'TrustKit Android is an open source library that makes it easy to deploy SSL public key pinning and reporting in any Android App.'
     LICENSE_NAME = 'The MIT License (MIT)'
     LICENSE_URL = 'https://github.com/datatheorem/TrustKit-Android/blob/master/LICENSE'
