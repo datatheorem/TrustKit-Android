@@ -1,48 +1,4 @@
-
 apply plugin: 'com.android.library'
-
-ext {
-    userorg = ""
-    bintrayRepo = 'TrustKit-Android'
-    bintrayName = 'trustkit'
-
-    publishedGroupId = 'com.datatheorem.android.trustkit'
-    libraryName = 'TrustKit-Android'
-    artifact = 'trustkit'
-
-    libraryDescription = 'TrustKit Android is an open source library that makes it easy to deploy SSL public key ' +
-            'pinning and reporting in any Android App.'
-    gitUrl = 'https://github.com/datatheorem/TrustKit-Android'
-    websiteUrl = 'https://github.com/datatheorem/TrustKit-Android'
-
-    libraryVersion = trustkitVersionName
-
-    licenseName = 'The MIT License (MIT)'
-    licenseUrl = 'https://github.com/datatheorem/TrustKit-Android/blob/master/LICENSE'
-    allLicenses = ["MIT"]
-}
-
-repositories {
-    mavenCentral()
-}
-dependencies {
-    implementation "androidx.annotation:annotation:$rootProject.libVersions.androidx.annotation"
-    implementation "androidx.legacy:legacy-support-v4:$rootProject.libVersions.androidx.legacySupport"
-    implementation "androidx.preference:preference:$rootProject.libVersions.androidx.preference"
-    compileOnly "com.squareup.okhttp3:okhttp:$rootProject.libVersions.squareup.okhttp3"
-    compileOnly "com.squareup.okhttp:okhttp:$rootProject.libVersions.squareup.okhttp2"
-
-    androidTestImplementation "junit:junit:$rootProject.libVersions.junit"
-    androidTestImplementation "androidx.test:runner:$rootProject.libVersions.androidx.test"
-    androidTestImplementation "androidx.test:rules:$rootProject.libVersions.androidx.test"
-    androidTestImplementation "org.mockito:mockito-core:$rootProject.libVersions.mockito.android"
-    androidTestImplementation "org.awaitility:awaitility:3.1.6"
-    androidTestImplementation "com.crittercism.dexmaker:dexmaker:$rootProject.libVersions.dexmaker"
-    androidTestImplementation "com.crittercism.dexmaker:dexmaker-dx:$rootProject.libVersions.dexmaker"
-    androidTestImplementation "com.crittercism.dexmaker:dexmaker-mockito:$rootProject.libVersions.dexmaker"
-    androidTestImplementation "com.squareup.okhttp3:okhttp:$rootProject.libVersions.testing.okhttp3"
-    androidTestImplementation "com.google.android.gms:play-services-base:$rootProject.libVersions.testing.playServicesBase"
-}
 
 android {
     defaultConfig {
@@ -55,85 +11,21 @@ android {
     }
 }
 
-
-apply plugin: 'com.github.dcendents.android-maven'
-group = publishedGroupId
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                groupId publishedGroupId
-                artifactId artifact
-
-                name libraryName
-                description libraryDescription
-                url websiteUrl
-
-                licenses {
-                    license {
-                        name licenseName
-                        url licenseUrl
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'nabla-c0d3'
-                        name 'Alban Diquet'
-                        email 'ad@datatheorem.com'
-                    }
-
-                    developer {
-                        id 'jobot0'
-                        name 'Jordan Bouellat'
-                        email 'jb@datatheorem.com'
-                    }
-                }
-
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url websiteUrl
-                }
-            }
-        }
-    }
+dependencies {
+    implementation "androidx.annotation:annotation:$rootProject.libVersions.androidx.annotation"
+    implementation "androidx.preference:preference:$rootProject.libVersions.androidx.preference"
+    compileOnly "com.squareup.okhttp3:okhttp:$rootProject.libVersions.squareup.okhttp3"
+    compileOnly "com.squareup.okhttp:okhttp:$rootProject.libVersions.squareup.okhttp2"
+    androidTestImplementation "junit:junit:$rootProject.libVersions.junit"
+    androidTestImplementation "androidx.test:runner:$rootProject.libVersions.androidx.test"
+    androidTestImplementation "androidx.test:rules:$rootProject.libVersions.androidx.test"
+    androidTestImplementation "org.mockito:mockito-core:$rootProject.libVersions.mockito.android"
+    androidTestImplementation "org.awaitility:awaitility:3.1.6"
+    androidTestImplementation "com.crittercism.dexmaker:dexmaker:$rootProject.libVersions.dexmaker"
+    androidTestImplementation "com.crittercism.dexmaker:dexmaker-dx:$rootProject.libVersions.dexmaker"
+    androidTestImplementation "com.crittercism.dexmaker:dexmaker-mockito:$rootProject.libVersions.dexmaker"
+    androidTestImplementation "com.squareup.okhttp3:okhttp:$rootProject.libVersions.testing.okhttp3"
+    androidTestImplementation "com.google.android.gms:play-services-base:$rootProject.libVersions.testing.playServicesBase"
 }
 
-apply plugin: 'com.jfrog.bintray'
-
-version = libraryVersion
-// Create artifacts from the source
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
-}
-
-artifacts {
-    archives sourcesJar
-}
-
-bintray {
-        user = System.getenv('BINTRAY_USER')
-        key = System.getenv('BINTRAY_KEY')
-        userorg = System.getenv('BINTRAY_USERORG')
-
-    configurations = ['archives']
-    pkg {
-        repo = bintrayRepo
-        name = bintrayName
-        userOrg = userorg
-        desc = libraryDescription
-        websiteUrl = websiteUrl
-        vcsUrl = gitUrl
-        licenses = allLicenses
-        publish = true
-        version {
-            name = libraryVersion
-            desc = libraryDescription
-        }
-    }
-}
-
+apply from: "${rootProject.projectDir}/deploymentScripts/publish-mavencentral.gradle"

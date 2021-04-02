@@ -4,7 +4,8 @@ buildscript {
     ext.kotlin_version = '1.3.21'
 
     repositories {
-        jcenter()
+        mavenCentral()
+        jcenter() // TODO: Remove when org.jetbrains.trove4j:trove4j moves to Maven Central
         google()
     }
     dependencies {
@@ -17,7 +18,8 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
+        mavenCentral()
+        jcenter() // TODO: Remove when org.jetbrains.trove4j:trove4j moves to Maven Central
         google()
     }
     apply plugin: 'maven'
@@ -26,8 +28,8 @@ allprojects {
 
 
 ext{
-    trustkitVersionCode = 9
-    trustkitVersionName = "1.1.3"
+    trustkitVersionCode = 10
+    trustkitVersionName = "1.1.4"
 
     demoAppTrustKitVersionCode = 2
     demoAppTrustKitVersionName = "1.1"
