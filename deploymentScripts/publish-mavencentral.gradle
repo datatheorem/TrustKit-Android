@@ -33,6 +33,15 @@ group = PUBLISH_GROUP_ID
 // 'version' = version of the artifact (.aar file) being published
 version = PUBLISH_VERSION
 
+// Set all the variables to a dummy empty string to enable project sync and build without the publication values set up
+// Useful for contributors to the open-source project who don't have MavenCentral deployment credentials
+ext["signing.keyId"] = ''
+ext["signing.password"] = ''
+ext["signing.secretKeyRingFile"] = ''
+ext["ossrhUsername"] = ''
+ext["ossrhPassword"] = ''
+ext["sonatypeStagingProfileId"] = ''
+
 /*
 Read attributes from the 'local.properties' file placed inside project root (Not in version control)
 'local.properties' should contain the following attributes for the deployment to succeed:
