@@ -40,7 +40,10 @@ Sample Usage
 
 Add TrustKit to your project's _build.gradle_:
 
-`implementation 'com.datatheorem.android.trustkit:trustkit:<last_version>'`
+```gradle
+implementation 'com.datatheorem.android.trustkit:trustkit:<last_version>'
+implementation 'androidx.preference:preference:1.1.1'
+```
 
 ### Configuring a Pinning Policy
 
@@ -90,7 +93,7 @@ The path to the XML policy should then be specified [in the App's manifest](http
 
 ```
 
-Then, TrustKit should be initialized with the same path:
+Then, TrustKit should be initialized with the same path inside MainActivity.java:
 
 ```java
 @Override
@@ -128,7 +131,7 @@ protected void onCreate(Bundle savedInstanceState) {
         .sslSocketFactory(OkHttp3Helper.getSSLSocketFactory())
         .addInterceptor(OkHttp3Helper.getPinningInterceptor())
         .followRedirects(false)
-        .followSslRedirects(false)
+        .followSslRedirects(false);
 
   // OkHttp 3.3.x and higher
   OkHttpClient client =
@@ -137,7 +140,7 @@ protected void onCreate(Bundle savedInstanceState) {
         .addInterceptor(OkHttp3Helper.getPinningInterceptor())
         .followRedirects(false)
         .followSslRedirects(false)
-    .build();
+        .build();
 }
 
 class PinningFailureReportBroadcastReceiver extends BroadcastReceiver {
