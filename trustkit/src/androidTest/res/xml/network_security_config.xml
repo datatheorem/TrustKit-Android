@@ -7,7 +7,7 @@
         <pin-set>
             <!-- Pin the CA/Anchor key -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg=</pin>
+            <pin digest="SHA-256">F6jTih9VkkYZS8yuYqeU/4DUGehJ+niBGkkQ1yg8H3U=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
@@ -18,7 +18,7 @@
         <pin-set>
             <!-- Pin the Leaf key -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">u91x/rv9ivMrXO0du6N2ABI6BiiVfD0T99DTEzoqSv4=</pin>
+            <pin digest="SHA-256">hxqRlPTu1bMS/0DITB1SSu0vd4u/8l8TjPgfaAp63Gc=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
