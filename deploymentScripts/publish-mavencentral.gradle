@@ -53,7 +53,9 @@ Read attributes from the 'local.properties' file placed inside project root (Not
 */
 File secretPropsFile = project.rootProject.file(PROPERTIES_FILE_NAME)
 Properties properties = new Properties()
-new FileInputStream(secretPropsFile).withCloseable { is -> properties.load(is)}
+if (secretPropsFile.exists()) {
+    new FileInputStream(secretPropsFile).withCloseable { is -> properties.load(is)}
+}
 // Create 'ext' key-value pairs accessible throughout the gradle file
 properties.each {
     name, value -> ext[name] = value
