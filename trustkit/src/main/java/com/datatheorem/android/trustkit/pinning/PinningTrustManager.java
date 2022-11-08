@@ -30,7 +30,7 @@ class PinningTrustManager implements X509TrustManager {
     /**
      * A trust manager which implements path, hostname and pinning validation for a given hostname
      * and sends pinning failure reports if validation failed.
-     *
+     * <p>
      * Before Android N, the PinningTrustManager implements pinning validation itself. On Android
      * N and later the OS' implementation is used instead for pinning validation.
      *
@@ -64,14 +64,14 @@ class PinningTrustManager implements X509TrustManager {
 
     /**
      * This methods gets called on Android N instead of the 2-parameter checkServerTrusted().
-     *
+     * <p>
      * If we ever drop support for versions before Android N (unlikely), we can use this method
      * to automatically get the hostname when the certificate chain needs to be validated, instead
      * of having to ask for the hostname a lot earlier when the trust manager (or socket factory)
      * gets created, making the API a lot nicer.
-     *
+     * <p>
      * For now this is here only for documentation.
-     * See also: https://developer.android.com/reference/javax/net/ssl/X509ExtendedTrustManager.html
+     * See also: <a href="https://developer.android.com/reference/javax/net/ssl/X509ExtendedTrustManager.html">X509ExtendedTrustManager</a>
      * not to be confused with X509TrustManagerExtensions!
      *
      */
@@ -87,7 +87,7 @@ class PinningTrustManager implements X509TrustManager {
         boolean didPinningValidationFail = false;
 
         // Store the received chain so we can send it later in a report if path validation fails
-        List<X509Certificate> servedServerChain = Arrays.asList((X509Certificate [])chain);
+        List<X509Certificate> servedServerChain = Arrays.asList(chain);
         List<X509Certificate> validatedServerChain = servedServerChain;
 
         // Then do hostname validation first
@@ -103,6 +103,7 @@ class PinningTrustManager implements X509TrustManager {
         // extra certificates an attacker might add: https://koz.io/pinning-cve-2016-2402/
         try {
 
+            assert baselineTrustManager != null;
             validatedServerChain = baselineTrustManager.checkServerTrusted(chain, authType,
                     serverHostname);
 
@@ -156,11 +157,11 @@ class PinningTrustManager implements X509TrustManager {
                 errorBuilder.append(" ");
             }
             errorBuilder.append("\n  Peer certificate chain: ");
-            for (Certificate certificate : validatedServerChain) {
+            for (X509Certificate certificate : validatedServerChain) {
                 errorBuilder.append("\n    ")
                         .append(new PublicKeyPin(certificate))
                         .append(" - ")
-                        .append(((X509Certificate) certificate).getSubjectDN());
+                        .append(certificate.getSubjectDN());
             }
             throw new CertificateException(errorBuilder.toString());
         }

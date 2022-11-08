@@ -221,10 +221,9 @@ public class TrustKit {
     }
 
     /** Try to retrieve the Network Security Policy resource ID configured in the App's manifest.
-     *
      * Somewhat convoluted as other means of getting the resource ID involve using private APIs.
      *
-     * @param context
+     * @param context android context
      * @return The resource ID for the XML file containing the configured Network Security Policy or
      * -1 if no policy was configured in the App's manifest or if we are not running on Android N.
      */
@@ -234,11 +233,11 @@ public class TrustKit {
         // Dump the content of the ApplicationInfo, which contains the resource ID on Android N
         class NetSecConfigResIdRetriever implements Printer {
             private int netSecConfigResourceId = -1;
-            private final String NETSEC_LINE_FORMAT = "networkSecurityConfigRes=0x";
 
             public void println(String x) {
                 if (netSecConfigResourceId == -1) {
                     // Attempt at parsing "networkSecurityConfigRes=0x1234"
+                    String NETSEC_LINE_FORMAT = "networkSecurityConfigRes=0x";
                     if (x.contains(NETSEC_LINE_FORMAT)) {
                         netSecConfigResourceId =
                                 Integer.parseInt(x.substring(NETSEC_LINE_FORMAT.length()), 16);

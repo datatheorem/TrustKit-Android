@@ -41,7 +41,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  * Tests TrustKit's SSLSocketFactory.
- *
+ * <p>
  * The general testing strategy used here is to connect to live websites. This provides a variety of
  * valid certificate chains that can then have different pins applied to each. This requires no
  * special mock servers or mock CA setup, but it is dependent on the domains being live and having
