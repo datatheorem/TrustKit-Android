@@ -4,7 +4,6 @@ import android.net.http.X509TrustManagerExtensions;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;

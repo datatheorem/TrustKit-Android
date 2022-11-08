@@ -65,10 +65,10 @@ public class DemoMainActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             try {
                 URL url = new URL(params[0]);
-                HttpsURLConnection connection = null;
+                HttpsURLConnection connection;
                 connection = (HttpsURLConnection) url.openConnection();
                 connection.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
-                InputStream inputStream = connection.getInputStream();
+                connection.getInputStream();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.datatheorem.android.trustkit.TestableTrustKit;
@@ -20,7 +19,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -151,7 +149,7 @@ public class BackgroundReporterTest {
     }
 
     private class PinningValidationReportTestBroadcastReceiver extends BroadcastReceiver{
-        public AtomicBoolean broadcastReceived = new AtomicBoolean(false);
+        public final AtomicBoolean broadcastReceived = new AtomicBoolean(false);
         public Serializable containedReport;
 
         @Override

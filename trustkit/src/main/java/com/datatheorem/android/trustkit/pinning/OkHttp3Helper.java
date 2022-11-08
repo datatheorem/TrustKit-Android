@@ -16,7 +16,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 
 public class OkHttp3Helper {
-    private static X509TrustManager trustManager;
+    private static final X509TrustManager trustManager;
 
     static {
         if (Build.VERSION.SDK_INT < 17) {

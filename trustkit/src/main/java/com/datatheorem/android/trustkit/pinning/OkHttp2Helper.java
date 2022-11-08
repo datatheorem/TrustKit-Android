@@ -16,7 +16,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
 public class OkHttp2Helper {
-    private static X509TrustManager trustManager;
+    private static final X509TrustManager trustManager;
 
     static {
         if (Build.VERSION.SDK_INT < 17) {
