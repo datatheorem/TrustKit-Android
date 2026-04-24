@@ -42,7 +42,7 @@ ext{
                     compileSdk : 28,
                     gradlePlugin : '2.1.0',
                     buildTools  : '28.0.3',
-                    minSdk : 15,
+                    minSdk : 16,
                     targetSdk: 28
             ]
     ]
