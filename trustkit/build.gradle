@@ -1,13 +1,24 @@
 apply plugin: 'com.android.library'
 
 android {
+    namespace = 'com.datatheorem.android.trustkit'
+    compileSdkVersion toolVersions.android.compileSdk
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
-        compileSdkVersion toolVersions.android.compileSdk
-        buildToolsVersion toolVersions.android.buildTools
         minSdkVersion toolVersions.android.minSdk
         versionCode trustkitVersionCode
         versionName trustkitVersionName
+        buildConfigField 'String', 'VERSION_NAME', "\"${trustkitVersionName}\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 

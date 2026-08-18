@@ -5,8 +5,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
@@ -180,7 +180,7 @@ public class HttpLibrariesTest {
     // https://github.com/square/okhttp/issues/2323#issuecomment-185055040/
     // More information about they're trying to extract all the SSL needed object here :
     // https://github.com/square/okhttp/blob/okhttp_31/okhttp/src/main/java/okhttp3/internal/Platform.java
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void testOkhttp3WithTrustKitOldBuilder() throws MalformedURLException {
         if (Build.VERSION.SDK_INT < 17) {

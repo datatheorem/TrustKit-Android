@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace = 'com.datatheorem.android.trustkit.demoapp'
     compileSdkVersion toolVersions.android.compileSdk
-    buildToolsVersion toolVersions.android.buildTools
 
     defaultConfig {
         applicationId "com.datatheorem.android.trustkit.demoapp"
@@ -16,6 +16,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 

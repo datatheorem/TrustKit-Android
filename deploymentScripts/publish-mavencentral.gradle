@@ -65,9 +65,9 @@ publishing {
     publications {
         release(MavenPublication) {
             // 'groupId' = namespace, 'artifactId' = library name, 'version' = library version
-            groupId PUBLISH_GROUP_ID
-            artifactId PUBLISH_ARTIFACT_ID
-            version PUBLISH_VERSION
+            groupId = PUBLISH_GROUP_ID
+            artifactId = PUBLISH_ARTIFACT_ID
+            version = PUBLISH_VERSION
             // Two artifacts, the truskit '.aar' and the sources '.jar'
             artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
             artifact androidSourcesJar
@@ -125,8 +125,8 @@ publishing {
             name = "mavencentral"
             url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
-                username ossrhUsername
-                password ossrhPassword
+                username = ossrhUsername
+                password = ossrhPassword
             }
         }
     }
