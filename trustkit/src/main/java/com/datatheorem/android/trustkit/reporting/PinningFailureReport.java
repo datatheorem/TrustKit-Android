@@ -1,25 +1,19 @@
 package com.datatheorem.android.trustkit.reporting;
 
 import android.text.format.DateFormat;
-
 import androidx.annotation.NonNull;
-
 import com.datatheorem.android.trustkit.BuildConfig;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-/**
- * A pinning validation failure report.
- */
+/** A pinning validation failure report. */
 public class PinningFailureReport implements Serializable {
     // Fields specific to TrustKit reports
     private static final String APP_PLATFORM = "ANDROID";
@@ -40,14 +34,20 @@ public class PinningFailureReport implements Serializable {
     @NonNull private final Date dateTime;
     @NonNull private final Set<PublicKeyPin> knownPins;
 
-
-    PinningFailureReport(@NonNull String appBundleId, @NonNull String appVersion,
-                         @NonNull String appVendorId, @NonNull String hostname, int port,
-                         @NonNull String notedHostname, boolean includeSubdomains,
-                         boolean enforcePinning, @NonNull List<String> servedCertificateChain,
-                         @NonNull List<String> validatedCertificateChain, @NonNull Date dateTime,
-                         @NonNull Set<PublicKeyPin> knownPins,
-                         @NonNull PinningValidationResult validationResult) {
+    PinningFailureReport(
+            @NonNull String appBundleId,
+            @NonNull String appVersion,
+            @NonNull String appVendorId,
+            @NonNull String hostname,
+            int port,
+            @NonNull String notedHostname,
+            boolean includeSubdomains,
+            boolean enforcePinning,
+            @NonNull List<String> servedCertificateChain,
+            @NonNull List<String> validatedCertificateChain,
+            @NonNull Date dateTime,
+            @NonNull Set<PublicKeyPin> knownPins,
+            @NonNull PinningValidationResult validationResult) {
         this.appBundleId = appBundleId;
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;

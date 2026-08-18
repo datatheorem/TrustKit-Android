@@ -1,39 +1,48 @@
 package com.datatheorem.android.trustkit.reporting;
 
+import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
+import static junit.framework.Assert.assertEquals;
+
 import android.os.Build;
-
 import androidx.test.platform.app.InstrumentationRegistry;
-
 import com.datatheorem.android.trustkit.TestableTrustKit;
 import com.datatheorem.android.trustkit.config.PublicKeyPin;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.utils.VendorIdentifier;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
-
-import static com.datatheorem.android.trustkit.CertificateUtils.testCertChainPem;
-import static junit.framework.Assert.assertEquals;
-
+import org.junit.Before;
+import org.junit.Test;
 
 public class BackgroundReporterTaskTest {
 
-    private final HashSet<PublicKeyPin> knownPins = new HashSet<PublicKeyPin>() {{
-        add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
-        add(new PublicKeyPin("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="));
-    }};
+    private final HashSet<PublicKeyPin> knownPins =
+            new HashSet<PublicKeyPin>() {
+                {
+                    add(new PublicKeyPin("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
+                    add(new PublicKeyPin("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="));
+                }
+            };
 
-    private final PinningFailureReport report = new PinningFailureReport("com.unit.test", "1.2",
-            VendorIdentifier.getOrCreate(InstrumentationRegistry.getInstrumentation().getContext()),
-            "www.datatheorem.com", 0, "datatheorem.com", true, true,
-            testCertChainPem, testCertChainPem, new Date(System.currentTimeMillis()), knownPins,
-            PinningValidationResult.FAILED);
+    private final PinningFailureReport report =
+            new PinningFailureReport(
+                    "com.unit.test",
+                    "1.2",
+                    VendorIdentifier.getOrCreate(
+                            InstrumentationRegistry.getInstrumentation().getContext()),
+                    "www.datatheorem.com",
+                    0,
+                    "datatheorem.com",
+                    true,
+                    true,
+                    testCertChainPem,
+                    testCertChainPem,
+                    new Date(System.currentTimeMillis()),
+                    knownPins,
+                    PinningValidationResult.FAILED);
 
     @Before
     public void setUp() {
@@ -129,5 +138,3 @@ public class BackgroundReporterTaskTest {
         assertEquals(null, lastResponseCode);
     }
 }
-
-

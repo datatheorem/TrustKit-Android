@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Set;
 import javax.net.ssl.X509TrustManager;
 
-
-
 @RequiresApi(api = 17)
 class PinningTrustManager implements X509TrustManager {
 
@@ -26,23 +24,23 @@ class PinningTrustManager implements X509TrustManager {
     private final String serverHostname;
     private final DomainPinningPolicy serverConfig;
 
-
     /**
      * A trust manager which implements path, hostname and pinning validation for a given hostname
      * and sends pinning failure reports if validation failed.
      *
-     * Before Android N, the PinningTrustManager implements pinning validation itself. On Android
+     * <p>Before Android N, the PinningTrustManager implements pinning validation itself. On Android
      * N and later the OS' implementation is used instead for pinning validation.
      *
      * @param serverHostname: The hostname of the server whose identity is being validated. It will
-     *                      be validated against the name(s) the leaf certificate was issued for
-     *                      when performing hostname validation.
+     *     be validated against the name(s) the leaf certificate was issued for when performing
+     *     hostname validation.
      * @param serverConfig: The pinning policy to be enforced when doing pinning validation.
      * @param baselineTrustManager: The trust manager to use for path validation.
      */
-    public PinningTrustManager(@NonNull String serverHostname,
-                               @NonNull DomainPinningPolicy serverConfig,
-                               @NonNull X509TrustManager baselineTrustManager) {
+    public PinningTrustManager(
+            @NonNull String serverHostname,
+            @NonNull DomainPinningPolicy serverConfig,
+            @NonNull X509TrustManager baselineTrustManager) {
         // Store server's information
         this.serverHostname = serverHostname;
         this.serverConfig = serverConfig;
@@ -65,15 +63,14 @@ class PinningTrustManager implements X509TrustManager {
     /**
      * This methods gets called on Android N instead of the 2-parameter checkServerTrusted().
      *
-     * If we ever drop support for versions before Android N (unlikely), we can use this method
+     * <p>If we ever drop support for versions before Android N (unlikely), we can use this method
      * to automatically get the hostname when the certificate chain needs to be validated, instead
      * of having to ask for the hostname a lot earlier when the trust manager (or socket factory)
      * gets created, making the API a lot nicer.
      *
-     * For now this is here only for documentation.
-     * See also: https://developer.android.com/reference/javax/net/ssl/X509ExtendedTrustManager.html
-     * not to be confused with X509TrustManagerExtensions!
-     *
+     * <p>For now this is here only for documentation. See also:
+     * https://developer.android.com/reference/javax/net/ssl/X509ExtendedTrustManager.html not to be
+     * confused with X509TrustManagerExtensions!
      */
     /*
     public List<X509Certificate> checkServerTrusted(X509Certificate[] chain, String authType,
@@ -87,7 +84,7 @@ class PinningTrustManager implements X509TrustManager {
         boolean didPinningValidationFail = false;
 
         // Store the received chain so we can send it later in a report if path validation fails
-        List<X509Certificate> servedServerChain = Arrays.asList((X509Certificate [])chain);
+        List<X509Certificate> servedServerChain = Arrays.asList((X509Certificate[]) chain);
         List<X509Certificate> validatedServerChain = servedServerChain;
 
         // Then do hostname validation first
@@ -103,8 +100,8 @@ class PinningTrustManager implements X509TrustManager {
         // extra certificates an attacker might add: https://koz.io/pinning-cve-2016-2402/
         try {
 
-            validatedServerChain = baselineTrustManager.checkServerTrusted(chain, authType,
-                    serverHostname);
+            validatedServerChain =
+                    baselineTrustManager.checkServerTrusted(chain, authType, serverHostname);
 
         } catch (CertificateException e) {
             if ((Build.VERSION.SDK_INT >= 24)
@@ -122,13 +119,14 @@ class PinningTrustManager implements X509TrustManager {
         // validation succeeded. On Android N this was already taken care of by the netsec policy
         if ((Build.VERSION.SDK_INT < 24) && (!didChainValidationFail)) {
 
-            boolean hasPinningPolicyExpired = (serverConfig.getExpirationDate() != null)
-                    && (serverConfig.getExpirationDate().compareTo(new Date()) < 0);
+            boolean hasPinningPolicyExpired =
+                    (serverConfig.getExpirationDate() != null)
+                            && (serverConfig.getExpirationDate().compareTo(new Date()) < 0);
 
             // Only do pinning validation if the policy has not expired
             if (!hasPinningPolicyExpired) {
-                didPinningValidationFail = !isPinInChain(validatedServerChain,
-                        serverConfig.getPublicKeyPins());
+                didPinningValidationFail =
+                        !isPinInChain(validatedServerChain, serverConfig.getPublicKeyPins());
             }
         }
 
@@ -139,8 +137,14 @@ class PinningTrustManager implements X509TrustManager {
                 // Hostname or path validation failed - not a pinning error
                 validationResult = PinningValidationResult.FAILED_CERTIFICATE_CHAIN_NOT_TRUSTED;
             }
-            TrustManagerBuilder.getReporter().pinValidationFailed(serverHostname, 0,
-                    servedServerChain, validatedServerChain, serverConfig, validationResult);
+            TrustManagerBuilder.getReporter()
+                    .pinValidationFailed(
+                            serverHostname,
+                            0,
+                            servedServerChain,
+                            validatedServerChain,
+                            serverConfig,
+                            validationResult);
         }
 
         // Throw an exception if needed
@@ -148,16 +152,18 @@ class PinningTrustManager implements X509TrustManager {
             throw new CertificateException("Certificate validation failed for " + serverHostname);
         } else if ((didPinningValidationFail) && (serverConfig.shouldEnforcePinning())) {
             // Pinning failed and is enforced - throw an exception to cancel the handshake
-            StringBuilder errorBuilder = new StringBuilder()
-                    .append("Pin verification failed")
-                    .append("\n  Configured pins: ");
+            StringBuilder errorBuilder =
+                    new StringBuilder()
+                            .append("Pin verification failed")
+                            .append("\n  Configured pins: ");
             for (PublicKeyPin pin : serverConfig.getPublicKeyPins()) {
                 errorBuilder.append(pin);
                 errorBuilder.append(" ");
             }
             errorBuilder.append("\n  Peer certificate chain: ");
             for (Certificate certificate : validatedServerChain) {
-                errorBuilder.append("\n    ")
+                errorBuilder
+                        .append("\n    ")
                         .append(new PublicKeyPin(certificate))
                         .append(" - ")
                         .append(((X509Certificate) certificate).getSubjectDN());
@@ -166,8 +172,8 @@ class PinningTrustManager implements X509TrustManager {
         }
     }
 
-    private static boolean isPinInChain(List<X509Certificate> verifiedServerChain,
-                                        Set<PublicKeyPin> configuredPins) {
+    private static boolean isPinInChain(
+            List<X509Certificate> verifiedServerChain, Set<PublicKeyPin> configuredPins) {
         boolean wasPinFound = false;
         for (Certificate certificate : verifiedServerChain) {
             PublicKeyPin certificatePin = new PublicKeyPin(certificate);

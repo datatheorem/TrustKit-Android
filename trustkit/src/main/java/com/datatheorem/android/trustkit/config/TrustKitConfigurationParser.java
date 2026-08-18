@@ -1,10 +1,8 @@
 package com.datatheorem.android.trustkit.config;
 
-
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
-
+import androidx.annotation.NonNull;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,17 +20,16 @@ import java.util.Set;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-
 class TrustKitConfigurationParser {
 
     /**
-     * Parse an XML TrustKit / Network Security policy and return the corresponding
-     * {@link TrustKitConfiguration}.
+     * Parse an XML TrustKit / Network Security policy and return the corresponding {@link
+     * TrustKitConfiguration}.
      */
     @NonNull
     public static TrustKitConfiguration fromXmlPolicy(
-        @NonNull Context context, @NonNull XmlPullParser parser
-    ) throws XmlPullParserException, IOException, CertificateException {
+            @NonNull Context context, @NonNull XmlPullParser parser)
+            throws XmlPullParserException, IOException, CertificateException {
         // Handle nested domain config tags
         // https://developer.android.com/training/articles/security-config.html#ConfigInheritance
         List<DomainPinningPolicy.Builder> builderList = new ArrayList<>();
@@ -64,11 +61,11 @@ class TrustKitConfigurationParser {
         }
 
         if (debugOverridesTag != null) {
-            config = new TrustKitConfiguration(
-                domainConfigSet,
-                debugOverridesTag.overridePins,
-                debugOverridesTag.debugCaCertificates
-            );
+            config =
+                    new TrustKitConfiguration(
+                            domainConfigSet,
+                            debugOverridesTag.overridePins,
+                            debugOverridesTag.debugCaCertificates);
         } else {
             config = new TrustKitConfiguration(domainConfigSet);
         }
@@ -78,12 +75,12 @@ class TrustKitConfigurationParser {
     // Heavily inspired from
     // https://github.com/android/platform_frameworks_base/blob/master/core/java/android/security/net/config/XmlConfigSource.java
     private static List<DomainPinningPolicy.Builder> readDomainConfig(
-            XmlPullParser parser, DomainPinningPolicy.Builder parentBuilder
-    ) throws XmlPullParserException, IOException {
+            XmlPullParser parser, DomainPinningPolicy.Builder parentBuilder)
+            throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "domain-config");
 
-        DomainPinningPolicy.Builder builder = new DomainPinningPolicy.Builder()
-                .setParent(parentBuilder);
+        DomainPinningPolicy.Builder builder =
+                new DomainPinningPolicy.Builder().setParent(parentBuilder);
 
         List<DomainPinningPolicy.Builder> builderList = new ArrayList<>();
         // Put the current builder as the first one in the list, so the parent always gets built
@@ -91,7 +88,8 @@ class TrustKitConfigurationParser {
         builderList.add(builder);
 
         int eventType = parser.next();
-        while (!((eventType == XmlPullParser.END_TAG) && "domain-config".equals(parser.getName()))) {
+        while (!((eventType == XmlPullParser.END_TAG)
+                && "domain-config".equals(parser.getName()))) {
             if (eventType == XmlPullParser.START_TAG) {
                 if ("domain-config".equals(parser.getName())) {
                     // Nested domain configuration tag
@@ -122,14 +120,15 @@ class TrustKitConfigurationParser {
     }
 
     @NonNull
-    private static PinSetTag readPinSet(@NonNull XmlPullParser parser) throws IOException,
-            XmlPullParserException {
+    private static PinSetTag readPinSet(@NonNull XmlPullParser parser)
+            throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "pin-set");
         PinSetTag pinSetTag = new PinSetTag();
         pinSetTag.pins = new HashSet<>();
 
         // Look for the expiration attribute
-        // Taken from https://github.com/android/platform_frameworks_base/blob/master/core/java/android/security/net/config/XmlConfigSource.java
+        // Taken from
+        // https://github.com/android/platform_frameworks_base/blob/master/core/java/android/security/net/config/XmlConfigSource.java
         String expirationDate = parser.getAttributeValue(null, "expiration");
         if (expirationDate != null) {
             try {
@@ -178,7 +177,6 @@ class TrustKitConfigurationParser {
         TrustkitConfigTag result = new TrustkitConfigTag();
         Set<String> reportUris = new HashSet<>();
 
-
         // Look for the enforcePinning attribute
         String enforcePinning = parser.getAttributeValue(null, "enforcePinning");
         if (enforcePinning != null) {
@@ -193,7 +191,8 @@ class TrustKitConfigurationParser {
 
         // Parse until the corresponding close trustkit-config tag
         int eventType = parser.next();
-        while (!((eventType == XmlPullParser.END_TAG) && "trustkit-config".equals(parser.getName()))) {
+        while (!((eventType == XmlPullParser.END_TAG)
+                && "trustkit-config".equals(parser.getName()))) {
             // Look for the next report-uri tag
             if ((eventType == XmlPullParser.START_TAG) && "report-uri".equals(parser.getName())) {
                 // Found one - parse the report-uri value
@@ -212,8 +211,8 @@ class TrustKitConfigurationParser {
     }
 
     @NonNull
-    private static DomainTag readDomain(@NonNull XmlPullParser parser) throws IOException,
-            XmlPullParserException {
+    private static DomainTag readDomain(@NonNull XmlPullParser parser)
+            throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "domain");
         DomainTag result = new DomainTag();
 
@@ -234,8 +233,8 @@ class TrustKitConfigurationParser {
     }
 
     @NonNull
-    private static DebugOverridesTag readDebugOverrides(@NonNull Context context,
-                                                        @NonNull XmlPullParser parser)
+    private static DebugOverridesTag readDebugOverrides(
+            @NonNull Context context, @NonNull XmlPullParser parser)
             throws CertificateException, IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "debug-overrides");
         DebugOverridesTag result = new DebugOverridesTag();
@@ -243,7 +242,8 @@ class TrustKitConfigurationParser {
         Set<Certificate> debugCaCertificates = new HashSet<>();
 
         int eventType = parser.next();
-        while (!((eventType == XmlPullParser.END_TAG) && "trust-anchors".equals(parser.getName()))) {
+        while (!((eventType == XmlPullParser.END_TAG)
+                && "trust-anchors".equals(parser.getName()))) {
             // Look for the next certificates tag
             if ((eventType == XmlPullParser.START_TAG) && "certificates".equals(parser.getName())) {
                 // For simplicity, we only support one global overridePins setting, where Android N
@@ -253,10 +253,11 @@ class TrustKitConfigurationParser {
                 if ((lastOverridePinsEncountered != null)
                         && (lastOverridePinsEncountered != currentOverridePins)) {
                     lastOverridePinsEncountered = false;
-                    TrustKitLog.w("Warning: different values for overridePins are set in the " +
-                            "policy but TrustKit only supports one value; using " +
-                            "overridePins=false for all " +
-                            "connections");
+                    TrustKitLog.w(
+                            "Warning: different values for overridePins are set in the "
+                                    + "policy but TrustKit only supports one value; using "
+                                    + "overridePins=false for all "
+                                    + "connections");
                 } else {
                     lastOverridePinsEncountered = currentOverridePins;
                 }
@@ -268,22 +269,28 @@ class TrustKitConfigurationParser {
 
                 // Parse the path to the certificate bundle for src=@raw - we ignore system or user
                 // as the src
-                if (!TextUtils.isEmpty(caPathFromUser) && !caPathFromUser.equals("user")
-                        && !caPathFromUser.equals("system") && caPathFromUser.startsWith("@raw")) {
+                if (!TextUtils.isEmpty(caPathFromUser)
+                        && !caPathFromUser.equals("user")
+                        && !caPathFromUser.equals("system")
+                        && caPathFromUser.startsWith("@raw")) {
 
                     InputStream stream =
-                            context.getResources().openRawResource(
-                                    context.getResources().getIdentifier(
-                                            caPathFromUser.split("/")[1], "raw",
-                                            context.getPackageName()));
+                            context.getResources()
+                                    .openRawResource(
+                                            context.getResources()
+                                                    .getIdentifier(
+                                                            caPathFromUser.split("/")[1],
+                                                            "raw",
+                                                            context.getPackageName()));
 
-                    debugCaCertificates.add(CertificateFactory.getInstance("X.509")
-                            .generateCertificate(stream));
+                    debugCaCertificates.add(
+                            CertificateFactory.getInstance("X.509").generateCertificate(stream));
 
                 } else {
-                    TrustKitLog.i("No <debug-overrides> certificates found by TrustKit." +
-                            " Please check your @raw folder " +
-                            "(TrustKit doesn't support system and user installed certificates).");
+                    TrustKitLog.i(
+                            "No <debug-overrides> certificates found by TrustKit."
+                                    + " Please check your @raw folder "
+                                    + "(TrustKit doesn't support system and user installed certificates).");
                 }
             }
             eventType = parser.next();
@@ -298,11 +305,15 @@ class TrustKitConfigurationParser {
         return result;
     }
 
-    private static String formatCertPathResourceWhenId(@NonNull Context context, String caPathFromUser) {
-        if(TextUtils.isDigitsOnly(caPathFromUser.replace("@", ""))){
-            caPathFromUser = "@" + context.getResources()
-                .getResourceName(Integer.parseInt(caPathFromUser.replace("@", "")))
-                .replace(context.getPackageName()+":", "");
+    private static String formatCertPathResourceWhenId(
+            @NonNull Context context, String caPathFromUser) {
+        if (TextUtils.isDigitsOnly(caPathFromUser.replace("@", ""))) {
+            caPathFromUser =
+                    "@"
+                            + context.getResources()
+                                    .getResourceName(
+                                            Integer.parseInt(caPathFromUser.replace("@", "")))
+                                    .replace(context.getPackageName() + ":", "");
         }
 
         return caPathFromUser;

@@ -1,12 +1,9 @@
 package com.datatheorem.android.trustkit.utils;
 
-
 import android.content.Context;
 import android.content.SharedPreferences;
-
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
-
 import java.util.UUID;
 
 /**

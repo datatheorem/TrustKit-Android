@@ -1,11 +1,10 @@
 package com.datatheorem.android.trustkit.config;
 
-import androidx.annotation.NonNull;
 import android.util.Base64;
+import androidx.annotation.NonNull;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
-
 
 /**
  * A pin is the base64-encoded SHA-256 hash of the certificate's Subject Public Key Info, as
@@ -50,5 +49,7 @@ public final class PublicKeyPin {
     }
 
     @Override
-    public String toString(){ return pin; }
+    public String toString() {
+        return pin;
+    }
 }

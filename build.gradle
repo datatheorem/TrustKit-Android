@@ -13,7 +13,32 @@ buildscript {
     }
 }
 
+plugins {
+    id("com.diffplug.spotless") version "8.10.0"
+}
+
 allprojects {
+    apply { plugin("com.diffplug.spotless") }
+
+    spotless {
+        java {
+            target("src/**/*.java")
+            googleJavaFormat("1.15.0").aosp()
+        }
+        kotlin {
+            target("src/**/*.kt")
+            ktfmt("0.61").kotlinlangStyle()
+        }
+        groovyGradle {
+            target("*.gradle")
+            greclipse().configProperties("org.eclipse.jdt.core.formatter.tabulation.char=space")
+        }
+        kotlinGradle {
+            target("*.gradle.kts")
+            ktfmt("0.61").kotlinlangStyle()
+        }
+    }
+
     repositories {
         mavenCentral()
         google()
@@ -32,17 +57,17 @@ ext{
     demoAppKotlinTrustKitVersionName = "1.1"
     javaSourceCompatibilty = '11'
     toolVersions = [
-            android : [
-                    compileSdk : 36,
-                    minSdk : 15,
-                    targetSdk: 36
-            ]
+        android : [
+            compileSdk : 36,
+            minSdk : 15,
+            targetSdk: 36
+        ]
     ]
 
     libVersions = [
         junit: '4.12',
         mockito : [
-                android: '1.10.19'
+            android: '1.10.19'
         ],
         dexmaker : '1.4',
         androidx : [
@@ -53,16 +78,15 @@ ext{
             preference: '1.0.0'
         ],
         testing: [
-                okhttp3: '3.11.0',
-                'playServicesBase': '11.0.0',
+            okhttp3: '3.11.0',
+            'playServicesBase': '11.0.0',
         ],
         google: [
-                material: '1.0.0'
+            material: '1.0.0'
         ],
         squareup: [
-                okhttp3: '3.11.0',
-                okhttp2: '2.4.0'
+            okhttp3: '3.11.0',
+            okhttp2: '2.4.0'
         ]
     ]
-
 }

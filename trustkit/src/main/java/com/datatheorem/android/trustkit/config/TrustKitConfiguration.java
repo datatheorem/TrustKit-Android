@@ -11,7 +11,6 @@ import java.util.Set;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-
 public class TrustKitConfiguration {
 
     @NonNull private final Set<DomainPinningPolicy> domainPolicies;
@@ -21,13 +20,11 @@ public class TrustKitConfiguration {
     private final boolean shouldOverridePins;
     @Nullable private final Set<Certificate> debugCaCertificates;
 
-
     public static TrustKitConfiguration fromXmlPolicy(
-            @NonNull Context context, @NonNull XmlPullParser parser
-    ) throws CertificateException, XmlPullParserException, IOException {
+            @NonNull Context context, @NonNull XmlPullParser parser)
+            throws CertificateException, XmlPullParserException, IOException {
         return TrustKitConfigurationParser.fromXmlPolicy(context, parser);
     }
-
 
     protected TrustKitConfiguration(@NonNull Set<DomainPinningPolicy> domainConfigSet) {
         this(domainConfigSet, false, null);
@@ -36,13 +33,13 @@ public class TrustKitConfiguration {
     protected TrustKitConfiguration(
             @NonNull Set<DomainPinningPolicy> domainConfigSet,
             boolean shouldOverridePins,
-            @Nullable Set<Certificate> debugCaCerts
-    ) {
+            @Nullable Set<Certificate> debugCaCerts) {
         Set<String> hostnameSet = new HashSet<>();
         for (DomainPinningPolicy domainConfig : domainConfigSet) {
             if (hostnameSet.contains(domainConfig.getHostname())) {
-                throw new ConfigurationException("Policy contains the same domain defined twice: "
-                        + domainConfig.getHostname());
+                throw new ConfigurationException(
+                        "Policy contains the same domain defined twice: "
+                                + domainConfig.getHostname());
             }
             hostnameSet.add(domainConfig.getHostname());
         }
@@ -70,13 +67,13 @@ public class TrustKitConfiguration {
     }
 
     /**
-     * Get the {@link DomainPinningPolicy} corresponding to the provided hostname.
-     * When matching the most specific matching domain rule will be used, if no match exists
-     * then null will be returned.
+     * Get the {@link DomainPinningPolicy} corresponding to the provided hostname. When matching the
+     * most specific matching domain rule will be used, if no match exists then null will be
+     * returned.
      *
      * @param serverHostname the server's hostname
      * @return DomainPinningPolicy the domain's policy or null if the supplied hostname has no
-     * policy defined
+     *     policy defined
      */
     @Nullable
     public DomainPinningPolicy getPolicyForHostname(@NonNull String serverHostname) {
@@ -100,7 +97,8 @@ public class TrustKitConfiguration {
                     && isSubdomain(domainPolicy.getHostname(), serverHostname)) {
                 if (bestMatchPolicy == null) {
                     bestMatchPolicy = domainPolicy;
-                } else if (domainPolicy.getHostname().length() > bestMatchPolicy.getHostname().length()) {
+                } else if (domainPolicy.getHostname().length()
+                        > bestMatchPolicy.getHostname().length()) {
                     bestMatchPolicy = domainPolicy;
                 }
             }
@@ -109,8 +107,8 @@ public class TrustKitConfiguration {
     }
 
     /**
-     * Return true for all subdomains, including subdomains of subdomains, similar to how
-     * Android N handles includeSubdomains
+     * Return true for all subdomains, including subdomains of subdomains, similar to how Android N
+     * handles includeSubdomains
      */
     private static boolean isSubdomain(@NonNull String domain, @NonNull String subdomain) {
         return subdomain.endsWith(domain)
