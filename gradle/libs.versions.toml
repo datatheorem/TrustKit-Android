@@ -1,0 +1,50 @@
+[versions]
+agp = "8.13.2"
+androidx-annotation = "1.0.0"
+androidx-appcompat = "1.0.2"
+androidx-preference = "1.0.0"
+androidx-test = "1.1.0"
+awaitility = "3.1.6"
+compileSdk = "36"
+demoAppVersionCode = "2"
+demoAppVersionName = "1.1"
+dexmaker = "1.4"
+google-java-format = "1.15.0"
+jvmTarget = "11"
+junit = "4.12"
+kotlin = "1.9.25"
+ktfmt = "0.61"
+material = "1.0.0"
+minSdk = "15"
+mockito = "1.10.19"
+okhttp2 = "2.4.0"
+okhttp3 = "3.11.0"
+play-services-base = "11.0.0"
+spotless = "8.10.0"
+targetSdk = "36"
+trustkitVersionCode = "10"
+trustkitVersionName = "1.1.5"
+
+[libraries]
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidx-annotation" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-preference = { module = "androidx.preference:preference", version.ref = "androidx-preference" }
+androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test" }
+awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
+dexmaker-core = { module = "com.crittercism.dexmaker:dexmaker", version.ref = "dexmaker" }
+dexmaker-dx = { module = "com.crittercism.dexmaker:dexmaker-dx", version.ref = "dexmaker" }
+dexmaker-mockito = { module = "com.crittercism.dexmaker:dexmaker-mockito", version.ref = "dexmaker" }
+google-material = { module = "com.google.android.material:material", version.ref = "material" }
+google-play-services-base = { module = "com.google.android.gms:play-services-base", version.ref = "play-services-base" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlin-stdlib-jdk7 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk7", version.ref = "kotlin" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+okhttp2 = { module = "com.squareup.okhttp:okhttp", version.ref = "okhttp2" }
+okhttp3 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp3" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

@@ -1,15 +1,17 @@
-apply plugin: 'com.android.application'
+plugins {
+    alias(libs.plugins.android.application)
+}
 
 android {
     namespace = 'com.datatheorem.android.trustkit.demoapp'
-    compileSdkVersion toolVersions.android.compileSdk
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         applicationId "com.datatheorem.android.trustkit.demoapp"
-        minSdkVersion toolVersions.android.minSdk
-        targetSdkVersion toolVersions.android.targetSdk
-        versionCode demoAppTrustKitVersionCode
-        versionName demoAppTrustKitVersionName
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
+        versionCode libs.versions.demoAppVersionCode.get().toInteger()
+        versionName libs.versions.demoAppVersionName.get()
     }
     buildTypes {
         release {
@@ -19,14 +21,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
+        targetCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':trustkit')
-    implementation "androidx.appcompat:appcompat:$rootProject.libVersions.androidx.appcompat"
-    implementation "com.google.android.material:material:$rootProject.libVersions.google.material"
+    implementation libs.androidx.appcompat
+    implementation libs.google.material
 }

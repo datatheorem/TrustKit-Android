@@ -1,42 +1,46 @@
-apply plugin: 'com.android.library'
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+version = libs.versions.trustkitVersionName.get()
 
 android {
     namespace = 'com.datatheorem.android.trustkit'
-    compileSdkVersion toolVersions.android.compileSdk
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
     buildFeatures {
         buildConfig = true
     }
 
     defaultConfig {
-        minSdkVersion toolVersions.android.minSdk
-        versionCode trustkitVersionCode
-        versionName trustkitVersionName
-        buildConfigField 'String', 'VERSION_NAME', "\"${trustkitVersionName}\""
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        versionCode libs.versions.trustkitVersionCode.get().toInteger()
+        versionName project.version.toString()
+        buildConfigField 'String', 'VERSION_NAME', "\"${project.version}\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
+        targetCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
     }
 }
 
 dependencies {
-    implementation "androidx.annotation:annotation:$rootProject.libVersions.androidx.annotation"
-    implementation "androidx.preference:preference:$rootProject.libVersions.androidx.preference"
-    compileOnly "com.squareup.okhttp3:okhttp:$rootProject.libVersions.squareup.okhttp3"
-    compileOnly "com.squareup.okhttp:okhttp:$rootProject.libVersions.squareup.okhttp2"
-    androidTestImplementation "junit:junit:$rootProject.libVersions.junit"
-    androidTestImplementation "androidx.test:runner:$rootProject.libVersions.androidx.test"
-    androidTestImplementation "androidx.test:rules:$rootProject.libVersions.androidx.test"
-    androidTestImplementation "org.mockito:mockito-core:$rootProject.libVersions.mockito.android"
-    androidTestImplementation "org.awaitility:awaitility:3.1.6"
-    androidTestImplementation "com.crittercism.dexmaker:dexmaker:$rootProject.libVersions.dexmaker"
-    androidTestImplementation "com.crittercism.dexmaker:dexmaker-dx:$rootProject.libVersions.dexmaker"
-    androidTestImplementation "com.crittercism.dexmaker:dexmaker-mockito:$rootProject.libVersions.dexmaker"
-    androidTestImplementation "com.squareup.okhttp3:okhttp:$rootProject.libVersions.testing.okhttp3"
-    androidTestImplementation "com.google.android.gms:play-services-base:$rootProject.libVersions.testing.playServicesBase"
+    implementation libs.androidx.annotation
+    implementation libs.androidx.preference
+    compileOnly libs.okhttp3
+    compileOnly libs.okhttp2
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.rules
+    androidTestImplementation libs.mockito.core
+    androidTestImplementation libs.awaitility
+    androidTestImplementation libs.dexmaker.core
+    androidTestImplementation libs.dexmaker.dx
+    androidTestImplementation libs.dexmaker.mockito
+    androidTestImplementation libs.okhttp3
+    androidTestImplementation libs.google.play.services.base
 }
 
 // MavenCentral deployment gradle script

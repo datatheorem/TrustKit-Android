@@ -1,18 +1,20 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+}
 
 android {
     namespace = 'com.datatheorem.android.trustkit.demoappkotlin'
-    compileSdkVersion toolVersions.android.compileSdk
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
 
 
     defaultConfig {
         applicationId "com.datatheorem.android.trustkit.demoappkotlin"
-        minSdkVersion toolVersions.android.minSdk
-        targetSdkVersion toolVersions.android.targetSdk
-        versionCode demoAppKotlinTrustKitVersionCode
-        versionName demoAppKotlinTrustKitVersionName
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
+        versionCode libs.versions.demoAppVersionCode.get().toInteger()
+        versionName libs.versions.demoAppVersionName.get()
     }
 
     buildTypes {
@@ -23,22 +25,19 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
+        targetCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
     }
 
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = libs.versions.jvmTarget.get()
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "androidx.appcompat:appcompat:$rootProject.libVersions.androidx.appcompat"
-    implementation "com.google.android.material:material:$rootProject.libVersions.google.material"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation libs.androidx.appcompat
+    implementation libs.google.material
+    implementation libs.kotlin.stdlib.jdk7
     implementation project(path: ':trustkit')
-}
-repositories {
-    mavenCentral()
 }
