@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 version = libs.versions.trustkitVersionName.get()
@@ -23,6 +24,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
         targetCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
+    }
+
+    kotlinOptions {
+        jvmTarget = libs.versions.jvmTarget.get()
     }
 }
 

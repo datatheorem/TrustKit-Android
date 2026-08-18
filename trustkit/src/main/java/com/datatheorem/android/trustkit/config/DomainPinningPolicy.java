@@ -12,7 +12,7 @@ import java.util.Set;
 public final class DomainPinningPolicy {
 
     // The default URL to submit pin failure report to
-    private static final URL DEFAULT_REPORTING_URL;
+    private static URL DEFAULT_REPORTING_URL;
 
     static {
         java.net.URL defaultUrl;
@@ -22,6 +22,10 @@ public final class DomainPinningPolicy {
             throw new IllegalStateException("Bad DEFAULT_REPORTING_URL");
         }
         DEFAULT_REPORTING_URL = defaultUrl;
+    }
+
+    public static void setDefaultReportingUrl(URL defaultReportingUrl) {
+        DEFAULT_REPORTING_URL = defaultReportingUrl;
     }
 
     @NonNull private final String hostname;

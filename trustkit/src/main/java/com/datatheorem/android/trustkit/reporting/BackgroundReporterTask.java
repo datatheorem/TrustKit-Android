@@ -22,6 +22,15 @@ import javax.net.ssl.TrustManager;
 class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
 
     private static final SSLSocketFactory systemSocketFactory = getSystemSSLSocketFactory();
+    private String mobileProtectApiKey;
+
+    public BackgroundReporterTask() {
+        this(null);
+    }
+
+    public BackgroundReporterTask(String mobileProtectApiKey) {
+        this.mobileProtectApiKey = mobileProtectApiKey;
+    }
 
     @Override
     protected final Integer doInBackground(Object... params) {
@@ -40,6 +49,10 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setDoOutput(true);
                 connection.setChunkedStreamingMode(0);
+
+                // if provided with a mobileProtectApiKey, add its authorization header
+                if (mobileProtectApiKey != null)
+                    connection.setRequestProperty("Authorization", "Bearer " + mobileProtectApiKey);
 
                 // If basic authentication was specified in the URL, set it up on the connection
                 if (reportUri.getUserInfo() != null) {

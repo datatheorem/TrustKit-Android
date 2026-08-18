@@ -27,16 +27,27 @@ public class BackgroundReporter {
     private final String appVersion;
     private final String appVendorId;
     private final Context context;
+    private final String mobileProtectApiKey;
 
     public BackgroundReporter(
             @NonNull Context context,
             @NonNull String appPackageName,
             @NonNull String appVersion,
             @NonNull String appVendorId) {
+        this(context, appPackageName, appVersion, appVendorId, null);
+    }
+
+    public BackgroundReporter(
+            @NonNull Context context,
+            @NonNull String appPackageName,
+            @NonNull String appVersion,
+            @NonNull String appVendorId,
+            String mobileProtectApiKey) {
         this.context = context;
         this.appPackageName = appPackageName;
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;
+        this.mobileProtectApiKey = mobileProtectApiKey;
     }
 
     private static String certificateToPem(X509Certificate certificate) {
@@ -118,7 +129,7 @@ public class BackgroundReporter {
         taskParameters.add(report);
         taskParameters.addAll(reportUriSet);
         // Call the task
-        new BackgroundReporterTask().execute(taskParameters.toArray());
+        new BackgroundReporterTask(mobileProtectApiKey).execute(taskParameters.toArray());
     }
 
     protected void broadcastReport(@NonNull PinningFailureReport report) {

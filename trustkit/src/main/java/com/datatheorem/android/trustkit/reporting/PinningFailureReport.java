@@ -17,7 +17,6 @@ import org.json.JSONObject;
 public class PinningFailureReport implements Serializable {
     // Fields specific to TrustKit reports
     private static final String APP_PLATFORM = "ANDROID";
-    private static final String trustKitVersion = BuildConfig.VERSION_NAME;
     @NonNull private final String appBundleId;
     @NonNull private final String appVersion;
     @NonNull private final String appVendorId;
@@ -67,10 +66,10 @@ public class PinningFailureReport implements Serializable {
         JSONObject jsonReport = new JSONObject();
         try {
             jsonReport.put("app-bundle-id", appBundleId);
-            jsonReport.put("app-version", appVersion);
+            jsonReport.put("app-version", String.valueOf(appVersion));
             jsonReport.put("app-vendor-id", appVendorId);
             jsonReport.put("app-platform", APP_PLATFORM);
-            jsonReport.put("trustkit-version", trustKitVersion);
+            jsonReport.put("trustkit-version", BuildConfig.VERSION_NAME);
             jsonReport.put("hostname", serverHostname);
             jsonReport.put("port", serverPort);
             jsonReport.put("noted-hostname", notedHostname);
@@ -99,12 +98,11 @@ public class PinningFailureReport implements Serializable {
 
         } catch (JSONException ex) {
             // Should never happen
-            throw new IllegalStateException("JSON error for report: " + this);
+            throw new IllegalStateException("JSON error for report: " + this.toString());
         }
         return jsonReport;
     }
 
-    @NonNull
     @Override
     public String toString() {
         try {
