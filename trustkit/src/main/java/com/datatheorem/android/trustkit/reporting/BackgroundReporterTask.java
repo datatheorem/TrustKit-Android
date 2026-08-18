@@ -84,7 +84,7 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
     private static SSLSocketFactory getSystemSSLSocketFactory() {
         SSLContext context;
         try {
-            context = SSLContext.getInstance("TLS");
+            context = SSLContext.getInstance("TLSv1.2");
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Should never happen");
         }

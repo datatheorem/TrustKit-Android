@@ -139,6 +139,7 @@ public final class DomainPinningPolicy {
         return expirationDate;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "DomainPinningPolicy{"

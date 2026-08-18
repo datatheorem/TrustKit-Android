@@ -67,7 +67,7 @@ public class PinningFailureReport implements Serializable {
         JSONObject jsonReport = new JSONObject();
         try {
             jsonReport.put("app-bundle-id", appBundleId);
-            jsonReport.put("app-version", String.valueOf(appVersion));
+            jsonReport.put("app-version", appVersion);
             jsonReport.put("app-vendor-id", appVendorId);
             jsonReport.put("app-platform", APP_PLATFORM);
             jsonReport.put("trustkit-version", trustKitVersion);
@@ -99,11 +99,12 @@ public class PinningFailureReport implements Serializable {
 
         } catch (JSONException ex) {
             // Should never happen
-            throw new IllegalStateException("JSON error for report: " + this.toString());
+            throw new IllegalStateException("JSON error for report: " + this);
         }
         return jsonReport;
     }
 
+    @NonNull
     @Override
     public String toString() {
         try {

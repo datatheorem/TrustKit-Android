@@ -8,7 +8,7 @@ import java.security.cert.Certificate;
 
 /**
  * A pin is the base64-encoded SHA-256 hash of the certificate's Subject Public Key Info, as
- * described in the HPKP RFC https://tools.ietf.org/html/rfc7469s .
+ * described in the <a href="https://tools.ietf.org/html/rfc7469s">HPKP RFC</a> .
  */
 public final class PublicKeyPin {
 
@@ -48,6 +48,7 @@ public final class PublicKeyPin {
         return pin.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return pin;
