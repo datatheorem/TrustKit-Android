@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.pinning;
-// TrustKit: imported from https://github.com/square/okhttp/blob/master/okhttp/src/main/java/okhttp3/internal/tls/DistinguishedNameParser.java
+// TrustKit: imported from
+// https://github.com/square/okhttp/blob/master/okhttp/src/main/java/okhttp3/internal/tls/DistinguishedNameParser.java
 
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
@@ -19,9 +20,10 @@ package com.datatheorem.android.trustkit.pinning;
  */
 
 import javax.security.auth.x500.X500Principal;
+
 /**
- * A distinguished name (DN) parser. This parser only supports extracting a
- * string value from a DN. It doesn't support values in the hex-string style.
+ * A distinguished name (DN) parser. This parser only supports extracting a string value from a DN.
+ * It doesn't support values in the hex-string style.
  *
  * @hide
  */
@@ -36,6 +38,7 @@ final class DistinguishedNameParser {
     private int cur;
     /** distinguished name chars */
     private char[] chars;
+
     public DistinguishedNameParser(X500Principal principal) {
         // RFC2253 is used to ensure we get attributes in the reverse
         // order of the underlying ASN.1 encoding, so that the most
@@ -47,8 +50,7 @@ final class DistinguishedNameParser {
     private String nextAT() {
         // skip preceding space chars, they can present after
         // comma or semicolon (compatibility with RFC 1779)
-        for (; pos < length && chars[pos] == ' '; pos++) {
-        }
+        for (; pos < length && chars[pos] == ' '; pos++) {}
         if (pos == length) {
             return null; // reached the end of DN
         }
@@ -68,20 +70,19 @@ final class DistinguishedNameParser {
         // skip trailing space chars between attribute type and '='
         // (compatibility with RFC 1779)
         if (chars[pos] == ' ') {
-            for (; pos < length && chars[pos] != '=' && chars[pos] == ' '; pos++) {
-            }
+            for (; pos < length && chars[pos] != '=' && chars[pos] == ' '; pos++) {}
             if (chars[pos] != '=' || pos == length) {
                 throw new IllegalStateException("Unexpected end of DN: " + dn);
             }
         }
-        pos++; //skip '=' char
+        pos++; // skip '=' char
         // skip space chars between '=' and attribute value
         // (compatibility with RFC 1779)
-        for (; pos < length && chars[pos] == ' '; pos++) {
-        }
+        for (; pos < length && chars[pos] == ' '; pos++) {}
         // in case of oid attribute type skip its prefix: "oid." or "OID."
         // (compatibility with RFC 1779)
-        if ((end - beg > 4) && (chars[beg + 3] == '.')
+        if ((end - beg > 4)
+                && (chars[beg + 3] == '.')
                 && (chars[beg] == 'O' || chars[beg] == 'o')
                 && (chars[beg + 1] == 'I' || chars[beg + 1] == 'i')
                 && (chars[beg + 2] == 'D' || chars[beg + 2] == 'd')) {
@@ -113,8 +114,7 @@ final class DistinguishedNameParser {
         }
         // skip trailing space chars before comma or semicolon.
         // (compatibility with RFC 1779)
-        for (; pos < length && chars[pos] == ' '; pos++) {
-        }
+        for (; pos < length && chars[pos] == ' '; pos++) {}
         return new String(chars, beg, end - beg);
     }
     // gets hex string attribute value: "#" hexstring
@@ -128,8 +128,7 @@ final class DistinguishedNameParser {
         while (true) {
             // check for end of attribute value
             // looks for space and component separators
-            if (pos == length || chars[pos] == '+' || chars[pos] == ','
-                    || chars[pos] == ';') {
+            if (pos == length || chars[pos] == '+' || chars[pos] == ',' || chars[pos] == ';') {
                 end = pos;
                 break;
             }
@@ -138,11 +137,10 @@ final class DistinguishedNameParser {
                 pos++;
                 // skip trailing space chars before comma or semicolon.
                 // (compatibility with RFC 1779)
-                for (; pos < length && chars[pos] == ' '; pos++) {
-                }
+                for (; pos < length && chars[pos] == ' '; pos++) {}
                 break;
             } else if (chars[pos] >= 'A' && chars[pos] <= 'F') {
-                chars[pos] += 32; //to low case
+                chars[pos] += 32; // to low case
             }
             pos++;
         }
@@ -188,7 +186,9 @@ final class DistinguishedNameParser {
                     for (; pos < length && chars[pos] == ' '; pos++) {
                         chars[end++] = ' ';
                     }
-                    if (pos == length || chars[pos] == ',' || chars[pos] == '+'
+                    if (pos == length
+                            || chars[pos] == ','
+                            || chars[pos] == '+'
                             || chars[pos] == ';') {
                         // separator char or the end of DN has been found
                         return new String(chars, beg, cur - beg);
@@ -220,7 +220,7 @@ final class DistinguishedNameParser {
             case '*':
             case '%':
             case '_':
-                //FIXME: escaping is allowed only for leading or trailing space char
+                // FIXME: escaping is allowed only for leading or trailing space char
                 return chars[pos];
             default:
                 // RFC doesn't explicitly say that escaped hex pair is
@@ -232,7 +232,7 @@ final class DistinguishedNameParser {
     // see http://www.unicode.org for UTF-8 bit distribution table
     private char getUTF8() {
         int res = getByte(pos);
-        pos++; //FIXME tmp
+        pos++; // FIXME tmp
         if (res < 128) { // one byte: 0-7F
             return (char) res;
         } else if (res >= 192 && res <= 247) {
@@ -251,19 +251,19 @@ final class DistinguishedNameParser {
             for (int i = 0; i < count; i++) {
                 pos++;
                 if (pos == length || chars[pos] != '\\') {
-                    return 0x3F; //FIXME failed to decode UTF-8 char - return '?'
+                    return 0x3F; // FIXME failed to decode UTF-8 char - return '?'
                 }
                 pos++;
                 b = getByte(pos);
-                pos++; //FIXME tmp
+                pos++; // FIXME tmp
                 if ((b & 0xC0) != 0x80) {
-                    return 0x3F; //FIXME failed to decode UTF-8 char - return '?'
+                    return 0x3F; // FIXME failed to decode UTF-8 char - return '?'
                 }
                 res = (res << 6) + (b & 0x3F);
             }
             return (char) res;
         } else {
-            return 0x3F; //FIXME failed to decode UTF-8 char - return '?'
+            return 0x3F; // FIXME failed to decode UTF-8 char - return '?'
         }
     }
     // Returns byte representation of a char pair
@@ -300,8 +300,8 @@ final class DistinguishedNameParser {
         return (b1 << 4) + b2;
     }
     /**
-     * Parses the DN and returns the most significant attribute value
-     * for an attribute type, or null if none found.
+     * Parses the DN and returns the most significant attribute value for an attribute type, or null
+     * if none found.
      *
      * @param attributeType attribute type to look for (e.g. "ca")
      */
@@ -331,7 +331,7 @@ final class DistinguishedNameParser {
                 case '+':
                 case ',':
                 case ';': // compatibility with RFC 1779: semicolon can separate RDNs
-                    //empty attribute value
+                    // empty attribute value
                     break;
                 default:
                     attValue = escapedAV();

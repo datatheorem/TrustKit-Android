@@ -13,7 +13,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-
 /**
  * Used when <debug-overrides> is enabled in the network security policy and we are on a pre-N
  * Android device (as Android N automatically takes care of this). It returns a trust manager that
@@ -22,8 +21,8 @@ import javax.net.ssl.X509TrustManager;
  */
 class DebugOverridesTrustManager {
 
-    public static X509TrustManager getInstance(Set<Certificate> debugCaCerts) throws
-            CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {
+    public static X509TrustManager getInstance(Set<Certificate> debugCaCerts)
+            throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {
         X509TrustManager debugTrustManager = null;
 
         // Create a KeyStore containing our trusted CAs and the Android user and system CAs
@@ -36,13 +35,13 @@ class DebugOverridesTrustManager {
         while (aliases.hasMoreElements()) {
             String alias = (String) aliases.nextElement();
             X509Certificate cert = (X509Certificate) systemKeyStore.getCertificate(alias);
-            keyStore.setCertificateEntry(alias , cert);
+            keyStore.setCertificateEntry(alias, cert);
         }
 
         // Add the extra debug CAs to the store
         for (Certificate caCert : debugCaCerts) {
             String alias = "debug: " + ((X509Certificate) caCert).getSubjectDN().getName();
-            keyStore.setCertificateEntry(alias , caCert);
+            keyStore.setCertificateEntry(alias, caCert);
         }
 
         // Create a TrustManager that trusts the CAs in our KeyStore

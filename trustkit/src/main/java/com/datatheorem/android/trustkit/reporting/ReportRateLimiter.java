@@ -1,8 +1,6 @@
 package com.datatheorem.android.trustkit.reporting;
 
-
 import androidx.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,11 +10,11 @@ import java.util.Set;
 // Very basic implementation to rate-limit identical reports to once a day
 class ReportRateLimiter {
 
-    private static final long MAX_SECONDS_BETWEEN_CACHE_RESET = 3600*24;
+    private static final long MAX_SECONDS_BETWEEN_CACHE_RESET = 3600 * 24;
     private static final Set<List<Object>> reportsCache = new HashSet<>();
     protected static Date lastReportsCacheResetDate = new Date();
 
-    synchronized static boolean shouldRateLimit(@NonNull final PinningFailureReport report) {
+    static synchronized boolean shouldRateLimit(@NonNull final PinningFailureReport report) {
         // Reset the cache if it was created more than 24 hours ago
         Date currentDate = new Date();
         long secondsSinceLastReset =
@@ -35,7 +33,7 @@ class ReportRateLimiter {
         cacheEntry.add(report.getValidationResult());
 
         boolean shouldRateLimitReport = reportsCache.contains(cacheEntry);
-        if (!shouldRateLimitReport){
+        if (!shouldRateLimitReport) {
             reportsCache.add(cacheEntry);
         }
         return shouldRateLimitReport;

@@ -14,8 +14,6 @@ import java.security.cert.CertificateException;
 import java.util.Set;
 import javax.net.ssl.X509TrustManager;
 
-
-
 public class TrustManagerBuilder {
 
     // The trust manager we will use to perform the default SSL validation
@@ -27,16 +25,15 @@ public class TrustManagerBuilder {
     // The reporter that will send pinning failure reports
     protected static BackgroundReporter backgroundReporter = null;
 
-    public static void initializeBaselineTrustManager(@Nullable Set<Certificate> debugCaCerts,
-                                                      boolean debugOverridePins,
-                                                      @NonNull BackgroundReporter reporter)
-            throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
-            IOException {
+    public static void initializeBaselineTrustManager(
+            @Nullable Set<Certificate> debugCaCerts,
+            boolean debugOverridePins,
+            @NonNull BackgroundReporter reporter)
+            throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
         if (baselineTrustManager != null) {
             throw new IllegalStateException("TrustManagerBuilder has already been initialized");
         }
         baselineTrustManager = SystemTrustManager.getInstance();
-
 
         if (Build.VERSION.SDK_INT < 17) {
             // No pinning validation or debug overrides
@@ -73,8 +70,7 @@ public class TrustManagerBuilder {
         }
     }
 
-    /** Retrieve the background reporter to be used for sending pinning validation reports.
-     */
+    /** Retrieve the background reporter to be used for sending pinning validation reports. */
     static BackgroundReporter getReporter() {
         if (backgroundReporter == null) {
             throw new IllegalStateException("TrustManagerBuilder has not been initialized");

@@ -10,15 +10,13 @@ import com.datatheorem.android.trustkit.reporting.BackgroundReporter
  * Class that provides an example broadcast receiver
  *
  * <p>
- *     Applications using TrustKit can listen for local broadcasts and receive the same report that
- *     would be sent to the report_url.
- * </p>
- **/
+ * Applications using TrustKit can listen for local broadcasts and receive the same report that
+ * would be sent to the report_url. </p>
+ */
 class PinningFailureReportBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val result = intent.getSerializableExtra(BackgroundReporter.EXTRA_REPORT)
         Log.i(DemoMainActivity.DEBUG_TAG, result.toString())
     }
-
 }

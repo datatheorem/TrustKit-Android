@@ -1,15 +1,17 @@
-apply plugin: 'com.android.application'
+plugins {
+    alias(libs.plugins.android.application)
+}
 
 android {
-    compileSdkVersion toolVersions.android.compileSdk
-    buildToolsVersion toolVersions.android.buildTools
+    namespace = 'com.datatheorem.android.trustkit.demoapp'
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         applicationId "com.datatheorem.android.trustkit.demoapp"
-        minSdkVersion toolVersions.android.minSdk
-        targetSdkVersion toolVersions.android.targetSdk
-        versionCode demoAppTrustKitVersionCode
-        versionName demoAppTrustKitVersionName
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
+        versionCode libs.versions.demoAppVersionCode.get().toInteger()
+        versionName libs.versions.demoAppVersionName.get()
     }
     buildTypes {
         release {
@@ -17,11 +19,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
+        targetCompatibility JavaVersion.toVersion(libs.versions.jvmTarget.get())
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':trustkit')
-    implementation "androidx.appcompat:appcompat:$rootProject.libVersions.androidx.appcompat"
-    implementation "com.google.android.material:material:$rootProject.libVersions.google.material"
+    implementation libs.androidx.appcompat
+    implementation libs.google.material
 }

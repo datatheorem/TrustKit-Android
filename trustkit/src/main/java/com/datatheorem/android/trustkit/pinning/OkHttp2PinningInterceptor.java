@@ -1,11 +1,9 @@
 package com.datatheorem.android.trustkit.pinning;
 
 import androidx.annotation.NonNull;
-
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-
 import java.io.IOException;
 
 /**
@@ -19,7 +17,8 @@ public class OkHttp2PinningInterceptor implements Interceptor {
         mTrustManager = trustManager;
     }
 
-    @Override public Response intercept(Interceptor.Chain chain) throws IOException {
+    @Override
+    public Response intercept(Interceptor.Chain chain) throws IOException {
         Request request = chain.request();
         String serverHostname = request.url().getHost();
 

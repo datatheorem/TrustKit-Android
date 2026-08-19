@@ -2,12 +2,9 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.os.AsyncTask;
 import android.util.Base64;
-
 import androidx.annotation.RequiresApi;
-
 import com.datatheorem.android.trustkit.pinning.SystemTrustManager;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
-
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,12 +12,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-
 
 // This returns an obscure threading error on API level < 16
 @RequiresApi(api = 16)
@@ -36,7 +31,7 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
         PinningFailureReport report = (PinningFailureReport) params[0];
 
         // Remaining parameters are report URLs - send the report to each of them
-        for (int i=1; i<params.length; i++) {
+        for (int i = 1; i < params.length; i++) {
             URL reportUri = (URL) params[i];
             HttpURLConnection connection = null;
             try {
@@ -48,7 +43,12 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
 
                 // If basic authentication was specified in the URL, set it up on the connection
                 if (reportUri.getUserInfo() != null) {
-                    String basicAuth = "Basic " + new String(Base64.encode(reportUri.getUserInfo().getBytes(), Base64.DEFAULT));
+                    String basicAuth =
+                            "Basic "
+                                    + new String(
+                                            Base64.encode(
+                                                    reportUri.getUserInfo().getBytes(),
+                                                    Base64.DEFAULT));
                     connection.setRequestProperty("Authorization", basicAuth);
                 }
 
@@ -93,7 +93,7 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
         }
 
         try {
-            context.init(null, new TrustManager[] { SystemTrustManager.getInstance() }, null);
+            context.init(null, new TrustManager[] {SystemTrustManager.getInstance()}, null);
         } catch (KeyManagementException e) {
             throw new IllegalStateException("Should never happen");
         }

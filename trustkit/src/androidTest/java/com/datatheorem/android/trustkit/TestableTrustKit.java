@@ -1,6 +1,5 @@
 package com.datatheorem.android.trustkit;
 
-
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,18 +11,18 @@ import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import java.security.cert.Certificate;
 import java.util.Set;
 
-
 // The main TrustKit class with some extra utility methods needed in the tests
 public class TestableTrustKit extends TrustKit {
-    private TestableTrustKit(Context context, TrustKitConfiguration trustKitConfiguration,
-                             BackgroundReporter reporter) {
+    private TestableTrustKit(
+            Context context,
+            TrustKitConfiguration trustKitConfiguration,
+            BackgroundReporter reporter) {
         super(context, trustKitConfiguration);
         TestableTrustManagerBuilder.setReporter(reporter);
     }
 
-
-    public static TrustKit initializeWithNetworkSecurityConfiguration(@NonNull Context context,
-                                                                      BackgroundReporter reporter) {
+    public static TrustKit initializeWithNetworkSecurityConfiguration(
+            @NonNull Context context, BackgroundReporter reporter) {
         TrustKit.initializeWithNetworkSecurityConfiguration(context);
         TestableTrustManagerBuilder.setReporter(reporter);
         return TrustKit.getInstance();
@@ -31,21 +30,26 @@ public class TestableTrustKit extends TrustKit {
 
     // This lets us directly specify domain settings without parsing an XML file and inject/mock
     // the background reporter
-    public static void init(@NonNull Set<DomainPinningPolicy> domainConfigSet,
-                            @NonNull Context context,
-                            BackgroundReporter reporter) {
-        trustKitInstance = new TrustKit(context, new TestableTrustKitConfiguration(domainConfigSet));
+    public static void init(
+            @NonNull Set<DomainPinningPolicy> domainConfigSet,
+            @NonNull Context context,
+            BackgroundReporter reporter) {
+        trustKitInstance =
+                new TrustKit(context, new TestableTrustKitConfiguration(domainConfigSet));
         TestableTrustManagerBuilder.setReporter(reporter);
     }
 
-
-    public static void init(@NonNull Set<DomainPinningPolicy> domainConfigSet,
-                            boolean shouldOverridePins,
-                            @Nullable Set<Certificate> debugCaCerts,
-                            @NonNull Context context,
-                            BackgroundReporter reporter) {
-        trustKitInstance = new TrustKit(context, new TestableTrustKitConfiguration(domainConfigSet,
-                shouldOverridePins, debugCaCerts));
+    public static void init(
+            @NonNull Set<DomainPinningPolicy> domainConfigSet,
+            boolean shouldOverridePins,
+            @Nullable Set<Certificate> debugCaCerts,
+            @NonNull Context context,
+            BackgroundReporter reporter) {
+        trustKitInstance =
+                new TrustKit(
+                        context,
+                        new TestableTrustKitConfiguration(
+                                domainConfigSet, shouldOverridePins, debugCaCerts));
         TestableTrustManagerBuilder.setReporter(reporter);
     }
 

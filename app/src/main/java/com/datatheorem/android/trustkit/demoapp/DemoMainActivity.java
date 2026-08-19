@@ -3,30 +3,26 @@ package com.datatheorem.android.trustkit.demoapp;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import javax.net.ssl.HttpsURLConnection;
-
 
 public class DemoMainActivity extends AppCompatActivity {
 
     protected static final String DEBUG_TAG = "TrustKit-Demo";
-    private static final PinningFailureReportBroadcastReceiver pinningFailureReportBroadcastReceiver
-        = new PinningFailureReportBroadcastReceiver();
+    private static final PinningFailureReportBroadcastReceiver
+            pinningFailureReportBroadcastReceiver = new PinningFailureReportBroadcastReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +45,7 @@ public class DemoMainActivity extends AppCompatActivity {
 
         IntentFilter intentFilter = new IntentFilter(BackgroundReporter.REPORT_VALIDATION_EVENT);
         LocalBroadcastManager.getInstance(getApplicationContext())
-                .registerReceiver(pinningFailureReportBroadcastReceiver,intentFilter);
+                .registerReceiver(pinningFailureReportBroadcastReceiver, intentFilter);
     }
 
     @Override
@@ -65,10 +61,11 @@ public class DemoMainActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             try {
                 URL url = new URL(params[0]);
-                HttpsURLConnection connection;
+                HttpsURLConnection connection = null;
                 connection = (HttpsURLConnection) url.openConnection();
-                connection.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
-                connection.getInputStream();
+                connection.setSSLSocketFactory(
+                        TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
+                InputStream inputStream = connection.getInputStream();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -107,4 +104,3 @@ public class DemoMainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
-

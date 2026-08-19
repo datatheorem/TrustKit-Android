@@ -1,6 +1,5 @@
 package com.datatheorem.android.trustkit.pinning;
 
-
 public enum PinningValidationResult {
     // The server trust was successfully evaluated and contained at least one of the configured pins
     SUCCESS,

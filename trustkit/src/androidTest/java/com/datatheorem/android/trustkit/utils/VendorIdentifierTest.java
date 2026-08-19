@@ -1,14 +1,11 @@
 package com.datatheorem.android.trustkit.utils;
 
-import android.content.Context;
-
-import androidx.test.platform.app.InstrumentationRegistry;
-
-import org.junit.Test;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
+import android.content.Context;
+import androidx.test.platform.app.InstrumentationRegistry;
+import org.junit.Test;
 
 public class VendorIdentifierTest {
 

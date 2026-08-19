@@ -1,6 +1,5 @@
 package com.datatheorem.android.trustkit.pinning;
 
-
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 
 public class TestableTrustManagerBuilder extends TrustManagerBuilder {

@@ -5,17 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
-
 import java.io.Serializable;
 
 /**
  * Class that provides an example broadcast receiver
  *
- * <p>
- *     Applications using TrustKit can listen for local broadcasts and receive the same report that
- *     would be sent to the report_url.
- * </p>
- **/
+ * <p>Applications using TrustKit can listen for local broadcasts and receive the same report that
+ * would be sent to the report_url.
+ */
 class PinningFailureReportBroadcastReceiver extends BroadcastReceiver {
 
     @Override

@@ -1,18 +1,15 @@
 package com.datatheorem.android.trustkit;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
-
 import androidx.test.platform.app.InstrumentationRegistry;
-
 import com.datatheorem.android.trustkit.config.ConfigurationException;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
 public class TrustKitTest {
 
@@ -44,10 +41,12 @@ public class TrustKitTest {
     @Test
     public void testInitializeWithValidXmlFile() {
         Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        int networkSecurityConfigId = context.getResources().getIdentifier(
-                "network_security_config", "xml", context.getPackageName());
-        TrustKit trustkit = TrustKit.initializeWithNetworkSecurityConfiguration(context,
-                networkSecurityConfigId);
+        int networkSecurityConfigId =
+                context.getResources()
+                        .getIdentifier("network_security_config", "xml", context.getPackageName());
+        TrustKit trustkit =
+                TrustKit.initializeWithNetworkSecurityConfiguration(
+                        context, networkSecurityConfigId);
         assertNotNull(trustkit);
     }
 
@@ -72,8 +71,8 @@ public class TrustKitTest {
     @Test
     public void testInitializeWithBadFile() {
         Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        int pemFileId = context.getResources().getIdentifier("cacertorg", "raw",
-                context.getPackageName());
+        int pemFileId =
+                context.getResources().getIdentifier("cacertorg", "raw", context.getPackageName());
 
         boolean didInitFail = false;
         try {

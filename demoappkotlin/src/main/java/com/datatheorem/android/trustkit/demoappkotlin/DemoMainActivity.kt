@@ -3,14 +3,14 @@ package com.datatheorem.android.trustkit.demoappkotlin
 import android.content.IntentFilter
 import android.os.AsyncTask
 import android.os.Bundle
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.datatheorem.android.trustkit.TrustKit
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter
 import java.io.IOException
@@ -18,9 +18,9 @@ import java.net.MalformedURLException
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-
 class DemoMainActivity : AppCompatActivity() {
-    private lateinit var pinningFailureReportBroadcastReceiver: PinningFailureReportBroadcastReceiver
+    private lateinit var pinningFailureReportBroadcastReceiver:
+        PinningFailureReportBroadcastReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,15 +41,15 @@ class DemoMainActivity : AppCompatActivity() {
         textView.text = "Connection results are in the logs"
 
         // Adding a local broadcast receiver to listen for validation report events
-        pinningFailureReportBroadcastReceiver =  PinningFailureReportBroadcastReceiver()
+        pinningFailureReportBroadcastReceiver = PinningFailureReportBroadcastReceiver()
         val intentFilter = IntentFilter(BackgroundReporter.REPORT_VALIDATION_EVENT)
         LocalBroadcastManager.getInstance(this.applicationContext)
-            .registerReceiver(pinningFailureReportBroadcastReceiver,intentFilter)
+            .registerReceiver(pinningFailureReportBroadcastReceiver, intentFilter)
     }
 
     override fun onDestroy() {
         LocalBroadcastManager.getInstance(this.applicationContext)
-                .unregisterReceiver(pinningFailureReportBroadcastReceiver)
+            .unregisterReceiver(pinningFailureReportBroadcastReceiver)
         super.onDestroy()
     }
 
@@ -90,11 +90,9 @@ class DemoMainActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         val id = item.itemId
 
-
         return if (id == R.id.action_settings) {
             true
         } else super.onOptionsItemSelected(item)
-
     }
 
     companion object {
@@ -102,4 +100,3 @@ class DemoMainActivity : AppCompatActivity() {
         internal const val DEBUG_TAG = "TrustKit-Demo"
     }
 }
-

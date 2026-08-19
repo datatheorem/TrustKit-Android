@@ -1,5 +1,6 @@
 package com.datatheorem.android.trustkit.pinning;
-// TrustKit: Imported from https://github.com/square/okhttp/blob/master/okhttp/src/main/java/okhttp3/internal/tls/OkHostnameVerifier.java
+// TrustKit: Imported from
+// https://github.com/square/okhttp/blob/master/okhttp/src/main/java/okhttp3/internal/tls/OkHostnameVerifier.java
 // Removed support for IP address certificates so we don't need to import more OkHttp files
 
 /*
@@ -32,7 +33,6 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 import javax.security.auth.x500.X500Principal;
 
-
 /**
  * A HostnameVerifier consistent with <a href="http://www.ietf.org/rfc/rfc2818.txt">RFC 2818</a>.
  */
@@ -43,8 +43,7 @@ final class OkHostnameVerifier implements HostnameVerifier {
     private static final int ALT_DNS_NAME = 2;
     private static final int ALT_IPA_NAME = 7;
 
-    private OkHostnameVerifier() {
-    }
+    private OkHostnameVerifier() {}
 
     @Override
     public boolean verify(String host, SSLSession session) {
@@ -58,8 +57,8 @@ final class OkHostnameVerifier implements HostnameVerifier {
 
     public boolean verify(String host, X509Certificate certificate) {
         return Utils.verifyAsIpAddress(host)
-            ? verifyIpAddress(host, certificate)
-            : verifyHostname(host, certificate);
+                ? verifyIpAddress(host, certificate)
+                : verifyHostname(host, certificate);
     }
 
     /** Returns true if {@code certificate} matches {@code ipAddress}. */
@@ -140,17 +139,21 @@ final class OkHostnameVerifier implements HostnameVerifier {
      *
      * @param hostname lower-case host name.
      * @param pattern domain name pattern from certificate. May be a wildcard pattern such as {@code
-     * *.android.com}.
+     *     *.android.com}.
      */
     private boolean verifyHostname(String hostname, String pattern) {
         // Basic sanity checks
         // Check length == 0 instead of .isEmpty() to support Java 5.
-        if ((hostname == null) || (hostname.length() == 0) || (hostname.startsWith("."))
+        if ((hostname == null)
+                || (hostname.length() == 0)
+                || (hostname.startsWith("."))
                 || (hostname.endsWith(".."))) {
             // Invalid domain name
             return false;
         }
-        if ((pattern == null) || (pattern.length() == 0) || (pattern.startsWith("."))
+        if ((pattern == null)
+                || (pattern.length() == 0)
+                || (pattern.startsWith("."))
                 || (pattern.endsWith(".."))) {
             // Invalid pattern/domain name
             return false;
@@ -193,14 +196,17 @@ final class OkHostnameVerifier implements HostnameVerifier {
         // 3. Wildcard patterns for single-label domain names are not permitted.
 
         if ((!pattern.startsWith("*.")) || (pattern.indexOf('*', 1) != -1)) {
-            // Asterisk (*) is only permitted in the left-most domain name label and must be the only
+            // Asterisk (*) is only permitted in the left-most domain name label and must be the
+            // only
             // character in that label
             return false;
         }
 
-        // Optimization: check whether hostname is too short to match the pattern. hostName must be at
+        // Optimization: check whether hostname is too short to match the pattern. hostName must be
+        // at
         // least as long as the pattern because asterisk must match the whole left-most label and
-        // hostname starts with a non-empty label. Thus, asterisk has to match one or more characters.
+        // hostname starts with a non-empty label. Thus, asterisk has to match one or more
+        // characters.
         if (hostname.length() < pattern.length()) {
             // hostname too short to match the pattern.
             return false;

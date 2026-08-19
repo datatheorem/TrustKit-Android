@@ -4,10 +4,9 @@ import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-import androidx.test.platform.app.InstrumentationRegistry;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
-
+import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import java.io.IOException;
@@ -29,10 +28,10 @@ import org.mockito.MockitoAnnotations;
 @SuppressWarnings("unchecked")
 public class HttpLibrariesTest {
 
-    @Mock
-    private BackgroundReporter reporter;
+    @Mock private BackgroundReporter reporter;
 
-    static private final URL testUrl;
+    private static final URL testUrl;
+
     static {
         try {
             // The network policy for the tests has invalid pins configured for this domain
@@ -44,7 +43,7 @@ public class HttpLibrariesTest {
 
     @Before
     public void setUp() {
-     MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.initMocks(this);
         TestableTrustKit.reset();
     }
 
@@ -56,7 +55,7 @@ public class HttpLibrariesTest {
         }
         // Initialize TrustKit
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-            InstrumentationRegistry.getInstrumentation().getContext(), reporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), reporter);
 
         // Test a connection
         HttpsURLConnection connection = null;
@@ -64,8 +63,7 @@ public class HttpLibrariesTest {
         try {
             connection = (HttpsURLConnection) testUrl.openConnection();
             connection.setSSLSocketFactory(
-                    TestableTrustKit.getInstance().getSSLSocketFactory(testUrl.getHost())
-            );
+                    TestableTrustKit.getInstance().getSSLSocketFactory(testUrl.getHost()));
 
             InputStream inputStream = connection.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -88,16 +86,18 @@ public class HttpLibrariesTest {
         assertTrue(didReceiveHandshakeError);
 
         // Ensure the reporter was called
-        verify(reporter).pinValidationFailed(
-                eq(testUrl.getHost()),
-                eq(0),
-                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(TestableTrustKit.getInstance().getConfiguration()
-                        .getPolicyForHostname(testUrl.getHost())),
-                eq(PinningValidationResult.FAILED));
+        verify(reporter)
+                .pinValidationFailed(
+                        eq(testUrl.getHost()),
+                        eq(0),
+                        (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                        (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                        eq(
+                                TestableTrustKit.getInstance()
+                                        .getConfiguration()
+                                        .getPolicyForHostname(testUrl.getHost())),
+                        eq(PinningValidationResult.FAILED));
     }
-
 
     @Test
     public void testHttpsUrlConnectionWithTrustKitApiLevelUnder17() throws IOException {
@@ -116,8 +116,7 @@ public class HttpLibrariesTest {
         try {
             connection = (HttpsURLConnection) testUrl.openConnection();
             connection.setSSLSocketFactory(
-                    TestableTrustKit.getInstance().getSSLSocketFactory(testUrl.getHost())
-            );
+                    TestableTrustKit.getInstance().getSSLSocketFactory(testUrl.getHost()));
 
             InputStream inputStream = connection.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -134,7 +133,6 @@ public class HttpLibrariesTest {
         }
     }
 
-
     @Test
     public void testOkhttp3WithTrustKit() throws MalformedURLException {
         if (Build.VERSION.SDK_INT < 17) {
@@ -147,9 +145,13 @@ public class HttpLibrariesTest {
 
         // Test a connection
         boolean didReceiveHandshakeError = false;
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .sslSocketFactory(TestableTrustKit.getInstance().getSSLSocketFactory(testUrl.getHost()))
-                .build();
+        OkHttpClient client =
+                new OkHttpClient()
+                        .newBuilder()
+                        .sslSocketFactory(
+                                TestableTrustKit.getInstance()
+                                        .getSSLSocketFactory(testUrl.getHost()))
+                        .build();
         try {
             Request request = new Request.Builder().url(testUrl).build();
             client.newCall(request).execute();
@@ -163,24 +165,28 @@ public class HttpLibrariesTest {
         assertTrue(didReceiveHandshakeError);
 
         // Ensure the reporter was called
-        verify(reporter).pinValidationFailed(
-                eq(testUrl.getHost()),
-                eq(0),
-                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-                eq(TestableTrustKit.getInstance().getConfiguration()
-                        .getPolicyForHostname(testUrl.getHost())),
-                eq(PinningValidationResult.FAILED));
+        verify(reporter)
+                .pinValidationFailed(
+                        eq(testUrl.getHost()),
+                        eq(0),
+                        (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                        (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                        eq(
+                                TestableTrustKit.getInstance()
+                                        .getConfiguration()
+                                        .getPolicyForHostname(testUrl.getHost())),
+                        eq(PinningValidationResult.FAILED));
     }
 
     // A specific test is needed for the previous version of the OkHttpClient Builder.
-    // The previous one signature only asks for a SSLSocketFactory compare to the newBuilder asking for
+    // The previous one signature only asks for a SSLSocketFactory compare to the newBuilder asking
+    // for
     // a SSLSocketFactory and a TrustManager.
     // It's a common issue with this version of OkHttp :
     // https://github.com/square/okhttp/issues/2323#issuecomment-185055040/
     // More information about they're trying to extract all the SSL needed object here :
     // https://github.com/square/okhttp/blob/okhttp_31/okhttp/src/main/java/okhttp3/internal/Platform.java
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void testOkhttp3WithTrustKitOldBuilder() throws MalformedURLException {
         if (Build.VERSION.SDK_INT < 17) {
@@ -189,19 +195,22 @@ public class HttpLibrariesTest {
         }
         // Initialize TrustKit
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
-            InstrumentationRegistry.getInstrumentation().getContext(), reporter);
+                InstrumentationRegistry.getInstrumentation().getContext(), reporter);
 
         // Test a connection
         boolean didReceiveHandshakeError = false;
-        OkHttpClient client = new OkHttpClient.Builder()
-          .sslSocketFactory(TestableTrustKit.getInstance().getSSLSocketFactory(testUrl.getHost()))
-          .build();
+        OkHttpClient client =
+                new OkHttpClient.Builder()
+                        .sslSocketFactory(
+                                TestableTrustKit.getInstance()
+                                        .getSSLSocketFactory(testUrl.getHost()))
+                        .build();
         try {
             Request request = new Request.Builder().url(testUrl).build();
             client.newCall(request).execute();
         } catch (IOException e) {
             if ((e.getCause() instanceof CertificateException
-              && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
+                    && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
                 didReceiveHandshakeError = true;
             }
         }
@@ -209,13 +218,16 @@ public class HttpLibrariesTest {
         assertTrue(didReceiveHandshakeError);
 
         // Ensure the reporter was called
-        verify(reporter).pinValidationFailed(
-          eq(testUrl.getHost()),
-          eq(0),
-          (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-          (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
-          eq(TestableTrustKit.getInstance().getConfiguration()
-            .getPolicyForHostname(testUrl.getHost())),
-          eq(PinningValidationResult.FAILED));
+        verify(reporter)
+                .pinValidationFailed(
+                        eq(testUrl.getHost()),
+                        eq(0),
+                        (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                        (List<X509Certificate>) org.mockito.Matchers.isNotNull(),
+                        eq(
+                                TestableTrustKit.getInstance()
+                                        .getConfiguration()
+                                        .getPolicyForHostname(testUrl.getHost())),
+                        eq(PinningValidationResult.FAILED));
     }
 }

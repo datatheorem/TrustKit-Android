@@ -3,7 +3,6 @@ package com.datatheorem.android.trustkit.utils;
 import android.util.Log;
 import com.datatheorem.android.trustkit.BuildConfig;
 
-
 public final class TrustKitLog {
 
     public static void i(String message) {
