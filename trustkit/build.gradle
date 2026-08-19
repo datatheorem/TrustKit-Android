@@ -36,6 +36,7 @@ dependencies {
     implementation libs.androidx.preference
     compileOnly libs.okhttp3
     compileOnly libs.okhttp2
+    testImplementation libs.junit
     androidTestImplementation libs.junit
     androidTestImplementation libs.androidx.test.runner
     androidTestImplementation libs.androidx.test.rules

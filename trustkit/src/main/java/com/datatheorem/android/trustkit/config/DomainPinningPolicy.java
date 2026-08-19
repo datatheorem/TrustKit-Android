@@ -12,7 +12,7 @@ import java.util.Set;
 public final class DomainPinningPolicy {
 
     // The default URL to submit pin failure report to
-    private static URL DEFAULT_REPORTING_URL;
+    private static final URL DEFAULT_REPORTING_URL;
 
     static {
         java.net.URL defaultUrl;
@@ -22,10 +22,6 @@ public final class DomainPinningPolicy {
             throw new IllegalStateException("Bad DEFAULT_REPORTING_URL");
         }
         DEFAULT_REPORTING_URL = defaultUrl;
-    }
-
-    public static void setDefaultReportingUrl(URL defaultReportingUrl) {
-        DEFAULT_REPORTING_URL = defaultReportingUrl;
     }
 
     @NonNull private final String hostname;
@@ -43,6 +39,27 @@ public final class DomainPinningPolicy {
             @Nullable Date expirationDate,
             @Nullable Set<String> reportUriStrList,
             Boolean shouldDisableDefaultReportUri)
+            throws MalformedURLException {
+        this(
+                hostname,
+                shouldIncludeSubdomains,
+                publicKeyHashStrList,
+                shouldEnforcePinning,
+                expirationDate,
+                reportUriStrList,
+                shouldDisableDefaultReportUri,
+                null);
+    }
+
+    DomainPinningPolicy(
+            @NonNull String hostname,
+            Boolean shouldIncludeSubdomains,
+            Set<String> publicKeyHashStrList,
+            Boolean shouldEnforcePinning,
+            @Nullable Date expirationDate,
+            @Nullable Set<String> reportUriStrList,
+            Boolean shouldDisableDefaultReportUri,
+            @Nullable URL defaultReportUrl)
             throws MalformedURLException {
         // Run some sanity checks on the configuration
         // Check if the hostname seems valid
@@ -109,7 +126,7 @@ public final class DomainPinningPolicy {
 
         // Add the default report URL
         if ((shouldDisableDefaultReportUri == null) || (!shouldDisableDefaultReportUri)) {
-            reportUris.add(DEFAULT_REPORTING_URL);
+            reportUris.add(defaultReportUrl != null ? defaultReportUrl : DEFAULT_REPORTING_URL);
         }
 
         this.expirationDate = expirationDate;
@@ -182,6 +199,11 @@ public final class DomainPinningPolicy {
 
         @Nullable
         public DomainPinningPolicy build() throws MalformedURLException {
+            return build(null);
+        }
+
+        @Nullable
+        DomainPinningPolicy build(@Nullable URL defaultReportUrl) throws MalformedURLException {
             if (parentBuilder != null) {
                 // Get missing values from the parent as some entries can be inherited
                 // build() should already have been called on it so it has its parent's values
@@ -223,7 +245,8 @@ public final class DomainPinningPolicy {
                     shouldEnforcePinning,
                     expirationDate,
                     reportUris,
-                    shouldDisableDefaultReportUri);
+                    shouldDisableDefaultReportUri,
+                    defaultReportUrl);
         }
 
         public Builder setParent(Builder parent) {

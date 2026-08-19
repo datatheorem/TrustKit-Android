@@ -8,6 +8,8 @@ import android.content.res.Resources;
 import android.os.Build;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.datatheorem.android.trustkit.config.ConfigurationException;
+import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
+import java.net.URL;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,6 +50,46 @@ public class TrustKitTest {
                 TrustKit.initializeWithNetworkSecurityConfiguration(
                         context, networkSecurityConfigId);
         assertNotNull(trustkit);
+    }
+
+    @Test
+    public void testInitializeWithOptionsAndDefaultXmlFile() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        URL configuredReportUrl = new URL("https://configured.example.com/report");
+        TrustKitOptions options =
+                new TrustKitOptions.Builder()
+                        .setDefaultReportUrl(configuredReportUrl)
+                        .addDefaultReportHeader("Authorization", "Bearer secret")
+                        .build();
+
+        TrustKit trustkit = TrustKit.initializeWithNetworkSecurityConfiguration(context, options);
+
+        assertNotNull(trustkit);
+        DomainPinningPolicy policy =
+                trustkit.getConfiguration().getPolicyForHostname("www.datatheorem.com");
+        assertNotNull(policy);
+        assertTrue(policy.getReportUris().contains(configuredReportUrl));
+    }
+
+    @Test
+    public void testInitializeWithOptionsAndExplicitXmlFile() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        int networkSecurityConfigId =
+                context.getResources()
+                        .getIdentifier("network_security_config", "xml", context.getPackageName());
+        URL configuredReportUrl = new URL("https://configured.example.com/report");
+        TrustKitOptions options =
+                new TrustKitOptions.Builder().setDefaultReportUrl(configuredReportUrl).build();
+
+        TrustKit trustkit =
+                TrustKit.initializeWithNetworkSecurityConfiguration(
+                        context, networkSecurityConfigId, options);
+
+        assertNotNull(trustkit);
+        DomainPinningPolicy policy =
+                trustkit.getConfiguration().getPolicyForHostname("www.datatheorem.com");
+        assertNotNull(policy);
+        assertTrue(policy.getReportUris().contains(configuredReportUrl));
     }
 
     @Test

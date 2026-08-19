@@ -151,13 +151,13 @@ public class TrustKit {
 
     protected TrustKit(
             @NonNull Context context, @NonNull TrustKitConfiguration trustKitConfiguration) {
-        this(context, trustKitConfiguration, null);
+        this(context, trustKitConfiguration, new TrustKitOptions.Builder().build());
     }
 
     protected TrustKit(
             @NonNull Context context,
             @NonNull TrustKitConfiguration trustKitConfiguration,
-            String mobileProtectApiKey) {
+            @NonNull TrustKitOptions options) {
         this.trustKitConfiguration = trustKitConfiguration;
 
         // Setup the debug-overrides setting if the App is debuggable
@@ -190,8 +190,7 @@ public class TrustKit {
 
         String appVendorId = VendorIdentifier.getOrCreate(context);
         BackgroundReporter reporter =
-                new BackgroundReporter(
-                        context, appPackageName, appVersion, appVendorId, mobileProtectApiKey);
+                new BackgroundReporter(context, appPackageName, appVersion, appVendorId, options);
 
         // Initialize the trust manager builder
         try {
@@ -217,11 +216,27 @@ public class TrustKit {
     @NonNull
     public static synchronized TrustKit initializeWithNetworkSecurityConfiguration(
             @NonNull Context context) {
+        return initializeWithNetworkSecurityConfiguration(
+                context, new TrustKitOptions.Builder().build());
+    }
+
+    /**
+     * Initialize TrustKit using the Network Security Configuration file at the default location and
+     * the supplied options.
+     *
+     * @param context the application's context.
+     * @param options optional TrustKit reporting settings.
+     * @throws ConfigurationException if the policy could not be parsed or contained errors.
+     */
+    @NonNull
+    public static synchronized TrustKit initializeWithNetworkSecurityConfiguration(
+            @NonNull Context context, @NonNull TrustKitOptions options) {
         // Try to get the default network policy resource ID
         int networkSecurityConfigId =
                 context.getResources()
                         .getIdentifier("network_security_config", "xml", context.getPackageName());
-        return initializeWithNetworkSecurityConfiguration(context, networkSecurityConfigId);
+        return initializeWithNetworkSecurityConfiguration(
+                context, networkSecurityConfigId, options);
     }
 
     /**
@@ -238,12 +253,23 @@ public class TrustKit {
     @NonNull
     public static synchronized TrustKit initializeWithNetworkSecurityConfiguration(
             @NonNull Context context, int configurationResourceId) {
-        return initializeWithNetworkSecurityConfiguration(context, null, configurationResourceId);
+        return initializeWithNetworkSecurityConfiguration(
+                context, configurationResourceId, new TrustKitOptions.Builder().build());
     }
 
+    /**
+     * Initialize TrustKit with the specified Network Security Configuration resource and options.
+     *
+     * @param context the application's context.
+     * @param configurationResourceId the resource ID for the Network Security Configuration file.
+     * @param options optional TrustKit reporting settings.
+     * @throws ConfigurationException if the policy could not be parsed or contained errors.
+     */
     @NonNull
     public static synchronized TrustKit initializeWithNetworkSecurityConfiguration(
-            @NonNull Context context, String mobileProtectApiKey, int configurationResourceId) {
+            @NonNull Context context,
+            int configurationResourceId,
+            @NonNull TrustKitOptions options) {
         if (trustKitInstance != null) {
             throw new IllegalStateException("TrustKit has already been initialized");
         }
@@ -265,7 +291,9 @@ public class TrustKit {
         try {
             trustKitConfiguration =
                     TrustKitConfiguration.fromXmlPolicy(
-                            context, context.getResources().getXml(configurationResourceId));
+                            context,
+                            context.getResources().getXml(configurationResourceId),
+                            options);
         } catch (XmlPullParserException | IOException e) {
             throw new ConfigurationException("Could not parse network security policy file");
         } catch (CertificateException e) {
@@ -274,7 +302,7 @@ public class TrustKit {
                             + "network security police file");
         }
 
-        trustKitInstance = new TrustKit(context, trustKitConfiguration, mobileProtectApiKey);
+        trustKitInstance = new TrustKit(context, trustKitConfiguration, options);
         return trustKitInstance;
     }
 

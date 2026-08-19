@@ -149,6 +149,42 @@ class PinningFailureReportBroadcastReceiver extends BroadcastReceiver {
 }
 ```
 
+### Customizing Pin-Failure Reporting
+
+`TrustKitOptions` can replace TrustKit's built-in default report location. This is useful when a report service requires authentication or other request metadata.
+
+Java:
+
+```java
+TrustKitOptions options = new TrustKitOptions.Builder()
+    .setDefaultReportUrl(new URL("https://reports.example.com/pinning"))
+    .addDefaultReportHeader("Authorization", "Bearer " + apiKey)
+    .build();
+
+TrustKit.initializeWithNetworkSecurityConfiguration(
+    this,
+    R.xml.network_security_config,
+    options
+);
+```
+
+Kotlin:
+
+```kotlin
+val options = TrustKitOptions.Builder()
+    .setDefaultReportUrl(URL("https://reports.example.com/pinning"))
+    .addDefaultReportHeader("Authorization", "Bearer $apiKey")
+    .build()
+
+TrustKit.initializeWithNetworkSecurityConfiguration(
+    this,
+    R.xml.network_security_config,
+    options,
+)
+```
+
+The configured URL replaces only TrustKit's built-in default report destination. Explicit `<report-uri>` entries in the Network Security Configuration are preserved, and custom headers are sent only to the configured default URL. If `disableDefaultReportUri="true"` is set, the configured default URL is not added. Custom headers require a custom HTTP or HTTPS default report URL.
+
 Once TrustKit has been initialized and the client or connection's `SSLSocketFactory` has been set, it will verify the server's certificate chain against the configured pinning policy whenever an HTTPS connection is initiated. If a report URI has been configured, the App will also send reports to the specified URI whenever a pin validation failure occurred.
 
 You can also create and register local broadcast receivers to receive the same certificate pinning error reports that would be sent to the report_uris. 
