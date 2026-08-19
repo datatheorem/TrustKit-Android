@@ -92,7 +92,7 @@ public class BackgroundReporterTaskTest {
 
         // Run the task synchronously and ensure it succeeded
         Integer lastResponseCode = testTask.doInBackground(taskParameters.toArray());
-        assertEquals(Integer.valueOf(302), lastResponseCode);
+        assertEquals(Integer.valueOf(200), lastResponseCode);
     }
 
     @Test
