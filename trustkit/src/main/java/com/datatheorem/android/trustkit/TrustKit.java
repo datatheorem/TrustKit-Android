@@ -347,7 +347,7 @@ public class TrustKit {
     @NonNull
     public SSLSocketFactory getSSLSocketFactory(@NonNull String serverHostname) {
         try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(null, new TrustManager[] {getTrustManager(serverHostname)}, null);
 
             return sslContext.getSocketFactory();

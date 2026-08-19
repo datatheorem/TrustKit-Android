@@ -33,7 +33,7 @@ public class OkHttp3Helper {
     @NonNull
     public static SSLSocketFactory getSSLSocketFactory() {
         try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(null, new X509TrustManager[] {trustManager}, null);
 
             return sslContext.getSocketFactory();
