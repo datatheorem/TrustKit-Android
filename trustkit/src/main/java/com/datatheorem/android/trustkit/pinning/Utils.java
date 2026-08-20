@@ -30,7 +30,8 @@ final class Utils {
      * verification).
      */
     private static final Pattern VERIFY_AS_IP_ADDRESS =
-            Pattern.compile("([0-9a-fA-F]*:[0-9a-fA-F:.]*)|([\\d.]+)");
+            Pattern.compile(
+                    "([0-9a-fA-F]*:[0-9a-fA-F:.]*)|([\\d.]+)");
 
     /** Returns true if {@code host} is not a host name and might be an IP address. */
     public static boolean verifyAsIpAddress(String host) {
