@@ -26,6 +26,7 @@ import java.security.cert.X509Certificate;
 import java.util.HashSet;
 import java.util.List;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -113,6 +114,22 @@ public class SSLSocketFactoryTest {
         TestableTrustKit.reset();
     }
 
+    private static Socket createSocketAndStartHandshake(
+            SSLSocketFactory socketFactory, String serverHostname) throws IOException {
+        SSLSocket socket = (SSLSocket) socketFactory.createSocket(serverHostname, 443);
+        try {
+            socket.startHandshake();
+            return socket;
+        } catch (IOException handshakeException) {
+            try {
+                socket.close();
+            } catch (IOException closeException) {
+                handshakeException.addSuppressed(closeException);
+            }
+            throw handshakeException;
+        }
+    }
+
     // region Tests for when the domain is pinned
     @Test
     public void testPinnedDomainExpiredChain() throws IOException {
@@ -125,7 +142,7 @@ public class SSLSocketFactoryTest {
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443).getInputStream();
+            createSocketAndStartHandshake(test, serverHostname).close();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -164,7 +181,7 @@ public class SSLSocketFactoryTest {
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443).getInputStream();
+            createSocketAndStartHandshake(test, serverHostname).close();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -200,8 +217,7 @@ public class SSLSocketFactoryTest {
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
-        Socket socket = test.createSocket(serverHostname, 443);
-        socket.getInputStream();
+        Socket socket = createSocketAndStartHandshake(test, serverHostname);
 
         assertTrue(socket.isConnected());
         socket.close();
@@ -228,8 +244,7 @@ public class SSLSocketFactoryTest {
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
-        Socket socket = test.createSocket(serverHostname, 443);
-        socket.getInputStream();
+        Socket socket = createSocketAndStartHandshake(test, serverHostname);
 
         assertTrue(socket.isConnected());
         socket.close();
@@ -263,7 +278,7 @@ public class SSLSocketFactoryTest {
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceivePinningError = false;
         try {
-            test.createSocket(serverHostname, 443).getInputStream();
+            createSocketAndStartHandshake(test, serverHostname).close();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -294,8 +309,7 @@ public class SSLSocketFactoryTest {
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
-        Socket socket = test.createSocket(serverHostname, 443);
-        socket.getInputStream();
+        Socket socket = createSocketAndStartHandshake(test, serverHostname);
 
         assertTrue(socket.isConnected());
         socket.close();
@@ -327,8 +341,7 @@ public class SSLSocketFactoryTest {
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
-        Socket socket = test.createSocket(serverHostname, 443);
-        socket.getInputStream();
+        Socket socket = createSocketAndStartHandshake(test, serverHostname);
 
         assertTrue(socket.isConnected());
         socket.close();
@@ -354,7 +367,7 @@ public class SSLSocketFactoryTest {
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443).getInputStream();
+            createSocketAndStartHandshake(test, serverHostname).close();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -434,8 +447,7 @@ public class SSLSocketFactoryTest {
         // This means that debug-overrides properly enables the supplied debug CA cert and
         // disables pinning when overridePins is true
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
-        Socket socket = test.createSocket(serverHostname, 443);
-        socket.getInputStream();
+        Socket socket = createSocketAndStartHandshake(test, serverHostname);
 
         assertTrue(socket.isConnected());
         socket.close();
@@ -505,7 +517,7 @@ public class SSLSocketFactoryTest {
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443).getInputStream();
+            createSocketAndStartHandshake(test, serverHostname).close();
         } catch (SSLHandshakeException e) {
             didReceiveHandshakeError = true;
         }
@@ -575,7 +587,7 @@ public class SSLSocketFactoryTest {
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceivePinningError = false;
         try {
-            test.createSocket(serverHostname, 443).getInputStream();
+            createSocketAndStartHandshake(test, serverHostname).close();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && (e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -631,7 +643,7 @@ public class SSLSocketFactoryTest {
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
         boolean didReceiveHandshakeError = false;
         try {
-            test.createSocket(serverHostname, 443).getInputStream();
+            createSocketAndStartHandshake(test, serverHostname).close();
         } catch (SSLHandshakeException e) {
             if ((e.getCause() instanceof CertificateException
                     && !(e.getCause().getMessage().startsWith("Pin verification failed")))) {
@@ -663,8 +675,7 @@ public class SSLSocketFactoryTest {
 
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
-        Socket socket = test.createSocket(serverHostname, 443);
-        socket.getInputStream();
+        Socket socket = createSocketAndStartHandshake(test, serverHostname);
 
         assertTrue(socket.isConnected());
         socket.close();
@@ -728,8 +739,7 @@ public class SSLSocketFactoryTest {
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         // This means that debug-overrides properly enables the supplied debug CA cert
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
-        Socket socket = test.createSocket(serverHostname, 443);
-        socket.getInputStream();
+        Socket socket = createSocketAndStartHandshake(test, serverHostname);
 
         assertTrue(socket.isConnected());
         socket.close();
@@ -789,8 +799,7 @@ public class SSLSocketFactoryTest {
         // Create a TrustKit SocketFactory and ensure the connection succeeds
         // This means that debug-overrides does not disable the System CAs
         SSLSocketFactory test = TestableTrustKit.getInstance().getSSLSocketFactory(serverHostname);
-        Socket socket = test.createSocket(serverHostname, 443);
-        socket.getInputStream();
+        Socket socket = createSocketAndStartHandshake(test, serverHostname);
 
         assertTrue(socket.isConnected());
         socket.close();
