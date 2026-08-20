@@ -8,6 +8,7 @@ import static junit.framework.Assert.assertTrue;
 
 import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
+import com.datatheorem.android.trustkit.TrustKitOptions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -229,6 +230,76 @@ public class TrustKitConfigurationTest {
         DomainPinningPolicy domainConfig = config.getPolicyForHostname("www.datatheorem.com");
         assertNotNull(domainConfig);
         assertEquals(new HashSet<>(), domainConfig.getReportUris());
+    }
+
+    @Test
+    public void testConfiguredDefaultReportUrlPreservesXmlReportUris() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        URL configuredDefaultUrl = new URL("https://configured.example.com/report");
+        TrustKitOptions options =
+                new TrustKitOptions.Builder().setDefaultReportUrl(configuredDefaultUrl).build();
+        String xml =
+                ""
+                        + "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                        + "<network-security-config>\n"
+                        + "    <domain-config>\n"
+                        + "        <domain>www.datatheorem.com</domain>\n"
+                        + "        <pin-set>\n"
+                        + "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n"
+                        + "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n"
+                        + "        </pin-set>\n"
+                        + "        <trustkit-config>\n"
+                        + "            <report-uri>https://xml.example.com/report</report-uri>\n"
+                        + "        </trustkit-config>\n"
+                        + "    </domain-config>\n"
+                        + "</network-security-config>";
+
+        TrustKitConfiguration config =
+                TrustKitConfiguration.fromXmlPolicy(context, parseXmlString(xml), options);
+        DomainPinningPolicy domainConfig = config.getPolicyForHostname("www.datatheorem.com");
+
+        assertNotNull(domainConfig);
+        HashSet<URL> expectedUrls = new HashSet<>();
+        expectedUrls.add(configuredDefaultUrl);
+        expectedUrls.add(new URL("https://xml.example.com/report"));
+        assertEquals(expectedUrls, domainConfig.getReportUris());
+        assertFalse(
+                domainConfig
+                        .getReportUris()
+                        .contains(new URL("https://overmind.datatheorem.com/trustkit/report")));
+    }
+
+    @Test
+    public void testDisableDefaultReportUriSuppressesConfiguredDefault() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        TrustKitOptions options =
+                new TrustKitOptions.Builder()
+                        .setDefaultReportUrl(new URL("https://configured.example.com/report"))
+                        .build();
+        String xml =
+                ""
+                        + "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                        + "<network-security-config>\n"
+                        + "    <domain-config>\n"
+                        + "        <domain>www.datatheorem.com</domain>\n"
+                        + "        <pin-set>\n"
+                        + "            <pin digest=\"SHA-256\">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>\n"
+                        + "            <pin digest=\"SHA-256\">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>\n"
+                        + "        </pin-set>\n"
+                        + "        <trustkit-config disableDefaultReportUri=\"true\">\n"
+                        + "            <report-uri>https://xml.example.com/report</report-uri>\n"
+                        + "        </trustkit-config>\n"
+                        + "    </domain-config>\n"
+                        + "</network-security-config>";
+
+        TrustKitConfiguration config =
+                TrustKitConfiguration.fromXmlPolicy(context, parseXmlString(xml), options);
+        DomainPinningPolicy domainConfig = config.getPolicyForHostname("www.datatheorem.com");
+
+        assertNotNull(domainConfig);
+        HashSet<URL> expectedUrls = new HashSet<>();
+        expectedUrls.add(new URL("https://xml.example.com/report"));
+        assertEquals(expectedUrls, domainConfig.getReportUris());
     }
 
     @Test

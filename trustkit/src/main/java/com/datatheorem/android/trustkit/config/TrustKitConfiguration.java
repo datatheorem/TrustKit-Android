@@ -3,6 +3,7 @@ package com.datatheorem.android.trustkit.config;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.datatheorem.android.trustkit.TrustKitOptions;
 import java.io.IOException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -24,6 +25,16 @@ public class TrustKitConfiguration {
             @NonNull Context context, @NonNull XmlPullParser parser)
             throws CertificateException, XmlPullParserException, IOException {
         return TrustKitConfigurationParser.fromXmlPolicy(context, parser);
+    }
+
+    /** Parse a policy using the report URL configured in {@code options}. */
+    public static TrustKitConfiguration fromXmlPolicy(
+            @NonNull Context context,
+            @NonNull XmlPullParser parser,
+            @NonNull TrustKitOptions options)
+            throws CertificateException, XmlPullParserException, IOException {
+        return TrustKitConfigurationParser.fromXmlPolicy(
+                context, parser, options.getDefaultReportUrl());
     }
 
     protected TrustKitConfiguration(@NonNull Set<DomainPinningPolicy> domainConfigSet) {

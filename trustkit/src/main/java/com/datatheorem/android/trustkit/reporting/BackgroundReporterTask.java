@@ -2,7 +2,8 @@ package com.datatheorem.android.trustkit.reporting;
 
 import android.os.AsyncTask;
 import android.util.Base64;
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.datatheorem.android.trustkit.pinning.SystemTrustManager;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import java.io.BufferedOutputStream;
@@ -12,16 +13,31 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 // This returns an obscure threading error on API level < 16
-@RequiresApi(api = 16)
 class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
 
     private static final SSLSocketFactory systemSocketFactory = getSystemSSLSocketFactory();
+    @Nullable private final URL defaultReportUrl;
+    @NonNull private final Map<String, String> defaultReportHeaders;
+
+    public BackgroundReporterTask() {
+        this(null, Collections.<String, String>emptyMap());
+    }
+
+    BackgroundReporterTask(
+            @Nullable URL defaultReportUrl, @NonNull Map<String, String> defaultReportHeaders) {
+        this.defaultReportUrl = defaultReportUrl;
+        this.defaultReportHeaders =
+                Collections.unmodifiableMap(new LinkedHashMap<>(defaultReportHeaders));
+    }
 
     @Override
     protected final Integer doInBackground(Object... params) {
@@ -52,6 +68,13 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
                     connection.setRequestProperty("Authorization", basicAuth);
                 }
 
+                // if this is the configured default report, add the corresponding headers
+                if (isConfiguredDefaultReportUrl(reportUri)) {
+                    for (Map.Entry<String, String> header : defaultReportHeaders.entrySet()) {
+                        connection.setRequestProperty(header.getKey(), header.getValue());
+                    }
+                }
+
                 if (connection instanceof HttpsURLConnection) {
                     // HTTPS URL
                     HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
@@ -79,6 +102,11 @@ class BackgroundReporterTask extends AsyncTask<Object, Void, Integer> {
             }
         }
         return lastResponseCode;
+    }
+
+    private boolean isConfiguredDefaultReportUrl(@NonNull URL reportUrl) {
+        return defaultReportUrl != null
+                && defaultReportUrl.toExternalForm().equals(reportUrl.toExternalForm());
     }
 
     private static SSLSocketFactory getSystemSSLSocketFactory() {

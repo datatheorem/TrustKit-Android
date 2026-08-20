@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Base64;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import com.datatheorem.android.trustkit.TrustKitOptions;
 import com.datatheorem.android.trustkit.config.DomainPinningPolicy;
 import com.datatheorem.android.trustkit.pinning.PinningValidationResult;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
@@ -14,7 +16,10 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class BackgroundReporter {
@@ -27,16 +32,35 @@ public class BackgroundReporter {
     private final String appVersion;
     private final String appVendorId;
     private final Context context;
+    @Nullable private final URL defaultReportUrl;
+    @NonNull private final Map<String, String> defaultReportHeaders;
 
     public BackgroundReporter(
             @NonNull Context context,
             @NonNull String appPackageName,
             @NonNull String appVersion,
             @NonNull String appVendorId) {
+        this(
+                context,
+                appPackageName,
+                appVersion,
+                appVendorId,
+                new TrustKitOptions.Builder().build());
+    }
+
+    public BackgroundReporter(
+            @NonNull Context context,
+            @NonNull String appPackageName,
+            @NonNull String appVersion,
+            @NonNull String appVendorId,
+            @NonNull TrustKitOptions options) {
         this.context = context;
         this.appPackageName = appPackageName;
         this.appVersion = appVersion;
         this.appVendorId = appVendorId;
+        this.defaultReportUrl = options.getDefaultReportUrl();
+        this.defaultReportHeaders =
+                Collections.unmodifiableMap(new LinkedHashMap<>(options.getDefaultReportHeaders()));
     }
 
     private static String certificateToPem(X509Certificate certificate) {
@@ -118,7 +142,8 @@ public class BackgroundReporter {
         taskParameters.add(report);
         taskParameters.addAll(reportUriSet);
         // Call the task
-        new BackgroundReporterTask().execute(taskParameters.toArray());
+        new BackgroundReporterTask(defaultReportUrl, defaultReportHeaders)
+                .execute(taskParameters.toArray());
     }
 
     protected void broadcastReport(@NonNull PinningFailureReport report) {

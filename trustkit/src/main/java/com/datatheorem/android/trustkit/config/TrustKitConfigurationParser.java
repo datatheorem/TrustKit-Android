@@ -3,9 +3,11 @@ package com.datatheorem.android.trustkit.config;
 import android.content.Context;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.datatheorem.android.trustkit.utils.TrustKitLog;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -29,6 +31,13 @@ class TrustKitConfigurationParser {
     @NonNull
     public static TrustKitConfiguration fromXmlPolicy(
             @NonNull Context context, @NonNull XmlPullParser parser)
+            throws XmlPullParserException, IOException, CertificateException {
+        return fromXmlPolicy(context, parser, null);
+    }
+
+    @NonNull
+    static TrustKitConfiguration fromXmlPolicy(
+            @NonNull Context context, @NonNull XmlPullParser parser, @Nullable URL defaultReportUrl)
             throws XmlPullParserException, IOException, CertificateException {
         // Handle nested domain config tags
         // https://developer.android.com/training/articles/security-config.html#ConfigInheritance
@@ -54,7 +63,7 @@ class TrustKitConfigurationParser {
         TrustKitConfiguration config;
         HashSet<DomainPinningPolicy> domainConfigSet = new HashSet<>();
         for (DomainPinningPolicy.Builder builder : builderList) {
-            DomainPinningPolicy policy = builder.build();
+            DomainPinningPolicy policy = builder.build(defaultReportUrl);
             if (policy != null) {
                 domainConfigSet.add(policy);
             }

@@ -40,6 +40,27 @@ public final class DomainPinningPolicy {
             @Nullable Set<String> reportUriStrList,
             Boolean shouldDisableDefaultReportUri)
             throws MalformedURLException {
+        this(
+                hostname,
+                shouldIncludeSubdomains,
+                publicKeyHashStrList,
+                shouldEnforcePinning,
+                expirationDate,
+                reportUriStrList,
+                shouldDisableDefaultReportUri,
+                null);
+    }
+
+    DomainPinningPolicy(
+            @NonNull String hostname,
+            Boolean shouldIncludeSubdomains,
+            Set<String> publicKeyHashStrList,
+            Boolean shouldEnforcePinning,
+            @Nullable Date expirationDate,
+            @Nullable Set<String> reportUriStrList,
+            Boolean shouldDisableDefaultReportUri,
+            @Nullable URL defaultReportUrl)
+            throws MalformedURLException {
         // Run some sanity checks on the configuration
         // Check if the hostname seems valid
         DomainValidator domainValidator = DomainValidator.getInstance();
@@ -105,7 +126,7 @@ public final class DomainPinningPolicy {
 
         // Add the default report URL
         if ((shouldDisableDefaultReportUri == null) || (!shouldDisableDefaultReportUri)) {
-            reportUris.add(DEFAULT_REPORTING_URL);
+            reportUris.add(defaultReportUrl != null ? defaultReportUrl : DEFAULT_REPORTING_URL);
         }
 
         this.expirationDate = expirationDate;
@@ -178,6 +199,11 @@ public final class DomainPinningPolicy {
 
         @Nullable
         public DomainPinningPolicy build() throws MalformedURLException {
+            return build(null);
+        }
+
+        @Nullable
+        DomainPinningPolicy build(@Nullable URL defaultReportUrl) throws MalformedURLException {
             if (parentBuilder != null) {
                 // Get missing values from the parent as some entries can be inherited
                 // build() should already have been called on it so it has its parent's values
@@ -219,7 +245,8 @@ public final class DomainPinningPolicy {
                     shouldEnforcePinning,
                     expirationDate,
                     reportUris,
-                    shouldDisableDefaultReportUri);
+                    shouldDisableDefaultReportUri,
+                    defaultReportUrl);
         }
 
         public Builder setParent(Builder parent) {
