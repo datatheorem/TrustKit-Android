@@ -111,3 +111,23 @@ jobs:
             trustkit/build/outputs/managed_device_android_test_additional_output/**
           if-no-files-found: ignore
           retention-days: 7
+
+  ci-checks:
+    name: CI checks
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - build
+      - instrumentation-tests
+    steps:
+      - name: Verify required jobs succeeded
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+          INSTRUMENTATION_TESTS_RESULT: ${{ needs.instrumentation-tests.result }}
+        run: |
+          if [[ "$BUILD_RESULT" != "success" || "$INSTRUMENTATION_TESTS_RESULT" != "success" ]]; then
+            echo "Build result: $BUILD_RESULT"
+            echo "Instrumentation tests result: $INSTRUMENTATION_TESTS_RESULT"
+            exit 1
+          fi
+          echo "All necessary CI jobs completed successfully"
