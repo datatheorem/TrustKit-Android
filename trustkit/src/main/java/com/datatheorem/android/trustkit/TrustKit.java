@@ -194,8 +194,7 @@ public class TrustKit {
 
         // Initialize the trust manager builder
         try {
-            TrustManagerBuilder
-            .initializeBaselineTrustManager(
+            TrustManagerBuilder.initializeBaselineTrustManager(
                     debugCaCerts, shouldOverridePins, reporter);
         } catch (CertificateException
                 | NoSuchAlgorithmException
