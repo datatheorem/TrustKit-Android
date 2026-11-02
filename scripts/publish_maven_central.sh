@@ -30,7 +30,7 @@ echo "Uploaded $BUNDLE as Central Portal deployment $DEPLOYMENT_ID: $DEPLOYMENTS
 STATE=""
 for _ in $(seq 120); do
     if ! RESPONSE="$(curl --fail-with-body -sS --retry 3 -X POST -H "$AUTH" "$API/status?id=${DEPLOYMENT_ID}")"; then
-        fail "Could not read the status of deployment $DEPLOYMENT_ID: $RESPONSE. Check $DEPLOYMENTS."
+        fail "Could not read the status of deployment $DEPLOYMENT_ID: $RESPONSE. The upload already happened, so do not re-run this job. Check $DEPLOYMENTS."
     fi
     STATE="$(jq -r .deploymentState <<<"$RESPONSE")"
     echo "Deployment state: $STATE"
@@ -43,4 +43,4 @@ for _ in $(seq 120); do
     esac
     sleep 20
 done
-fail "Deployment $DEPLOYMENT_ID is still $STATE after 40 minutes. Check $DEPLOYMENTS."
+fail "Deployment $DEPLOYMENT_ID is still $STATE after 40 minutes. The upload already happened, so do not re-run this job. Check $DEPLOYMENTS."

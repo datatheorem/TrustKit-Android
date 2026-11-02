@@ -21,11 +21,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: ./.github/actions/setup
       - run: ./gradlew spotlessCheck lint
       - uses: actions/upload-artifact@v7
         if: failure()
@@ -42,11 +38,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: ./.github/actions/setup
       - run: ./gradlew :trustkit:testDebugUnitTest
       - uses: actions/upload-artifact@v7
         if: failure()
@@ -56,6 +48,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  script-tests:
+    name: Script tests
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - run: ./scripts/test_publish_maven_central.sh
+
   release-bundle:
     name: Build release bundle
     needs: lint
@@ -63,11 +64,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: ./.github/actions/setup
       - run: ./scripts/build_release_bundle.sh
 
   demo:
@@ -81,11 +78,7 @@ jobs:
         module: [app, demoappkotlin]
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: ./.github/actions/setup
       - run: ./gradlew :${{ matrix.module }}:assembleDebug
 
   instrumentation-tests:
@@ -99,11 +92,7 @@ jobs:
         api-level: [27, 36]
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: ./.github/actions/setup
       - run: ./scripts/enable_kvm.sh
       - uses: reactivecircus/android-emulator-runner@v2.37.0
         with:
@@ -121,13 +110,3 @@ jobs:
             trustkit/build/outputs/managed_device_android_test_additional_output/**
           if-no-files-found: ignore
           retention-days: 7
-
-  ci-checks:
-    name: CI checks
-    if: always()
-    needs: [lint, unit-tests, release-bundle, demo, instrumentation-tests]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Fail unless every required job succeeded
-        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
-        run: exit 1

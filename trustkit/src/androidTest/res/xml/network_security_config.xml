@@ -5,20 +5,20 @@
         <!-- testPinnedDomainSuccessAnchor() -->
         <domain>www.datatheorem.com</domain>
         <pin-set>
-            <!-- Pin the CA/Anchor key -->
+            <!-- CA key for Google Trust Services (cert valid until 27 Jan 2028), as in the iOS tests -->
+            <pin digest="SHA-256">hxqRlPTu1bMS/0DITB1SSu0vd4u/8l8TjPgfaAp63Gc=</pin>
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">u91x/rv9ivMrXO0du6N2ABI6BiiVfD0T99DTEzoqSv4=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
     </domain-config>
     <domain-config>
-        <!-- testPinnedDomainSuccessLeaf() -->
+        <!-- testPinnedDomainSuccessIntermediate() -->
         <domain>datatheorem.com</domain>
         <pin-set>
-            <!-- Pin the Leaf key -->
+            <!-- Intermediate CA key for Google Trust Services WR3, as in the iOS tests -->
+            <pin digest="SHA-256">OdSlmQD9NWJh4EbcOHBxkhygPwNSwA9Q91eounfbcoE=</pin>
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">hxqRlPTu1bMS/0DITB1SSu0vd4u/8l8TjPgfaAp63Gc=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true">
         </trustkit-config>
@@ -36,7 +36,7 @@
     </domain-config>
     <domain-config>
         <!-- testPinnedDomainInvalidPinAndPinningNotEnforced() -->
-        <domain>www.github.com</domain>
+        <domain>www.facebook.com</domain>
         <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
@@ -69,11 +69,11 @@
     </domain-config>
     <domain-config>
         <!-- testPinnedDomainUntrustedChainAndPinningNotEnforced() -->
-        <domain>untrusted-root.badssl.com</domain>
+        <domain>self-signed.badssl.com</domain>
         <pin-set>
-            <!-- Invalid pins -->
+            <!-- Leaf key, as in the iOS tests: a matching pin must not make an untrusted chain pass -->
+            <pin digest="SHA-256">9SLklscvzMYj8f+52lp5ze/hY0CFHyLSPQzSpYYIBm8=</pin>
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
         </pin-set>
         <trustkit-config enforcePinning="false">
         </trustkit-config>

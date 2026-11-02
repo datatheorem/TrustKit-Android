@@ -237,7 +237,7 @@ public class SSLSocketFactoryTest {
     }
 
     @Test
-    public void testPinnedDomainSuccessLeaf() throws IOException {
+    public void testPinnedDomainSuccessIntermediate() throws IOException {
         String serverHostname = "datatheorem.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
@@ -303,7 +303,7 @@ public class SSLSocketFactoryTest {
 
     @Test
     public void testPinnedDomainInvalidPinAndPinningNotEnforced() throws IOException {
-        String serverHostname = "www.github.com";
+        String serverHostname = "www.facebook.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
@@ -359,7 +359,7 @@ public class SSLSocketFactoryTest {
 
     @Test
     public void testPinnedDomainUntrustedChainAndPinningNotEnforced() throws IOException {
-        String serverHostname = "untrusted-root.badssl.com";
+        String serverHostname = "self-signed.badssl.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
@@ -614,7 +614,7 @@ public class SSLSocketFactoryTest {
     // region Tests for when the domain is NOT pinned
     @Test
     public void testNonPinnedDomainUntrustedRootChain() throws IOException {
-        String serverHostname = "www.cacert.org";
+        String serverHostname = "self-signed.badssl.com";
         final DomainPinningPolicy domainPolicy =
                 new DomainPinningPolicy.Builder()
                         .setHostname("other.domain.com")
