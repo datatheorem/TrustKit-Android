@@ -205,6 +205,19 @@ On Android M and earlier devices, TrustKit provides uses its own implementation 
 
 For consumers of TrustKit's OkHttpHelper solutions, redirects must to be disabled as Pinning will currently only work properly on the initial request and not any redirects
 
+Releasing
+---------
+
+1. Set `trustkitVersionName` (and increment `trustkitVersionCode`) in `gradle/libs.versions.toml` and merge to `master`.
+2. Publish a GitHub release whose tag equals that version, for example `1.2.0`. Every published release, including pre-releases, goes to Maven Central.
+
+The `Release` workflow then runs CI, attaches the AAR to the GitHub release, and publishes to Maven Central. A Maven Central release cannot be removed, so check the version before you publish.
+
+The workflow reads these secrets from the `maven-central` GitHub environment:
+
+* `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`: a Central Portal user token.
+* `SIGNING_KEY`, `SIGNING_KEY_PASSWORD`: the ASCII-armored PGP private key and its passphrase.
+
 License
 -------
 

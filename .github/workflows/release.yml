@@ -1,0 +1,152 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+# Maven Central releases cannot be undone. Never cancel or overlap them.
+concurrency:
+  group: maven-central-release
+  cancel-in-progress: false
+
+env:
+  ARTIFACT_PATH: com/datatheorem/android/trustkit/trustkit
+  # Must match the verified namespace at https://central.sonatype.com/publishing/namespaces.
+  CENTRAL_NAMESPACE: com.datatheorem.android.trustkit
+
+jobs:
+  verify:
+    name: Verify release version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Check tag, version, and Maven Central
+        id: version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version=$(sed -n 's/^trustkitVersionName = "\(.*\)"$/\1/p' gradle/libs.versions.toml)
+          if [[ -z "$version" ]]; then
+            echo "::error::Could not read trustkitVersionName from gradle/libs.versions.toml."
+            exit 1
+          fi
+          if [[ "${TAG#v}" != "$version" ]]; then
+            echo "::error::Release tag '$TAG' does not match trustkitVersionName '$version'. Tag the commit that sets this version."
+            exit 1
+          fi
+          if [[ "$version" == *-SNAPSHOT ]]; then
+            echo "::error::Snapshot version '$version' cannot be released to Maven Central."
+            exit 1
+          fi
+          status=$(curl -sS --retry 3 -o /dev/null -w '%{http_code}' \
+            "https://repo1.maven.org/maven2/$ARTIFACT_PATH/$version/trustkit-$version.pom")
+          case "$status" in
+            404) ;;
+            200)
+              echo "::error::Version $version is already on Maven Central. Bump trustkitVersionName and create a new release."
+              exit 1
+              ;;
+            *)
+              echo "::error::Could not check Maven Central for $version (HTTP $status). Re-run the workflow."
+              exit 1
+              ;;
+          esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  ci:
+    name: CI
+    needs: verify
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    name: Publish to Maven Central
+    needs:
+      - verify
+      - ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: maven-central
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.verify.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Attach AAR to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          ./gradlew :trustkit:assembleRelease
+          cp trustkit/build/outputs/aar/trustkit-release.aar "trustkit-$VERSION.aar"
+          gh release upload "$TAG" "trustkit-$VERSION.aar" --clobber
+
+      - name: Upload signed artifacts to Central Portal
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: ./gradlew :trustkit:publishReleasePublicationToMavenCentralRepository
+
+      - name: Release on Maven Central
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+        run: |
+          token=$(printf '%s:%s' "$MAVEN_CENTRAL_USERNAME" "$MAVEN_CENTRAL_PASSWORD" | base64 -w0)
+          echo "::add-mask::$token"
+          auth="Authorization: Bearer $token"
+          staging=https://ossrh-staging-api.central.sonatype.com
+          deployments=https://central.sonatype.com/publishing/deployments
+
+          # The staging API groups uploads by IP address, so this must run on the runner that uploaded.
+          curl --fail-with-body -sS -X POST -H "$auth" \
+            "$staging/manual/upload/defaultRepository/$CENTRAL_NAMESPACE?publishing_type=automatic&deployment_name=trustkit-$VERSION"
+
+          id=$(curl --fail-with-body -sS --retry 3 -H "$auth" "$staging/manual/search/repositories?ip=client" \
+            | jq -r '[.repositories[].portal_deployment_id | select(.)] | last // empty')
+          if [[ -z "$id" ]]; then
+            echo "::error::No Central Portal deployment was found for this upload. Check $deployments."
+            exit 1
+          fi
+          echo "Central Portal deployment $id: $deployments"
+
+          for _ in $(seq 120); do
+            response=$(curl --fail-with-body -sS --retry 3 -X POST -H "$auth" \
+              "https://central.sonatype.com/api/v1/publisher/status?id=$id")
+            state=$(jq -r .deploymentState <<< "$response")
+            echo "Deployment state: $state"
+            case "$state" in
+              PUBLISHED) exit 0 ;;
+              FAILED)
+                echo "::error::Central Portal rejected deployment $id. See the errors below or $deployments."
+                jq . <<< "$response"
+                exit 1
+                ;;
+            esac
+            sleep 20
+          done
+          echo "::error::Deployment $id is still $state after 40 minutes. Check $deployments."
+          exit 1

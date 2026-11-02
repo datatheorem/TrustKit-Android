@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - master
+  workflow_call:
 
 permissions:
   contents: read
@@ -40,8 +41,11 @@ jobs:
       - name: Run Android lint
         run: ./gradlew lint
 
-      - name: Build TrustKit library
-        run: ./gradlew :trustkit:assembleRelease
+      - name: Run unit tests
+        run: ./gradlew :trustkit:testDebugUnitTest
+
+      - name: Build TrustKit library and Maven publication
+        run: ./gradlew :trustkit:assembleRelease :trustkit:publishReleasePublicationToMavenLocal
 
       - name: Build Java demo app
         run: ./gradlew :app:assembleDebug
