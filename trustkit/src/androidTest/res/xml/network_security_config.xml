@@ -36,7 +36,7 @@
     </domain-config>
     <domain-config>
         <!-- testPinnedDomainInvalidPinAndPinningNotEnforced() -->
-        <domain>www.facebook.com</domain>
+        <domain>yahoo.com</domain>
         <pin-set>
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
@@ -47,7 +47,7 @@
     </domain-config>
     <domain-config>
         <!-- testPinnedDomainInvalidPinAndPolicyExpired() -->
-        <domain>www.microsoft.com</domain>
+        <domain>login.yahoo.com</domain>
         <pin-set expiration="2015-01-01">
             <!-- Invalid pins -->
             <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>

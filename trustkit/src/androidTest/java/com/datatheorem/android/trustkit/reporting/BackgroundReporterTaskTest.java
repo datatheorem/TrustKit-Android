@@ -74,7 +74,7 @@ public class BackgroundReporterTaskTest {
 
         // Add two report URIs with the first one failing, to ensure both are called and last one
         // succeeded
-        taskParameters.add(new URL("https://www.google.com/fake"));
+        taskParameters.add(new URL("https://overmind.datatheorem.com/fake"));
         taskParameters.add(new URL("https://overmind.datatheorem.com/trustkit/report"));
 
         // Run the task synchronously and ensure it succeeded
@@ -97,7 +97,7 @@ public class BackgroundReporterTaskTest {
 
         // Add two report URIs with the first one failing, to ensure both are called and last one
         // succeeded
-        taskParameters.add(new URL("http://www.google.com/fake"));
+        taskParameters.add(new URL("http://overmind.datatheorem.com/fake"));
         taskParameters.add(new URL("http://overmind.datatheorem.com/trustkit/report"));
 
         // Run the task synchronously and ensure it succeeded
@@ -121,7 +121,7 @@ public class BackgroundReporterTaskTest {
         // Add two report URIs with the first one succeeding, to ensure both are called
         // and last one failed
         taskParameters.add(new URL("https://overmind.datatheorem.com/trustkit/report"));
-        taskParameters.add(new URL("https://www.google.com/fake"));
+        taskParameters.add(new URL("https://overmind.datatheorem.com/fake"));
 
         // Run the task synchronously and ensure it failed
         Integer lastResponseCode = testTask.doInBackground(taskParameters.toArray());

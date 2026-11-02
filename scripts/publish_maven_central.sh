@@ -18,10 +18,14 @@ TOKEN="$(printf '%s:%s' "$MAVEN_CENTRAL_USERNAME" "$MAVEN_CENTRAL_PASSWORD" | ba
 if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
     echo "::add-mask::$TOKEN"
 fi
-AUTH="Authorization: Bearer $TOKEN"
+
+# The header goes in on stdin: a -H argument would show the token in the process list.
+central_api() {
+    printf 'Authorization: Bearer %s\n' "$TOKEN" | curl --fail-with-body -sS -X POST -H @- "$@"
+}
 
 # No --retry here: a repeated upload creates a second deployment.
-if ! DEPLOYMENT_ID="$(curl --fail-with-body -sS -X POST -H "$AUTH" --form "bundle=@${BUNDLE}" \
+if ! DEPLOYMENT_ID="$(central_api --form "bundle=@${BUNDLE}" \
     "$API/upload?publishingType=AUTOMATIC&name=trustkit-${VERSION}")"; then
     fail "Central Portal rejected the upload: $DEPLOYMENT_ID"
 fi
@@ -29,7 +33,7 @@ echo "Uploaded $BUNDLE as Central Portal deployment $DEPLOYMENT_ID: $DEPLOYMENTS
 
 STATE=""
 for _ in $(seq 120); do
-    if ! RESPONSE="$(curl --fail-with-body -sS --retry 3 -X POST -H "$AUTH" "$API/status?id=${DEPLOYMENT_ID}")"; then
+    if ! RESPONSE="$(central_api --retry 3 "$API/status?id=${DEPLOYMENT_ID}")"; then
         fail "Could not read the status of deployment $DEPLOYMENT_ID: $RESPONSE. The upload already happened, so do not re-run this job. Check $DEPLOYMENTS."
     fi
     STATE="$(jq -r .deploymentState <<<"$RESPONSE")"

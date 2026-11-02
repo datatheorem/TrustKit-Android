@@ -4,7 +4,7 @@ TrustKit Android
 
 [![CI](https://github.com/datatheorem/TrustKit-Android/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/datatheorem/TrustKit-Android/actions/workflows/ci.yml?query=branch%3Amaster)
 [![API](https://img.shields.io/badge/API-16%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=16)
-[![Version](https://img.shields.io/bintray/v/datatheoremoss/TrustKit-Android/trustkit.svg)](https://bintray.com/datatheoremoss/TrustKit-Android/trustkit)
+[![Maven Central](https://img.shields.io/maven-central/v/com.datatheorem.android.trustkit/trustkit.svg)](https://central.sonatype.com/artifact/com.datatheorem.android.trustkit/trustkit)
 [![MIT License](https://img.shields.io/github/license/datatheorem/trustkit-android.svg)](https://en.wikipedia.org/wiki/MIT_License)
 [![Gitter chat](https://badges.gitter.im/datatheorem/gitter.png)](https://gitter.im/TrustKit/Lobby)
 
@@ -211,7 +211,7 @@ Releasing
 1. Set `trustkitVersionName` (and increment `trustkitVersionCode`) in `gradle/libs.versions.toml` and merge to `master`.
 2. Publish a GitHub release whose tag equals that version, for example `1.2.0`. Every published release, including pre-releases, goes to Maven Central.
 
-The `Release` workflow then runs CI, attaches `trustkit-<version>.zip` to the GitHub release, and publishes the same zip to Maven Central. A Maven Central release cannot be removed, so check the version before you publish.
+The `Release` workflow then attaches `trustkit-<version>.zip` to the GitHub release and publishes the same zip to Maven Central. It does not run CI again: release a commit that already passed CI on `master`. A Maven Central release cannot be removed, so check the version before you publish.
 
 The zip is a Maven repository: the AAR, POM, Gradle module metadata, sources and javadoc, each with checksums and a signature. To use it without Maven Central, unzip it and add the folder as a `maven { url }` repository. `scripts/build_release_bundle.sh` builds it locally (unsigned unless `SIGNING_KEY` is set).
 

@@ -12,6 +12,7 @@ echo 'trustkitVersionName = "9.9.9"' >"$WORK/gradle/libs.versions.toml"
 cat >"$WORK/bin/curl" <<'EOF'
 #!/usr/bin/env bash
 echo "$*" >>"$CALLS"
+cat >>"$CALLS.stdin"
 case "${*: -1}" in
     *publisher/upload*)
         if [[ "$SCENARIO" == upload-rejected ]]; then echo '{"error":"Invalid token"}'; exit 22; fi
@@ -48,6 +49,7 @@ FAILED=0
 expect() {
     local scenario="$1" want_exit="$2" want_text="$3" out rc
     : >"$WORK/calls"
+    : >"$WORK/calls.stdin"
     # GITHUB_ACTIONS is unset so the expected failures do not show up as CI annotations.
     out="$(env -u GITHUB_ACTIONS PATH="$WORK/bin:$PATH" CALLS="$WORK/calls" SCENARIO="$scenario" \
         MAVEN_CENTRAL_USERNAME=user MAVEN_CENTRAL_PASSWORD=pass \
@@ -63,6 +65,11 @@ expect() {
 
 make_bundle true
 expect published 0 "Deployment state: PUBLISHED"
+# dXNlcjpwYXNz is base64 of user:pass. Arguments show in the process list; stdin does not.
+if grep -q dXNlcjpwYXNz "$WORK/calls" || ! grep -qx 'Authorization: Bearer dXNlcjpwYXNz' "$WORK/calls.stdin"; then
+    echo "FAIL: published: the token must reach curl on stdin, never as an argument"
+    FAILED=1
+fi
 expect rejected 1 "Missing javadoc"
 expect upload-rejected 1 "Invalid token"
 expect stuck 1 "do not re-run this job"

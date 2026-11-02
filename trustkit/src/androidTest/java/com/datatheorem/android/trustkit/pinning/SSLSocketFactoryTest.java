@@ -303,7 +303,7 @@ public class SSLSocketFactoryTest {
 
     @Test
     public void testPinnedDomainInvalidPinAndPinningNotEnforced() throws IOException {
-        String serverHostname = "www.facebook.com";
+        String serverHostname = "yahoo.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
@@ -335,7 +335,7 @@ public class SSLSocketFactoryTest {
 
     @Test
     public void testPinnedDomainInvalidPinAndPolicyExpired() throws IOException {
-        String serverHostname = "www.microsoft.com";
+        String serverHostname = "login.yahoo.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
@@ -669,7 +669,7 @@ public class SSLSocketFactoryTest {
     @Test
     public void testNonPinnedDomainSuccess() throws IOException {
         // Initialize TrustKit
-        String serverHostname = "www.google.com";
+        String serverHostname = "overmind.datatheorem.com";
         TestableTrustKit.initializeWithNetworkSecurityConfiguration(
                 InstrumentationRegistry.getInstrumentation().getContext(), mockReporter);
 
@@ -764,7 +764,7 @@ public class SSLSocketFactoryTest {
             return;
         }
 
-        String serverHostname = "www.google.com";
+        String serverHostname = "overmind.datatheorem.com";
         // Create a policy for a different domain
         final DomainPinningPolicy domainPolicy =
                 new DomainPinningPolicy.Builder()

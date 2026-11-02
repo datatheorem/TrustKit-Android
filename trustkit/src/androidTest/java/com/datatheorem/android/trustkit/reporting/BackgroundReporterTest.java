@@ -51,10 +51,10 @@ public class BackgroundReporterTest {
         }
         Context context = InstrumentationRegistry.getInstrumentation().getContext();
         // Initialize TrustKit
-        String serverHostname = "mail.google.com";
+        String serverHostname = "mail.yahoo.com";
         final DomainPinningPolicy domainPolicy =
                 new DomainPinningPolicy.Builder()
-                        .setHostname("google.com")
+                        .setHostname("yahoo.com")
                         .setShouldIncludeSubdomains(true)
                         .setShouldEnforcePinning(true)
                         .setPublicKeyHashes(
@@ -130,15 +130,15 @@ public class BackgroundReporterTest {
         assertEquals("com.unit.tests", reportSentJson.getString("app-bundle-id"));
         assertEquals("1.2", reportSentJson.getString("app-version"));
         assertEquals("ANDROID", reportSentJson.getString("app-platform"));
-        assertEquals("mail.google.com", reportSentJson.getString("hostname"));
-        assertEquals("google.com", reportSentJson.getString("noted-hostname"));
+        assertEquals("mail.yahoo.com", reportSentJson.getString("hostname"));
+        assertEquals("yahoo.com", reportSentJson.getString("noted-hostname"));
         assertEquals(443, reportSentJson.getInt("port"));
         assertTrue(reportSentJson.getBoolean("include-subdomains"));
         assertTrue(reportSentJson.getBoolean("enforce-pinning"));
         assertEquals(
                 PinningValidationResult.FAILED.ordinal(),
                 reportSentJson.getInt("validation-result"));
-        assertEquals("google.com", reportSentJson.getString("noted-hostname"));
+        assertEquals("yahoo.com", reportSentJson.getString("noted-hostname"));
 
         assertNotNull(reportSentJson.getString("app-vendor-id"));
         assertNotNull(reportSentJson.getString("trustkit-version"));

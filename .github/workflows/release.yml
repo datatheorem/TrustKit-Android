@@ -21,14 +21,9 @@ jobs:
       - uses: actions/checkout@v6
       - run: ./scripts/verify_release_version.sh "$GITHUB_REF_NAME"
 
-  ci:
-    name: CI
-    needs: verify
-    uses: ./.github/workflows/ci.yml
-
   publish:
     name: Publish release bundle
-    needs: ci
+    needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: maven-central
