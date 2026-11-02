@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
-    branches:
-      - master
+  # Lets release.yml run these checks on the release tag before it publishes.
   workflow_call:
 
 permissions:
@@ -17,96 +15,104 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Format, lint, and build
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 15
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Check formatting
-        run: ./gradlew spotlessCheck
-
-      - name: Run Android lint
-        run: ./gradlew lint
-
-      - name: Run unit tests
-        run: ./gradlew :trustkit:testDebugUnitTest
-
-      - name: Build TrustKit library and Maven publication
-        run: ./gradlew :trustkit:assembleRelease :trustkit:publishReleasePublicationToMavenLocal
-
-      - name: Build Java demo app
-        run: ./gradlew :app:assembleDebug
-
-      - name: Build Kotlin demo app
-        run: ./gradlew :demoappkotlin:assembleDebug
-
-      - name: Upload build reports
+      - uses: gradle/actions/setup-gradle@v6
+      - run: ./gradlew spotlessCheck lint
+      - uses: actions/upload-artifact@v7
         if: failure()
-        uses: actions/upload-artifact@v7
         with:
-          name: build-reports
-          path: |
-            **/build/reports/**
-            **/build/outputs/logs/**
+          name: lint-reports
+          path: "**/build/reports/**"
           if-no-files-found: ignore
           retention-days: 7
 
+  unit-tests:
+    name: Unit tests
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+      - run: ./gradlew :trustkit:testDebugUnitTest
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: unit-test-reports
+          path: trustkit/build/reports/tests/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+  release-bundle:
+    name: Build release bundle
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+      - run: ./scripts/build_release_bundle.sh
+
+  demo:
+    name: Build demo ${{ matrix.module }}
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [app, demoappkotlin]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+      - run: ./gradlew :${{ matrix.module }}:assembleDebug
+
   instrumentation-tests:
     name: Instrumentation tests (API ${{ matrix.api-level }})
-    needs: build
+    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        api-level:
-          - 27
-          - 36
-
+        api-level: [27, 36]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
-            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Run instrumentation tests
-        uses: reactivecircus/android-emulator-runner@v2.37.0
+      - uses: gradle/actions/setup-gradle@v6
+      - run: ./scripts/enable_kvm.sh
+      - uses: reactivecircus/android-emulator-runner@v2.37.0
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           target: default
           script: ./gradlew :trustkit:connectedDebugAndroidTest
-
-      - name: Upload instrumentation test reports
+      - uses: actions/upload-artifact@v7
         if: failure()
-        uses: actions/upload-artifact@v7
         with:
           name: instrumentation-reports-api-${{ matrix.api-level }}
           path: |
@@ -118,20 +124,10 @@ jobs:
 
   ci-checks:
     name: CI checks
+    if: always()
+    needs: [lint, unit-tests, release-bundle, demo, instrumentation-tests]
     runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs:
-      - build
-      - instrumentation-tests
     steps:
-      - name: Verify required jobs succeeded
-        env:
-          BUILD_RESULT: ${{ needs.build.result }}
-          INSTRUMENTATION_TESTS_RESULT: ${{ needs.instrumentation-tests.result }}
-        run: |
-          if [[ "$BUILD_RESULT" != "success" || "$INSTRUMENTATION_TESTS_RESULT" != "success" ]]; then
-            echo "Build result: $BUILD_RESULT"
-            echo "Instrumentation tests result: $INSTRUMENTATION_TESTS_RESULT"
-            exit 1
-          fi
-          echo "All necessary CI jobs completed successfully"
+      - name: Fail unless every required job succeeded
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
+        run: exit 1

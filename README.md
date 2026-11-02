@@ -211,7 +211,9 @@ Releasing
 1. Set `trustkitVersionName` (and increment `trustkitVersionCode`) in `gradle/libs.versions.toml` and merge to `master`.
 2. Publish a GitHub release whose tag equals that version, for example `1.2.0`. Every published release, including pre-releases, goes to Maven Central.
 
-The `Release` workflow then runs CI, attaches the AAR to the GitHub release, and publishes to Maven Central. A Maven Central release cannot be removed, so check the version before you publish.
+The `Release` workflow then runs CI, attaches `trustkit-<version>.zip` to the GitHub release, and publishes the same zip to Maven Central. A Maven Central release cannot be removed, so check the version before you publish.
+
+The zip is a Maven repository: the AAR, POM, Gradle module metadata, sources and javadoc, each with checksums and a signature. To use it without Maven Central, unzip it and add the folder as a `maven { url }` repository. `scripts/build_release_bundle.sh` builds it locally (unsigned unless `SIGNING_KEY` is set).
 
 The workflow reads these secrets from the `maven-central` GitHub environment:
 
