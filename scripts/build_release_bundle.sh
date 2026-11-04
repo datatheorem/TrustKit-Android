@@ -12,5 +12,4 @@ mkdir -p output
 ./gradlew :trustkit:publishReleasePublicationToReleaseBundleRepository
 
 # Only the version folder: Central does not want the artifact-level maven-metadata.xml.
-(cd "$REPOSITORY" && zip -qr "$BUNDLE" "com/datatheorem/android/trustkit/trustkit/${VERSION}")
-unzip -l "$BUNDLE"
+(cd "$REPOSITORY" && zip -r "$BUNDLE" "com/datatheorem/android/trustkit/trustkit/${VERSION}")

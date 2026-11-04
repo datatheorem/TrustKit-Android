@@ -42,6 +42,10 @@ Add TrustKit to your project's _build.gradle_:
 
 `implementation 'com.datatheorem.android.trustkit:trustkit:<last_version>'`
 
+To receive pinning failure reports with a local broadcast receiver, also add:
+
+`implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'`
+
 ### Configuring a Pinning Policy
 
 Deploying SSL pinning in the App requires initializing TrustKit with a pinning policy (domains, pins, and additional settings). The policy is wrapped in the official [Android N Network Security Configuration](https://developer.android.com/training/articles/security-config.html) i.e :
