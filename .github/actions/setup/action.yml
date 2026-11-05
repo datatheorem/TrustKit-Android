@@ -1,0 +1,11 @@
+name: Set up JDK and Gradle
+description: The JDK and Gradle setup that every Gradle job uses. Run it after actions/checkout.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v5
+      with:
+        distribution: temurin
+        java-version: 17
+    - uses: gradle/actions/setup-gradle@v6

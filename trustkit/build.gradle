@@ -1,8 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    id 'maven-publish'
+    id 'signing'
 }
 
+group = 'com.datatheorem.android.trustkit'
 version = libs.versions.trustkitVersionName.get()
 
 android {
@@ -29,6 +32,13 @@ android {
     kotlinOptions {
         jvmTarget = libs.versions.jvmTarget.get()
     }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
@@ -49,5 +59,53 @@ dependencies {
     androidTestImplementation libs.google.play.services.base
 }
 
-// MavenCentral deployment gradle script
-apply from: "${rootProject.projectDir}/deploymentScripts/publish-mavencentral.gradle"
+// AGP only creates components.release after the project is evaluated.
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                artifactId = 'trustkit'
+                pom {
+                    name = 'trustkit'
+                    description = 'TrustKit Android is an open source library that makes it easy to deploy SSL public key pinning and reporting in any Android App.'
+                    url = 'https://github.com/datatheorem/TrustKit-Android'
+                    licenses {
+                        license {
+                            name = 'The MIT License (MIT)'
+                            url = 'https://github.com/datatheorem/TrustKit-Android/blob/master/LICENSE'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'datatheorem'
+                            name = 'Data Theorem Support'
+                            email = 'support@datatheorem.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:github.com/datatheorem/TrustKit-Android.git'
+                        developerConnection = 'scm:git:github.com/datatheorem/TrustKit-Android.git'
+                        url = 'https://github.com/datatheorem/TrustKit-Android'
+                    }
+                }
+            }
+        }
+
+        repositories {
+            // scripts/build_release_bundle.sh zips this repository for GitHub and Maven Central.
+            maven {
+                name = 'releaseBundle'
+                url = layout.buildDirectory.dir('release-bundle')
+            }
+        }
+    }
+
+    def signingKey = providers.environmentVariable('SIGNING_KEY').orNull
+    if (signingKey) {
+        signing {
+            useInMemoryPgpKeys(signingKey, providers.environmentVariable('SIGNING_KEY_PASSWORD').orNull)
+            sign publishing.publications.release
+        }
+    }
+}

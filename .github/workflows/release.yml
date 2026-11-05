@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+# github.ref_name can be empty on release events.
+env:
+  TAG: ${{ github.event.release.tag_name }}
+
+# One group per tag: a shared group cancels pending runs, which would skip a release.
+concurrency:
+  group: maven-central-release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify release version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - run: ./scripts/verify_release_version.sh "$TAG"
+
+  publish:
+    name: Publish release bundle
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: maven-central
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - run: ./scripts/build_release_bundle.sh
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+      # Attach first: this step can be re-run, but the Maven Central upload cannot.
+      - run: gh release upload "$TAG" output/trustkit-*.zip --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: ./scripts/publish_maven_central.sh
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
